@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { getCart } from "@/lib/cart"
 import { Button } from "@/components/ui/button"
@@ -15,7 +15,7 @@ import { AuthDialog } from "@/components/auth-dialog"
 
 
 export function Navbar() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const [count, setCount] = useState(0)
   const [searchQuery, setSearchQuery] = useState("")
   const [suggestions, setSuggestions] = useState<any[]>([])
@@ -25,7 +25,14 @@ export function Navbar() {
   const [showAuthDialog, setShowAuthDialog] = useState(false)
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin')
   const [selectedIndex, setSelectedIndex] = useState(-1)
+  const [showCategories, setShowCategories] = useState(false)
   const router = useRouter()
+  const pathname = usePathname()
+
+  const navLinks = [
+    { href: '/about', label: 'About' },
+    { href: '/contact', label: 'Contact' }
+  ]
 
   useEffect(() => {
     const sync = () => {
@@ -114,25 +121,107 @@ export function Navbar() {
             />
             <span className="font-semibold text-foreground">Electronic</span>
           </Link>
-          <div className="hidden md:flex items-center gap-6">
-            <Link href="/category/laptops" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Laptops
-            </Link>
-            <Link href="/category/desktops" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Desktops
-            </Link>
-            <Link href="/category/monitors" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Monitors
-            </Link>
-            <Link href="/category/keyboards" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Keyboards
-            </Link>
-            <Link href="/category/headphones" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
-              Headphones
-            </Link>
-            <Link href="/category" className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors">
-              All Categories
-            </Link>
+          <div className="hidden md:flex items-center gap-1">
+            <div 
+              className="relative"
+              onMouseEnter={() => setShowCategories(true)}
+              onMouseLeave={() => setShowCategories(false)}
+            >
+              <Button variant="ghost" className="flex items-center gap-1 px-3 py-2 text-sm font-medium hover:bg-gray-100">
+                Categories
+                <svg className={`w-4 h-4 transition-transform ${showCategories ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </Button>
+              
+              {showCategories && (
+                <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg z-50">
+                  <div className="p-2">
+                    <Link href="/category/laptops" onClick={() => setShowCategories(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                      <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Laptops</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Gaming & Business</p>
+                      </div>
+                    </Link>
+                    <Link href="/category/desktops" onClick={() => setShowCategories(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                      <div className="w-8 h-8 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Desktops</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Workstations & PCs</p>
+                      </div>
+                    </Link>
+                    <Link href="/category/monitors" onClick={() => setShowCategories(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                      <div className="w-8 h-8 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Monitors</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">4K & Gaming Displays</p>
+                      </div>
+                    </Link>
+                    <Link href="/category/keyboards" onClick={() => setShowCategories(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                      <div className="w-8 h-8 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Keyboards</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Mechanical & Wireless</p>
+                      </div>
+                    </Link>
+                    <Link href="/category/headphones" onClick={() => setShowCategories(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                      <div className="w-8 h-8 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center">
+                        <svg className="w-4 h-4 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p className="font-medium text-sm">Headphones</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Wireless & Gaming</p>
+                      </div>
+                    </Link>
+                    <div className="border-t border-gray-200 dark:border-gray-600 mt-2 pt-2">
+                      <Link href="/category" onClick={() => setShowCategories(false)} className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900 transition-colors">
+                        <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center">
+                          <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm text-blue-600 dark:text-blue-400">All Categories</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">Browse everything</p>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            {navLinks.map((link) => (
+              <Link 
+                key={link.href}
+                href={link.href} 
+                className={`px-3 py-2 text-sm font-medium transition-colors relative ${
+                  pathname === link.href 
+                    ? 'text-blue-600 after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:bg-blue-600' 
+                    : 'text-gray-700 hover:text-blue-600'
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -224,7 +313,7 @@ export function Navbar() {
           <Link href="/cart" aria-label="Open cart" className="relative z-10">
             <Button 
               variant="outline" 
-              className="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
               onClick={(e) => e.stopPropagation()}
             >
               <ShoppingCart className="h-4 w-4" aria-hidden />
@@ -244,7 +333,11 @@ export function Navbar() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="cursor-pointer">
               <Button variant="ghost" className="relative p-0 h-10 w-10 rounded-full border-2 border-transparent hover:border-blue-200 dark:hover:border-blue-800 transition-all duration-200">
-                {session?.user?.image ? (
+                {status === 'loading' ? (
+                  <div className="h-9 w-12 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center animate-pulse">
+                    <User className="h-4 w-4 text-gray-400" />
+                  </div>
+                ) : session?.user?.image ? (
                   <Image
                     src={session.user.image}
                     alt={session.user.name || 'User'}
@@ -263,7 +356,14 @@ export function Navbar() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-72 p-0" align="end" forceMount>
-              {session ? (
+              {status === 'loading' ? (
+                <div className="p-4 flex items-center justify-center">
+                  <svg className="animate-spin h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+              ) : session ? (
                 <>
                   <div className="relative p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950 dark:to-indigo-950">
                     <div className="flex items-center gap-3">
