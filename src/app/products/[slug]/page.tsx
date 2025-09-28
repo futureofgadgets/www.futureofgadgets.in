@@ -21,6 +21,7 @@ type Product = {
   brand?: string;
   rating?: number;
   image: string;
+  frontImage?: string;
   images?: string[];
   coverImage?: string;
   updatedAt: string;
@@ -43,7 +44,7 @@ export default function ProductPage() {
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.image || product.coverImage || "/placeholder.svg"
+      image: product.frontImage || product.image || product.coverImage || "/placeholder.svg"
     });
     
     toast.success(`Added to Cart`, {
@@ -63,7 +64,7 @@ export default function ProductPage() {
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.image || product.coverImage || "/placeholder.svg"
+      image: product.frontImage || product.image || product.coverImage || "/placeholder.svg"
     });
     
     toast.success(`Redirecting to Cart`, {
@@ -101,12 +102,56 @@ export default function ProductPage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  if (loading) return <p className="p-4">Loading product...</p>;
-  if (!product) return <p className="p-4">Product not found.</p>;
+  if (loading) return (
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="animate-pulse">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="aspect-square bg-gray-200 rounded-lg"></div>
+          <div className="space-y-4">
+            <div className="h-8 bg-gray-200 rounded w-3/4"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-20 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+  
+  if (!product) return (
+    <div className="min-h-[90vh] flex items-center justify-center px-4">
+      <div className="text-center">
+        <div className="text-6xl mb-4">📦</div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">Product Not Found</h2>
+        <p className="text-gray-600 mb-6">The product you're looking for doesn't exist or has been removed.</p>
+        <div className="space-y-4">
+          <div className="text-sm text-gray-500">Error 404</div>
+          <div className="flex gap-4 justify-center">
+            <button 
+              onClick={() => router.push('/')}
+              className="border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-3 rounded-lg transition-colors"
+            >
+              🏠 Home
+            </button>
+            <button 
+              onClick={() => router.back()}
+              className="border border-gray-300 hover:border-gray-400 text-gray-700 px-6 py-3 rounded-lg transition-colors"
+            >
+              ← Go Back
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
-  const images = product.images && product.images.length > 0 
-    ? product.images 
-    : [product.image || product.coverImage || "/placeholder.svg", "/placeholder.svg", "/placeholder.svg"];
+  const allImages = [];
+  if (product.frontImage) allImages.push(product.frontImage);
+  if (product.images && product.images.length > 0) allImages.push(...product.images);
+  if (product.image && !allImages.includes(product.image)) allImages.push(product.image);
+  if (product.coverImage && !allImages.includes(product.coverImage)) allImages.push(product.coverImage);
+  
+  const images = allImages.length > 0 ? allImages : ["/placeholder.svg"];
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
