@@ -140,14 +140,6 @@ export default function ProductTable() {
     cachedFetch<any[]>("/api/products", { cache: "no-store" }, 10000)
       .then((products) => {
         const items: Item[] = (products || []).map((p: any) => {
-          console.log(
-            "Initial loading product:",
-            p.name,
-            "frontImage:",
-            p.frontImage,
-            "image:",
-            p.image
-          );
           return {
             id: p.id ?? Date.now().toString(),
             slug: p.slug ?? "",
