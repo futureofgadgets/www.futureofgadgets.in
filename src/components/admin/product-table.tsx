@@ -137,7 +137,7 @@ export default function ProductTable() {
   });
 
   useEffect(() => {
-    cachedFetch("/api/products", { cache: "no-store" }, 10000)
+    cachedFetch<any[]>("/api/products", { cache: "no-store" }, 10000)
       .then((products) => {
         const items: Item[] = (products || []).map((p: any) => {
           console.log(
