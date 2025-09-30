@@ -46,23 +46,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
   try {
     const { id } = await params
-    const { billData, fileName, fileType } = await request.json()
+    const { billUrl, fileName, fileType } = await request.json()
     
-    if (!billData) {
-      return NextResponse.json({ error: "No bill data provided" }, { status: 400 })
-    }
-    
-    // Validate file size (base64 is ~33% larger than original)
-    const sizeInBytes = (billData.length * 3) / 4
-    const maxSize = 5 * 1024 * 1024 // 5MB limit
-    
-    if (sizeInBytes > maxSize) {
-      return NextResponse.json({ error: "File too large. Maximum size is 5MB" }, { status: 400 })
-    }
-    
-    // Validate file type
-    if (!billData.startsWith('data:image/') && !billData.startsWith('data:application/pdf')) {
-      return NextResponse.json({ error: "Invalid file type. Only images and PDFs are allowed" }, { status: 400 })
+    if (!billUrl) {
+      return NextResponse.json({ error: "No bill URL provided" }, { status: 400 })
     }
     
     // Check if order exists first
@@ -74,12 +61,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Order not found" }, { status: 404 })
     }
     
-    // Store only a reference or compressed version
-    // For production, consider using cloud storage (AWS S3, Cloudinary, etc.)
+    // Store the uploaded image URL
     const updatedOrder = await prisma.order.update({
       where: { id },
       data: { 
-        billUrl: billData.substring(0, 1000000), // Limit to 1MB of base64 data
+        billUrl: billUrl,
         updatedAt: new Date()
       } as any,
       include: {
