@@ -54,31 +54,35 @@ import Loading from "@/app/loading";
 
 // Component to fetch and display product image
 function ProductImage({ productId, productName }: { productId: string; productName: string }) {
-  const [imageSrc, setImageSrc] = useState<string>('https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop');
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/products')
       .then(res => res.json())
       .then(products => {
         const product = products.find((p: any) => p.id === productId);
-        if (product && (product.frontImage || product.image)) {
-          setImageSrc(product.frontImage || product.image);
-        }
+        setImageSrc(product?.frontImage || product?.image || 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop');
       })
-      .catch(() => {});
+      .catch(() => {
+        setImageSrc('https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop');
+      });
   }, [productId]);
 
   return (
-    <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden">
-      <img 
-        src={imageSrc}
-        alt={productName}
-        className="w-full h-full object-cover"
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.src = 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop';
-        }}
-      />
+    <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center">
+      {!imageSrc ? (
+        <span className="text-xs text-gray-500">loading</span>
+      ) : (
+        <img 
+          src={imageSrc}
+          alt={productName}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.src = 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&h=300&fit=crop';
+          }}
+        />
+      )}
     </div>
   );
 }
