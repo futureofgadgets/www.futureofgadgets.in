@@ -439,7 +439,7 @@ export default function AdminOrdersPage() {
             <button
               key={tab}
               onClick={() => setStatusFilter(tab)}
-              className={`pb-2 font-medium border-b-2 transition whitespace-nowrap ${
+              className={`pb-0 font-medium border-b-2 transition whitespace-nowrap ${
                 statusFilter === tab
                   ? "border-blue-600 text-blue-700"
                   : "border-transparent text-gray-400 cursor-pointer"
