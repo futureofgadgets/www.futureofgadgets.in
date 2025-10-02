@@ -395,7 +395,7 @@ export default function ProductTable() {
   return (
     <div className="flex flex-col gap-4">
       {/* Search + Add button */}
-      <div className="flex items-center justify-between gap-3">
+      <div className="sm:flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <Input
           className="w-96"
@@ -410,7 +410,7 @@ export default function ProductTable() {
 
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button className="cursor-pointer">
+            <Button className="cursor-pointer mt-2 sm:mt-0">
               Add Item <Plus />
             </Button>
           </DialogTrigger>
