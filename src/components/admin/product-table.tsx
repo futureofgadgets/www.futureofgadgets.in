@@ -788,9 +788,40 @@ export default function ProductTable() {
         </TableHeader>
         <TableBody>
           {isLoading && (
-            <TableRow>
-              <TableCell colSpan={7}>Loading items...</TableCell>
-            </TableRow>
+            [...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 bg-gray-200 rounded-md animate-pulse"></div>
+                    <div>
+                      <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16 animate-pulse"></div>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <div className="h-8 bg-gray-200 rounded w-12 animate-pulse"></div>
+                    <div className="h-8 bg-gray-200 rounded w-16 animate-pulse"></div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
           )}
           {!isLoading && filtered.length === 0 && (
             <TableRow>

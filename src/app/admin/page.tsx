@@ -1,15 +1,14 @@
 'use client'
 
 import { useSession } from 'next-auth/react'
-import { notFound } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { Package, ShoppingCart, Users, BarChart3, Settings, Menu, LogOut } from 'lucide-react'
-import Loading from '../loading'
-
+import { Package, ShoppingCart, Users, BarChart3, Settings, Loader2 } from 'lucide-react'
 
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession()
+  const router = useRouter()
   const [stats, setStats] = useState({
     products: 0,
     orders: 0,
@@ -19,7 +18,6 @@ export default function AdminDashboardPage() {
   const [products, setProducts] = useState<any[]>([])
   const [orders, setOrders] = useState<any[]>([])
   const [users, setUsers] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -36,7 +34,7 @@ export default function AdminDashboardPage() {
         
         const totalRevenue = ordersData.orders?.reduce((sum: number, order: any) => sum + order.total, 0) || 0
         
-        // Sort products by newest first (updatedAt or createdAt)
+        // Sort products by newest first
         const sortedProducts = productsData?.sort((a: any, b: any) => 
           new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime()
         ) || []
@@ -53,8 +51,6 @@ export default function AdminDashboardPage() {
         })
       } catch (error) {
         console.error('Failed to fetch stats:', error)
-      } finally {
-        setLoading(false)
       }
     }
     
@@ -63,12 +59,64 @@ export default function AdminDashboardPage() {
     }
   }, [session])
 
-  if (status === 'loading' || loading) {
-    return <Loading />
+  useEffect(() => {
+    if (status === 'loading') return
+    if (!session || (session.user?.role !== 'admin' && session.user?.email !== 'admin@electronic.com')) {
+      router.push('/auth/signin?callbackUrl=/admin')
+    }
+  }, [session, status, router])
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Header Skeleton */}
+          <div className="mb-8">
+            <div className="h-10 bg-gray-200 rounded-lg w-48 mb-2 animate-pulse"></div>
+            <div className="h-6 bg-gray-200 rounded-lg w-64 animate-pulse"></div>
+          </div>
+
+          {/* Stats Cards Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="p-3 rounded-xl bg-gray-200 animate-pulse w-12 h-12"></div>
+                </div>
+                <div className="h-4 bg-gray-200 rounded w-20 mb-1 animate-pulse"></div>
+                <div className="h-8 bg-gray-200 rounded w-16 mb-1 animate-pulse"></div>
+                <div className="h-3 bg-gray-200 rounded w-24 animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+
+          {/* Content Skeleton */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+            <div className="xl:col-span-2">
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+                <div className="h-6 bg-gray-200 rounded w-40 mb-4 animate-pulse"></div>
+                <div className="h-64 bg-gray-100 rounded-xl animate-pulse"></div>
+              </div>
+            </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6">
+              <div className="h-6 bg-gray-200 rounded w-32 mb-4 animate-pulse"></div>
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="flex justify-between items-center">
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-pulse"></div>
+                    <div className="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (!session || (session.user?.role !== 'admin' && session.user?.email !== 'admin@electronic.com')) {
-    notFound()
+    return null
   }
 
   const cards = [
@@ -180,15 +228,12 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Tables Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8 mt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-2 mt-8">
+          {/* Products */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-900">Recent Products</h2>
-                <Link href="/admin/products" className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline">
-                  View All →
-                </Link>
-              </div>
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-gray-900">Recent Products</h2>
+              <Link href="/admin/products" className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline">View All →</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -212,14 +257,11 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
+          {/* Orders */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
-                <Link href="/admin/orders" className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline">
-                  View All →
-                </Link>
-              </div>
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-gray-900">Recent Orders</h2>
+              <Link href="/admin/orders" className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline">View All →</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -253,14 +295,11 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
+          {/* Users */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-            <div className="p-6 border-b border-gray-200">
-              <div className="flex justify-between items-center">
-                <h2 className="text-lg font-semibold text-gray-900">Recent Users</h2>
-                <Link href="/admin/users" className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline">
-                  View All →
-                </Link>
-              </div>
+            <div className="p-6 border-b border-gray-200 flex justify-between items-center">
+              <h2 className="text-lg font-semibold text-gray-900">Recent Users</h2>
+              <Link href="/admin/users" className="text-blue-600 hover:text-blue-800 text-sm font-medium hover:underline">View All →</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -275,7 +314,7 @@ export default function AdminDashboardPage() {
                   {users.map((user, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="px-4 py-3 text-sm text-gray-900 font-medium">{user.name}</td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{user.email}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{user.email.slice(0, 15)}...</td>
                       <td className="px-4 py-3">
                         <span className={`px-2 py-1 text-xs rounded-full ${
                           user.role === 'admin' ? 'bg-orange-100 text-orange-800' : 'bg-green-100 text-green-800'
@@ -289,6 +328,7 @@ export default function AdminDashboardPage() {
               </table>
             </div>
           </div>
+
         </div>
       </div>
     </div>

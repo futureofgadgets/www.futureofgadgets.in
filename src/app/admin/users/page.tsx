@@ -72,6 +72,7 @@ export default function AdminUsersPage() {
   }, [session, status]);
 
   if (status === "loading") return <Loading />;
+  
   if (
     !session ||
     (session.user?.role !== "admin" &&
@@ -194,9 +195,41 @@ export default function AdminUsersPage() {
         {/* Users Table */}
         <div className="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
           {loading ? (
-            <div className="p-12 text-center">
-              <Loader2 className="w-10 h-10 animate-spin mx-auto text-blue-600" />
-              <p className="mt-3 text-gray-600">Loading users...</p>
+            <div className="overflow-x-auto">
+              <Table className="min-w-full">
+                <TableHeader className="bg-gray-50 sticky top-0 z-10">
+                  <TableRow>
+                    <TableHead className="px-6">User</TableHead>
+                    <TableHead className="px-6">Role</TableHead>
+                    <TableHead className="px-6">Joined</TableHead>
+                    <TableHead className="px-6">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {[...Array(5)].map((_, i) => (
+                    <TableRow key={i} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                      <TableCell className="px-6 py-4">
+                        <div className="flex items-center">
+                          <div className="h-10 w-10 bg-gray-200 rounded-full animate-pulse"></div>
+                          <div className="ml-4">
+                            <div className="h-4 bg-gray-200 rounded w-24 mb-1 animate-pulse"></div>
+                            <div className="h-3 bg-gray-200 rounded w-32 animate-pulse"></div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <div className="h-6 bg-gray-200 rounded-full w-16 animate-pulse"></div>
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                      </TableCell>
+                      <TableCell className="px-6 py-4">
+                        <div className="h-8 bg-gray-200 rounded w-24 animate-pulse"></div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           ) : filteredAndSortedUsers.length === 0 ? (
             <div className="p-12 text-center">
