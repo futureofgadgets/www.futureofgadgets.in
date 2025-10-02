@@ -191,49 +191,24 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center justify-between gap-4 border-b px-4">
-          <SidebarTrigger className="-ml-1" />
-          <div className="flex items-center gap-3">
-            <div className="flex items-center relative">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (searchQuery.trim()) {
-                    router.push(
-                      `/admin/search?q=${encodeURIComponent(
-                        searchQuery.trim()
-                      )}`
-                    );
-                  }
-                }}
-                className="flex items-center relative w-50 sm:w-full"
-              >
-                <Input
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search admin panel..."
-                  className="w-80 pr-10"
-                />
-                <Button
-                  type="submit"
-                  size="sm"
-                  className="absolute right-1 h-7 w-7 p-0 z-20"
-                  disabled={!searchQuery.trim()}
-                >
-                  <Search className="h-4 w-4" />
-                </Button>
-              </form>
+        <header className="flex h-16 items-center justify-between gap-2 sm:gap-4 border-b px-2 sm:px-4 min-w-0">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <SidebarTrigger className="-ml-1" />
+            <div className="hidden sm:block text-lg font-semibold text-gray-900 truncate">
+              Admin Dashboard
             </div>
-
+          </div>
+          
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             <DropdownMenu>
-              <DropdownMenuTrigger asChild className="cursor-pointer">
+              <DropdownMenuTrigger asChild className="cursor-pointer flex-shrink-0">
                 <Button
                   variant="ghost"
-                  className="relative p-0 h-10 w-10 rounded-full border-2 border-transparent hover:border-blue-200 transition-all duration-200"
+                  className="relative p-0 h-8 w-8 sm:h-10 sm:w-10 rounded-full border-2 border-transparent hover:border-blue-200 transition-all duration-200"
                 >
                   {status === "loading" ? (
-                    <div className="h-9 w-12 rounded-full bg-gray-200 flex items-center justify-center animate-pulse">
-                      <User className="h-4 w-4 text-gray-400" />
+                    <div className="h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-gray-200 flex items-center justify-center animate-pulse">
+                      <User className="h-3 w-3 sm:h-4 sm:w-4 text-gray-400" />
                     </div>
                   ) : session?.user?.image ? (
                     <Image
@@ -241,11 +216,11 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                       alt={session.user.name || "User"}
                       width={32}
                       height={32}
-                      className="h-8 w-8 rounded-full object-cover"
+                      className="h-7 w-7 sm:h-8 sm:w-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="h-9 w-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <span className="text-sm font-semibold text-white">
+                    <div className="h-7 w-7 sm:h-9 sm:w-9 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                      <span className="text-xs sm:text-sm font-semibold text-white">
                         {session?.user?.name?.charAt(0).toUpperCase() || "A"}
                       </span>
                     </div>
@@ -256,10 +231,10 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                 {session && (
                   <>
                     <div className="p-2">
-                      <p className="font-medium text-sm">
+                      <p className="font-medium text-sm truncate">
                         {session.user?.name || "Admin"}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground truncate">
                         {session.user?.email}
                       </p>
                     </div>
