@@ -256,31 +256,17 @@ export default function AdminOrdersPage() {
 
     setUploadingBill(true);
     try {
-      // Use same compression method as products
+      // Convert to base64 and store directly like products
       const { convertFileToBase64 } = await import("@/lib/image-utils");
       const base64 = await convertFileToBase64(file, 1200, 0.8);
 
-      // Upload using the same API as products
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ images: [base64] }),
-      });
-
-      const uploadResult = await uploadRes.json();
-      if (!uploadResult.success) throw new Error(uploadResult.error);
-
-      const billUrl = uploadResult.files[0];
-
-      // Update order with bill URL
+      // Update order with base64 bill directly
       const response = await fetch("/api/admin/orders", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId: selectedOrder.id,
-          billUrl: billUrl,
+          billUrl: base64,
         }),
       });
 
