@@ -20,22 +20,37 @@ model User {
   orders    Order[]
 }
 
+model Category {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model Product {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  name        String
-  price       Int
-  category    String
-  brand       String?
-  frontImage  String?
-  images      String[]
-  description String?
-  slug        String   @unique
-  sku         String?
-  stock       Int      @default(0)
-  quantity    Int      @default(0)
-  status      String   @default("active")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  price         Int
+  category      String
+  brand         String?
+  frontImage    String?
+  images        String[]
+  description   String?
+  slug          String   @unique
+  sku           String?
+  stock         Int      @default(0)
+  quantity      Int      @default(0)
+  status        String   @default("active")
+  modelName     String?
+  screenSize    String?
+  hardDiskSize  String?
+  cpuModel      String?
+  ramMemory     String?
+  operatingSystem String?
+  graphics      String?
+  offers        String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Order {

@@ -34,13 +34,21 @@ export async function POST(req: Request) {
         name: data.name,
         slug: data.slug,
         category: data.category,
-        description: data.description || '',
+        description: data.description?.replace(/\./g, '\n') || '',
         frontImage: data.frontImage || '',
         images: Array.isArray(data.images) ? data.images : [],
         price: Number(data.price),
         stock: Number(data.quantity) || 0,
         quantity: Number(data.quantity) || 0,
         brand: data.brand || '',
+
+        screenSize: data.screenSize || '',
+        hardDiskSize: data.hardDiskSize || '',
+        cpuModel: data.cpuModel || '',
+        ramMemory: data.ramMemory || '',
+        operatingSystem: data.operatingSystem || '',
+        graphics: data.graphics || '',
+        offers: data.offers || '',
         status: data.status || 'active',
         sku: data.sku || `SKU-${Date.now()}`
       }

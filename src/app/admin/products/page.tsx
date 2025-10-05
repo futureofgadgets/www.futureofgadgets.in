@@ -1,5 +1,5 @@
 import type { Metadata } from "next"
-import ProductTable from "@/components/admin/product-table"
+import ProductTable from "@/components/admin/product/product-table"
 
 export const metadata: Metadata = {
   title: "Admin • Products",

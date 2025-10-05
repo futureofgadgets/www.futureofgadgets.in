@@ -258,18 +258,24 @@ export default function ProductPage() {
           <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg">
             <h3 className="font-semibold mb-3 text-blue-800 dark:text-blue-200">Offers</h3>
             <div className="space-y-2 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">Bank Offer</span>
-                <span>Upto ₹4,000 discount on SBI Credit Cards</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">No Cost EMI</span>
-                <span>EMI starts at ₹{Math.round(product.price / 12)}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">Cashback</span>
-                <span>Upto ₹{Math.round(product.price * 0.03)} cashback with Amazon Pay</span>
-              </div>
+              {(product as any).offers ? (
+                <div className="whitespace-pre-line">{(product as any).offers}</div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-medium">Bank Offer</span>
+                    <span>Upto ₹4,000 discount on SBI Credit Cards</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">No Cost EMI</span>
+                    <span>EMI starts at ₹{Math.round(product.price / 12)}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded text-xs font-medium">Cashback</span>
+                    <span>Upto ₹{Math.round(product.price * 0.03)} cashback with Amazon Pay</span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -332,86 +338,59 @@ export default function ProductPage() {
           <div className="border-t pt-6">
             <h3 className="text-lg font-semibold mb-4">Product Details</h3>
             <div className="space-y-3 text-sm">
-              <div className="grid grid-cols-3 gap-4">
-                <span className="text-gray-600 dark:text-gray-400 font-medium">Brand</span>
-                <span className="col-span-2">{product.brand}</span>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <span className="text-gray-600 dark:text-gray-400 font-medium">Model Name</span>
-                <span className="col-span-2">{product.name}</span>
-              </div>
+              {product.brand && (
+                <div className="grid grid-cols-3 gap-4">
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">Brand</span>
+                  <span className="col-span-2">{product.brand}</span>
+                </div>
+              )}
+
               <div className="grid grid-cols-3 gap-4">
                 <span className="text-gray-600 dark:text-gray-400 font-medium">Category</span>
                 <span className="col-span-2">{product.category}</span>
               </div>
-              {product.category === 'Laptops' && (
-                <>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Screen Size</span>
-                    <span className="col-span-2">15.6 Inches</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Hard Disk Size</span>
-                    <span className="col-span-2">512 GB SSD</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">CPU Model</span>
-                    <span className="col-span-2">Intel Core i3 13th Gen</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">RAM Memory</span>
-                    <span className="col-span-2">16 GB DDR4</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Operating System</span>
-                    <span className="col-span-2">Windows 11 Home</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Graphics</span>
-                    <span className="col-span-2">Intel UHD Graphics</span>
-                  </div>
-                </>
+              {(product as any).screenSize && (
+                <div className="grid grid-cols-3 gap-4">
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">Screen Size</span>
+                  <span className="col-span-2">{(product as any).screenSize}</span>
+                </div>
               )}
-              {product.category === 'Monitors' && (
-                <>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Screen Size</span>
-                    <span className="col-span-2">27 Inches</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Resolution</span>
-                    <span className="col-span-2">4K UHD (3840 x 2160)</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Refresh Rate</span>
-                    <span className="col-span-2">60Hz</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Panel Type</span>
-                    <span className="col-span-2">IPS</span>
-                  </div>
-                </>
+              {(product as any).hardDiskSize && (
+                <div className="grid grid-cols-3 gap-4">
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">Hard Disk Size</span>
+                  <span className="col-span-2">{(product as any).hardDiskSize}</span>
+                </div>
               )}
-              {product.category === 'Keyboards' && (
-                <>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Switch Type</span>
-                    <span className="col-span-2">Cherry MX Blue</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Backlight</span>
-                    <span className="col-span-2">RGB</span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 dark:text-gray-400 font-medium">Connectivity</span>
-                    <span className="col-span-2">USB-C</span>
-                  </div>
-                </>
+              {(product as any).cpuModel && (
+                <div className="grid grid-cols-3 gap-4">
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">CPU Model</span>
+                  <span className="col-span-2">{(product as any).cpuModel}</span>
+                </div>
               )}
-              <div className="grid grid-cols-3 gap-4">
-                <span className="text-gray-600 dark:text-gray-400 font-medium">SKU</span>
-                <span className="col-span-2">{product.sku}</span>
-              </div>
+              {(product as any).ramMemory && (
+                <div className="grid grid-cols-3 gap-4">
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">RAM Memory</span>
+                  <span className="col-span-2">{(product as any).ramMemory}</span>
+                </div>
+              )}
+              {(product as any).operatingSystem && (
+                <div className="grid grid-cols-3 gap-4">
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">Operating System</span>
+                  <span className="col-span-2">{(product as any).operatingSystem}</span>
+                </div>
+              )}
+              {(product as any).graphics && (
+                <div className="grid grid-cols-3 gap-4">
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">Graphics</span>
+                  <span className="col-span-2">{(product as any).graphics}</span>
+                </div>
+              )}
+              {product.sku && (
+                <div className="grid grid-cols-3 gap-4">
+                  <span className="text-gray-600 dark:text-gray-400 font-medium">SKU</span>
+                  <span className="col-span-2">{product.sku}</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -452,28 +431,6 @@ export default function ProductPage() {
             </ul>
           </div>
 
-          {/* Action Buttons */}
-          <div className="space-y-4 pt-6 hidden sm:block">
-           
-            
-            {/* Additional Services */}
-            <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-              <h4 className="font-medium mb-3">Add Laptop Set-up Service</h4>
-              <div className="flex items-center justify-between">
-                <div>
-                  <span className="text-sm">Professional setup and configuration</span>
-                  <div className="flex items-center gap-1 text-xs text-yellow-600">
-                    <span>⭐ 3.7</span>
-                    <span>(3855 reviews)</span>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-semibold">₹740.00</div>
-                  <button className="text-xs text-blue-600 hover:underline">Add to cart</button>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

@@ -1,256 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShoppingCart, Filter, Grid3X3, List } from "lucide-react";
+import { Star, ShoppingCart, Filter } from "lucide-react";
 import { CategoryBar } from "@/components/categorybar";
+import Link from "next/link";
 
 export default function CategoryPage() {
   const params = useParams();
   const slug = params.slug as string;
   const [selectedCategory, setSelectedCategory] = useState<string | null>(slug);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
 
-  const fakeProducts = {
-    laptops: [
-      {
-        name: 'MacBook Pro 16"',
-        price: "$2,399",
-        originalPrice: "$2,599",
-        rating: 4.8,
-        reviews: 1247,
-        image: "💻",
-        badge: "Best Seller",
-      },
-      {
-        name: "Dell XPS 13 Plus",
-        price: "$1,299",
-        originalPrice: "$1,499",
-        rating: 4.6,
-        reviews: 892,
-        image: "💻",
-        badge: "New",
-      },
-      {
-        name: "HP Spectre x360",
-        price: "$1,199",
-        originalPrice: null,
-        rating: 4.5,
-        reviews: 634,
-        image: "💻",
-        badge: null,
-      },
-      {
-        name: "Lenovo ThinkPad X1",
-        price: "$1,899",
-        originalPrice: "$2,099",
-        rating: 4.7,
-        reviews: 456,
-        image: "💻",
-        badge: "Sale",
-      },
-    ],
-    "laptop-accessories": [
-      {
-        name: "Laptop Stand Aluminum",
-        price: "$49",
-        originalPrice: "$69",
-        rating: 4.7,
-        reviews: 892,
-        image: "🖥️",
-        badge: "Best Seller",
-      },
-      {
-        name: "Laptop Cooling Pad",
-        price: "$35",
-        originalPrice: null,
-        rating: 4.5,
-        reviews: 634,
-        image: "❄️",
-        badge: "New",
-      },
-      {
-        name: 'Laptop Sleeve 15.6"',
-        price: "$25",
-        originalPrice: "$35",
-        rating: 4.6,
-        reviews: 456,
-        image: "👜",
-        badge: "Sale",
-      },
-      {
-        name: "USB-C Hub 7-in-1",
-        price: "$79",
-        originalPrice: null,
-        rating: 4.8,
-        reviews: 723,
-        image: "🔌",
-        badge: null,
-      },
-    ],
-    chargers: [
-      {
-        name: "MacBook Pro Charger 96W",
-        price: "$79",
-        originalPrice: "$99",
-        rating: 4.8,
-        reviews: 1234,
-        image: "🔌",
-        badge: "Best Seller",
-      },
-      {
-        name: "USB-C Fast Charger 65W",
-        price: "$39",
-        originalPrice: null,
-        rating: 4.6,
-        reviews: 892,
-        image: "⚡",
-        badge: "New",
-      },
-      {
-        name: "Wireless Charging Pad",
-        price: "$29",
-        originalPrice: "$39",
-        rating: 4.5,
-        reviews: 567,
-        image: "📱",
-        badge: "Sale",
-      },
-      {
-        name: "Power Bank 20000mAh",
-        price: "$59",
-        originalPrice: null,
-        rating: 4.7,
-        reviews: 1456,
-        image: "🔋",
-        badge: null,
-      },
-    ],
-    keyboards: [
-      {
-        name: "Mechanical Keyboard RGB",
-        price: "$129",
-        originalPrice: "$149",
-        rating: 4.8,
-        reviews: 2341,
-        image: "⌨️",
-        badge: "Best Seller",
-      },
-      {
-        name: "Wireless Compact Keyboard",
-        price: "$79",
-        originalPrice: null,
-        rating: 4.6,
-        reviews: 1234,
-        image: "⌨️",
-        badge: "New",
-      },
-      {
-        name: "Gaming Keyboard Backlit",
-        price: "$99",
-        originalPrice: "$119",
-        rating: 4.7,
-        reviews: 892,
-        image: "⌨️",
-        badge: "Sale",
-      },
-      {
-        name: "Ergonomic Split Keyboard",
-        price: "$159",
-        originalPrice: null,
-        rating: 4.5,
-        reviews: 456,
-        image: "⌨️",
-        badge: null,
-      },
-    ],
-    mouse: [
-      {
-        name: "Wireless Gaming Mouse",
-        price: "$89",
-        originalPrice: "$109",
-        rating: 4.8,
-        reviews: 1876,
-        image: "🖱️",
-        badge: "Best Seller",
-      },
-      {
-        name: "Ergonomic Vertical Mouse",
-        price: "$59",
-        originalPrice: null,
-        rating: 4.6,
-        reviews: 723,
-        image: "🖱️",
-        badge: "New",
-      },
-      {
-        name: "Bluetooth Silent Mouse",
-        price: "$39",
-        originalPrice: "$49",
-        rating: 4.5,
-        reviews: 567,
-        image: "🖱️",
-        badge: "Sale",
-      },
-      {
-        name: "Trackball Mouse Pro",
-        price: "$129",
-        originalPrice: null,
-        rating: 4.7,
-        reviews: 892,
-        image: "🖱️",
-        badge: null,
-      },
-    ],
-  };
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products');
+        const data = await response.json();
+        setAllProducts(data);
+        
+        // Filter products by category
+        if (selectedCategory) {
+          const filtered = data.filter((product: any) => 
+            product.category?.toLowerCase() === selectedCategory.toLowerCase()
+          );
+          setProducts(filtered);
+        } else {
+          setProducts(data);
+        }
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchProducts();
+  }, [selectedCategory]);
 
+  // Generate categories from products
   const categories = [
-    {
-      name: "Laptops",
-      slug: "laptops",
-      icon: "💻",
-      count: "2,341 items",
-      description: "High-performance laptops",
-    },
-    {
-      name: "Laptop Accessories",
-      slug: "laptop-accessories",
-      icon: "🎒",
-      count: "1,876 items",
-      description: "Stands, sleeves & hubs",
-    },
-    {
-      name: "Chargers",
-      slug: "chargers",
-      icon: "🔌",
-      count: "1,234 items",
-      description: "Power adapters & banks",
-    },
-    {
-      name: "Keyboards",
-      slug: "keyboards",
-      icon: "⌨️",
-      count: "987 items",
-      description: "Mechanical & wireless",
-    },
-    {
-      name: "Mouse",
-      slug: "mouse",
-      icon: "🖱️",
-      count: "756 items",
-      description: "Gaming & ergonomic",
-    },
-    {
-      name: "Monitors",
-      slug: "monitors",
-      icon: "🖥️",
-      count: "543 items",
-      description: "Professional displays",
-    },
-  ];
+    { name: "Laptops", slug: "laptops", icon: "💻", description: "High-performance laptops" },
+    { name: "Desktops", slug: "desktops", icon: "🖥️", description: "Desktop computers" },
+    { name: "Monitors", slug: "monitors", icon: "📺", description: "Professional displays" },
+    { name: "Keyboards", slug: "keyboards", icon: "⌨️", description: "Mechanical & wireless" },
+    { name: "Mouse", slug: "mouse", icon: "🖱️", description: "Gaming & ergonomic" },
+    { name: "Headphones", slug: "headphones", icon: "🎧", description: "Audio devices" },
+    { name: "Speakers", slug: "speakers", icon: "🔊", description: "Sound systems" },
+    { name: "Webcams", slug: "webcams", icon: "📹", description: "Video cameras" },
+    { name: "Storage", slug: "storage", icon: "💾", description: "Hard drives & SSDs" },
+    { name: "RAM", slug: "ram", icon: "🧠", description: "Memory modules" },
+  ].map(cat => ({
+    ...cat,
+    count: `${allProducts.filter(p => p.category?.toLowerCase() === cat.slug.toLowerCase()).length} items`
+  }));
 
   const getBadgeColor = (badge: string | null) => {
     switch (badge) {
@@ -296,12 +105,7 @@ export default function CategoryPage() {
                       }
                     </h2>
                     <p className="text-gray-600 text-sm sm:text-base">
-                      {
-                        categories.find((c) => c.slug === selectedCategory)
-                          ?.count
-                      }{" "}
-                      •{" "}
-                      {
+                      {products.length} items • {
                         categories.find((c) => c.slug === selectedCategory)
                           ?.description
                       }
@@ -329,66 +133,67 @@ export default function CategoryPage() {
                 </div>
 
                 {/* Products Grid */}
-                {fakeProducts[selectedCategory as keyof typeof fakeProducts]
-                  ?.length > 0 ? (
-                  <div
-                    className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-                    {fakeProducts[
-                      selectedCategory as keyof typeof fakeProducts
-                    ]?.map((product, idx) => (
-                      <Card
-                        key={idx}
-                        className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm"
-                      >
+                {loading ? (
+                  <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                    {[...Array(6)].map((_, i) => (
+                      <Card key={i} className="animate-pulse">
                         <CardContent className="p-6">
-                          {product.badge && (
-                            <Badge
-                              className={`mb-3 ${getBadgeColor(product.badge)}`}
-                            >
-                              {product.badge}
-                            </Badge>
-                          )}
-                          <div className="text-center mb-4">
-                            <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">
-                              {product.image}
-                            </div>
-                            <h3 className="font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors">
-                              {product.name}
-                            </h3>
-                            <div className="flex items-center justify-center gap-1 mb-3">
-                              <div className="flex items-center">
-                                {[...Array(5)].map((_, i) => (
-                                  <Star
-                                    key={i}
-                                    className={`w-4 h-4 ${
-                                      i < Math.floor(product.rating)
-                                        ? "text-yellow-400 fill-current"
-                                        : "text-gray-300"
-                                    }`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-sm text-gray-600 ml-1">
-                                ({product.reviews})
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-center gap-2 mb-4">
-                              <span className="text-2xl font-bold text-green-600">
-                                {product.price}
-                              </span>
-                              {product.originalPrice && (
-                                <span className="text-lg text-gray-400 line-through">
-                                  {product.originalPrice}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                          <Button className="w-full bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
-                            <ShoppingCart className="w-4 h-4" />
-                            Add to Cart
-                          </Button>
+                          <div className="h-48 bg-gray-200 rounded mb-4"></div>
+                          <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                          <div className="h-4 bg-gray-200 rounded w-2/3 mb-4"></div>
+                          <div className="h-10 bg-gray-200 rounded"></div>
                         </CardContent>
                       </Card>
+                    ))}
+                  </div>
+                ) : products.length > 0 ? (
+                  <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                    {products.map((product) => (
+                      <Link key={product.id} href={`/products/${product.slug || product.id}`}>
+                        <Card className="group hover:shadow-lg transition-all duration-300 border-0 shadow-sm cursor-pointer">
+                          <CardContent className="p-6">
+                            <div className="text-center mb-4">
+                              <div className="mb-4 overflow-hidden rounded-lg">
+                                <img
+                                  src={product.frontImage || product.image || '/placeholder.svg'}
+                                  alt={product.name}
+                                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
+                                  onError={(e) => {
+                                    e.currentTarget.src = '/placeholder.svg';
+                                  }}
+                                />
+                              </div>
+                              <h3 className="font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">
+                                {product.name}
+                              </h3>
+                              <div className="flex items-center justify-center gap-1 mb-3">
+                                <div className="flex items-center">
+                                  {[...Array(5)].map((_, i) => (
+                                    <Star
+                                      key={i}
+                                      className={`w-4 h-4 ${
+                                        i < 4 ? "text-yellow-400 fill-current" : "text-gray-300"
+                                      }`}
+                                    />
+                                  ))}
+                                </div>
+                                <span className="text-sm text-gray-600 ml-1">
+                                  (4.5)
+                                </span>
+                              </div>
+                              <div className="flex items-center justify-center gap-2 mb-4">
+                                <span className="text-2xl font-bold text-green-600">
+                                  ₹{product.price?.toLocaleString()}
+                                </span>
+                              </div>
+                            </div>
+                            <Button className="w-full bg-blue-600 hover:bg-blue-700 flex items-center gap-2">
+                              <ShoppingCart className="w-4 h-4" />
+                              Add to Cart
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      </Link>
                     ))}
                   </div>
                 ) : (
