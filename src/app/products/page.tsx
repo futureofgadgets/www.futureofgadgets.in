@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 type Product = {
@@ -35,17 +36,22 @@ export default function ProductsPage() {
     fetch("/api/products")
       .then((res) => res.json())
       .then((data) => {
-        const mappedProducts = data.map((p: any) => ({
-          id: p.id,
-          slug: p.slug || p.name.toLowerCase().replace(/\s+/g, "-"),
-          name: p.name || p.title,
-          type: p.category || p.type,
-          description: p.description,
-          coverImage: p.image || p.coverImage,
-          images: p.images || [p.image],
-          price: p.price,
-          quantity: p.quantity || p.stock
-        }));
+        console.log('Raw API data:', data);
+        const mappedProducts = data.map((p: any) => {
+          console.log('Product frontImage:', p.frontImage);
+          return {
+            id: p.id,
+            slug: p.slug || p.name.toLowerCase().replace(/\s+/g, "-"),
+            name: p.name || p.title,
+            type: p.category || p.type,
+            description: p.description,
+            coverImage: p.frontImage,
+            images: p.images || [p.frontImage],
+            price: p.price,
+            quantity: p.quantity || p.stock
+          };
+        });
+        console.log('Mapped products:', mappedProducts);
         setProducts(mappedProducts);
       })
       .finally(() => setLoading(false));
@@ -53,13 +59,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Our Products</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Discover our premium collection of electronics and gadgets
-          </p>
-        </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">  
 
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -76,10 +76,15 @@ export default function ProductsPage() {
                 className="group bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:border-gray-200 transition-all duration-300 transform hover:-translate-y-1"
               >
                 <div className="aspect-[4/3] relative overflow-hidden bg-gray-100">
-                  <img
+                  <Image
                     src={product.coverImage || "/placeholder.svg"}
                     alt={product.name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      console.log('Image load error:', product.coverImage);
+                      e.currentTarget.src = '/placeholder.svg';
+                    }}
                   />
                   {product.quantity > 0 ? (
                     <div className="absolute top-3 right-3 bg-green-500 text-white text-xs px-2 py-1 rounded-full font-medium">

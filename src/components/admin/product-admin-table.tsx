@@ -43,7 +43,7 @@ export default function ProductAdminTable({ className }: { className?: string })
             <tr key={p.id} className="border-b border-border">
               <td className="p-3">
                 <img
-                  src={p.image || "/placeholder.svg?height=48&width=48&query=product"}
+                  src={p.image || "/no-image.svg?height=48&width=48&query=product"}
                   alt={`${p.title} image`}
                   className="h-12 w-12 rounded object-cover"
                 />

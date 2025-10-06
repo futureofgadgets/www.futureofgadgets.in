@@ -14,7 +14,7 @@ export default function OptimizedImage({
   src, 
   alt, 
   className = "", 
-  fallback = "/placeholder.svg" 
+  fallback = "/no-image.svg" 
 }: OptimizedImageProps) {
   const { cachedSrc, loading: cacheLoading } = useImageCache(src)
   const [imgSrc, setImgSrc] = useState(cachedSrc || src)

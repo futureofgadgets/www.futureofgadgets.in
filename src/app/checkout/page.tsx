@@ -255,7 +255,7 @@ export default function CheckoutPage() {
               {items.map((it) => (
                 <li key={`${it.productId}`} className="flex items-center gap-3">
                   <img
-                    src={it.image || "/placeholder.svg?height=48&width=48&query=product"}
+                    src={it.image || "/no-image.svg?height=48&width=48&query=product"}
                     alt={`${it.title || it.productId} image`}
                     className="h-12 w-12 rounded object-cover"
                   />

@@ -18,6 +18,7 @@ import {
 import { ShoppingCart, Search, User } from "lucide-react";
 import { ThemeToggle } from "./theme-toggler";
 import { AuthDialog } from "@/components/auth-dialog";
+import { CloudinaryImage } from "./CloudinaryImage";
 
 export function Navbar() {
   const { data: session, status } = useSession();
@@ -679,13 +680,15 @@ export function Navbar() {
                           : "hover:bg-gray-50 dark:hover:bg-gray-700"
                       }`}
                     >
-                      <img
+                      <CloudinaryImage
                         src={
                           product.frontImage ||
                           product.image ||
-                          "/placeholder.svg"
+                          "/no-image.svg"
                         }
                         alt={product.name}
+                        width={40}
+                        height={40}
                         className="w-10 h-10 object-cover rounded"
                       />
                       <div className="flex-1">
@@ -1096,11 +1099,13 @@ export function Navbar() {
                       : "hover:bg-gray-50 dark:hover:bg-gray-700"
                   }`}
                 >
-                  <img
+                  <CloudinaryImage
                     src={
-                      product.frontImage || product.image || "/placeholder.svg"
+                      product.frontImage || product.image || "/no-image.svg"
                     }
                     alt={product.name}
+                    width={48}
+                    height={48}
                     className="w-12 h-12 object-cover rounded-lg"
                   />
                   <div className="flex-1 min-w-0">

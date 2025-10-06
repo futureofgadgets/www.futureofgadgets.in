@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart, Filter } from "lucide-react";
 import { CategoryBar } from "@/components/categorybar";
 import Link from "next/link";
+import { CloudinaryImage } from "@/components/ui/CloudinaryImage";
 
 export default function CategoryPage() {
   const params = useParams();
@@ -154,13 +155,12 @@ export default function CategoryPage() {
                           <CardContent className="p-6">
                             <div className="text-center mb-4">
                               <div className="mb-4 overflow-hidden rounded-lg">
-                                <img
-                                  src={product.frontImage || product.image || '/placeholder.svg'}
+                                <CloudinaryImage
+                                  src={product.frontImage || product.image || '/no-image.svg'}
                                   alt={product.name}
+                                  width={400}
+                                  height={300}
                                   className="w-full h-48 object-cover group-hover:scale-105 transition-transform"
-                                  onError={(e) => {
-                                    e.currentTarget.src = '/placeholder.svg';
-                                  }}
                                 />
                               </div>
                               <h3 className="font-semibold text-lg mb-2 group-hover:text-blue-600 transition-colors line-clamp-2">

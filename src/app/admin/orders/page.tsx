@@ -286,8 +286,12 @@ export default function AdminOrdersPage() {
 
       if (file.type.startsWith("image/")) {
         // Convert image to base64 with higher quality
-        const { convertFileToBase64 } = await import("@/lib/image-utils");
-        base64 = await convertFileToBase64(file, 1600, 0.95);
+        const reader = new FileReader();
+        base64 = await new Promise<string>((resolve, reject) => {
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
       } else {
         // For PDFs, convert directly to base64
         const reader = new FileReader();
@@ -1015,7 +1019,7 @@ export default function AdminOrdersPage() {
                                         style={{ maxHeight: '70vh' }}
                                         onError={(e) => {
                                           const target = e.target as HTMLImageElement;
-                                          target.src = "/placeholder.svg";
+                                          target.src = "/no-image.svg";
                                         }}
                                       />
                                     )}

@@ -45,7 +45,7 @@ export default function ProductPage() {
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.frontImage || product.image || product.coverImage || "/placeholder.svg"
+      image: product.frontImage || product.image || product.coverImage || "/no-image.svg"
     });
     
     toast.success(`Added to Cart`, {
@@ -65,7 +65,7 @@ export default function ProductPage() {
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.frontImage || product.image || product.coverImage || "/placeholder.svg"
+      image: product.frontImage || product.image || product.coverImage || "/no-image.svg"
     });
     
     toast.success(`Redirecting to Cart`, {
@@ -152,7 +152,7 @@ export default function ProductPage() {
   if (product.image && !allImages.includes(product.image)) allImages.push(product.image);
   if (product.coverImage && !allImages.includes(product.coverImage)) allImages.push(product.coverImage);
   
-  const images = allImages.length > 0 ? allImages : ["/placeholder.svg"];
+  const images = allImages.length > 0 ? allImages : ["/no-image.svg"];
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

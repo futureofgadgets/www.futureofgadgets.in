@@ -1,29 +1,27 @@
-import { NextResponse } from "next/server"
+import { NextResponse } from "next/server";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export async function POST(request: Request) {
   try {
-    const { images } = await request.json()
+    const formData = await request.formData();
+    const files = formData.getAll('files') as File[];
     
-    if (!Array.isArray(images) || images.length === 0) {
-      return NextResponse.json({ error: "No images provided" }, { status: 400 })
+    if (!files || files.length === 0) {
+      return NextResponse.json({ error: "No files provided" }, { status: 400 });
     }
 
-    // For now, return the base64 images as-is since we don't have a file storage service
-    // In production, you would upload to a service like AWS S3, Cloudinary, etc.
-    const files = images.map((base64Image: string, index: number) => {
-      // Return the base64 data URL directly
-      return base64Image
-    })
+    const uploadPromises = files.map(file => uploadToCloudinary(file));
+    const uploadedUrls = await Promise.all(uploadPromises);
 
     return NextResponse.json({ 
       success: true, 
-      files 
-    })
+      files: uploadedUrls 
+    });
   } catch (error) {
-    console.error('Upload error:', error)
+    console.error('Upload error:', error);
     return NextResponse.json({ 
       error: "Failed to upload images",
       details: error instanceof Error ? error.message : 'Unknown error'
-    }, { status: 500 })
+    }, { status: 500 });
   }
 }

@@ -51,7 +51,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
-import { convertFileToBase64, validateImageFile } from "@/lib/image-utils";
+import { uploadFilesToCloudinary, validateImageFile } from "@/lib/image-utils";
 import LoadingButton from "@/components/ui/loading-button";
 import { cachedFetch, invalidateCache } from "@/lib/api-cache";
 
@@ -150,7 +150,7 @@ export default function ProductTable() {
             category: p.category ?? p.type ?? "General",
             description: p.description ?? "",
             image:
-              p.frontImage ?? p.image ?? p.coverImage ?? "/placeholder.svg",
+              p.frontImage ?? p.image ?? p.coverImage ?? "/no-image.svg",
             images: Array.isArray(p.images)
               ? p.images
               : p.images?.split?.(",").map((s: string) => s.trim()) ?? [],
@@ -351,38 +351,21 @@ export default function ProductTable() {
 
       // Only upload new images if files are selected
       if (frontImage || additionalImages.length > 0) {
-        const imagesToUpload = [];
+        const filesToUpload = [];
 
         if (frontImage) {
-          const frontImageBase64 = await convertFileToBase64(
-            frontImage,
-            2000,
-            0.9
-          );
-          imagesToUpload.push(frontImageBase64);
+          filesToUpload.push(frontImage);
         }
 
         if (additionalImages.length > 0) {
-          const additionalImagesBase64 = await Promise.all(
-            additionalImages.map((img) => convertFileToBase64(img, 1500, 0.85))
-          );
-          imagesToUpload.push(...additionalImagesBase64);
+          filesToUpload.push(...additionalImages);
         }
 
-        const uploadRes = await fetch("/api/upload", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ images: imagesToUpload }),
-        });
+        const uploadedUrls = await uploadFilesToCloudinary(filesToUpload);
 
-        const uploadResult = await uploadRes.json();
-        if (!uploadResult.success) throw new Error(uploadResult.error);
-
-        if (frontImage) frontImageUrl = uploadResult.files[0];
+        if (frontImage) frontImageUrl = uploadedUrls[0];
         if (additionalImages.length > 0)
-          additionalImageUrls = uploadResult.files.slice(frontImage ? 1 : 0);
+          additionalImageUrls = uploadedUrls.slice(frontImage ? 1 : 0);
       }
 
       const productData = {
@@ -1076,11 +1059,11 @@ export default function ProductTable() {
                     }
                   >
                     <img
-                      src={item.image || "/placeholder.svg"}
+                      src={item.image || "/no-image.svg"}
                       alt={item.name}
                       className="h-10 w-10 md:h-12 md:w-12 rounded-md border object-cover"
                       onError={(e) => {
-                        e.currentTarget.src = "/placeholder.svg";
+                        e.currentTarget.src = "/no-image.svg";
                       }}
                     />
                     <div className="min-w-0 flex-1">
