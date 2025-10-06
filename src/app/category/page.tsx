@@ -12,42 +12,42 @@ export default function ElectronicsPage() {
       name: "Laptops",
       slug: "laptops",
       icon: "💻",
-      count: "2,341 items",
+
       description: "High-performance laptops",
     },
     {
       name: "Laptop Accessories",
       slug: "laptop-accessories",
       icon: "🎒",
-      count: "1,876 items",
+
       description: "Stands, sleeves & hubs",
     },
     {
       name: "Chargers",
       slug: "chargers",
       icon: "🔌",
-      count: "1,234 items",
+
       description: "Power adapters & banks",
     },
     {
       name: "Keyboards",
       slug: "keyboards",
       icon: "⌨️",
-      count: "987 items",
+
       description: "Mechanical & wireless",
     },
     {
       name: "Mouse",
       slug: "mouse",
       icon: "🖱️",
-      count: "756 items",
+
       description: "Gaming & ergonomic",
     },
     {
       name: "Monitors",
       slug: "monitors",
       icon: "🖥️",
-      count: "543 items",
+
       description: "Professional displays",
     },
   ];
@@ -82,9 +82,6 @@ export default function ElectronicsPage() {
                   </h3>
                   <p className="text-gray-600 mb-3 text-sm">
                     {category.description}
-                  </p>
-                  <p className="text-sm text-blue-600 font-medium">
-                    {category.count}
                   </p>
                 </CardContent>
               </Card>
