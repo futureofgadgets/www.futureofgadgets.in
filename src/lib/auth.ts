@@ -14,10 +14,7 @@ export const authOptions: NextAuthOptions = {
       name: 'credentials',
       credentials: {
         email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-        name: { label: 'Name', type: 'text' },
-        phone: { label: 'Phone', type: 'text' },
-        isSignUp: { label: 'IsSignUp', type: 'text' }
+        password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
@@ -48,21 +45,7 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        // Sign up new user
-        if (credentials.isSignUp === 'true') {
-          const existingUser = await prisma.user.findUnique({ where: { email: credentials.email } })
-          if (existingUser) return null
-          const newUser = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              name: credentials.name || credentials.email.split('@')[0],
-              phone: credentials.phone || null,
-              password: await bcrypt.hash(credentials.password, 12),
-              role: 'user'
-            }
-          })
-          return { id: newUser.id, email: newUser.email, name: newUser.name, role: newUser.role }
-        }
+
 
         // Sign in existing user
         const user = await prisma.user.findUnique({ where: { email: credentials.email } })
@@ -70,7 +53,7 @@ export const authOptions: NextAuthOptions = {
         const isValid = await bcrypt.compare(credentials.password, user.password)
         if (!isValid) return null
 
-        return { id: user.id, email: user.email, name: user.name, role: user.role }
+        return { id: user.id, email: user.email, name: user.name, role: user.role, emailVerified: user.emailVerified }
       }
     })
   ],
@@ -80,10 +63,11 @@ export const authOptions: NextAuthOptions = {
   pages: { signIn: '/auth/signin' },
 
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
       if (user) {
         token.id = user.id
         token.role = user.role || (user.email === 'admin@electronic.com' ? 'admin' : 'user')
+        token.emailVerified = account?.provider === 'google' ? true : (user.emailVerified ?? false)
       }
       return token
     },
@@ -92,6 +76,7 @@ export const authOptions: NextAuthOptions = {
       if (token) {
         session.user.id = token.id as string
         session.user.role = token.role as string
+        session.user.emailVerified = token.emailVerified as boolean
       }
       return session
     },
@@ -106,13 +91,19 @@ export const authOptions: NextAuthOptions = {
               name: user.name,
               image: user.image,
               phone: user.email === 'admin@electronic.com' ? '9905757864' : null,
-              role: user.email === 'admin@electronic.com' ? 'admin' : 'user'
+              role: user.email === 'admin@electronic.com' ? 'admin' : 'user',
+              emailVerified: true
             }
           })
-        } else if (user.email === 'admin@electronic.com' && existingUser.role !== 'admin') {
+        } else {
           await prisma.user.update({
-            where: { email: 'admin@electronic.com' },
-            data: { role: 'admin', name: 'Sonu', phone: '9905757864' }
+            where: { email: user.email },
+            data: {
+              emailVerified: true,
+              role: user.email === 'admin@electronic.com' ? 'admin' : existingUser.role,
+              name: user.name || existingUser.name,
+              phone: user.email === 'admin@electronic.com' ? '9905757864' : existingUser.phone
+            }
           })
         }
       }

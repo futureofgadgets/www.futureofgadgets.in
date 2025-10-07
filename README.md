@@ -12,6 +12,8 @@ A modern e-commerce platform built with Next.js 14, featuring a clean Flipkart-i
 
 ### 👤 User Management
 - **Authentication**: Sign in/up with NextAuth.js (Credentials + Google OAuth)
+- **Email Verification**: Automatic email verification on signup with resend option
+- **Password Reset**: Forgot password functionality with secure email tokens
 - **User Profile**: Editable profile with phone/address fields and order history
 - **Protected Routes**: Secure access to profile, orders, and admin areas
 - **Session Management**: Persistent login with loading states

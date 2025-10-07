@@ -120,7 +120,16 @@ export default function ProfilePage() {
     },
     {
       label: 'Email',
-      value: session.user?.email,
+      value: (
+        <div className="flex items-center gap-2">
+          <span>{session.user?.email}</span>
+          {session.user?.emailVerified ? (
+            <span className="text-xs px-2 py-0.5 bg-green-100 text-green-800 rounded-full">Verified</span>
+          ) : (
+            <span className="text-xs px-2 py-0.5 bg-yellow-100 text-yellow-800 rounded-full">Not Verified</span>
+          )}
+        </div>
+      ),
       editable: false as const
     },
     {
@@ -196,7 +205,7 @@ export default function ProfilePage() {
                 <div key={field.label}>
                   <label className="text-sm font-medium text-gray-700">{field.label}</label>
                   {!field.editable ? (
-                    <p className="text-gray-900">{field.value}</p>
+                    <div className="text-gray-900">{field.value}</div>
                   ) : (
                     <div className="flex items-center gap-2 mt-1">
                       {field.editing ? (
