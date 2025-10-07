@@ -12,8 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { toast } from "sonner";
-import { Pacifico } from "next/font/google";
 import { motion } from "framer-motion";
 
 interface AuthDialogProps {
@@ -28,14 +28,31 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [isSignUp, setIsSignUp] = useState(mode === "signup");
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [isVerifyEmail, setIsVerifyEmail] = useState(false);
+  const [isResetPassword, setIsResetPassword] = useState(false);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
     setIsSignUp(mode === "signup");
   }, [mode]);
+
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
 
   const validatePassword = (password: string) => {
     const minLength = password.length >= 8;
@@ -76,12 +93,10 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
         });
         const data = await res.json();
         if (data.success) {
-          toast.success(data.message || 'Verification email sent! Please verify before signing in.');
-          setEmail('');
-          setPassword('');
-          setName('');
-          setPhone('');
+          toast.success(data.message);
+          setIsVerifyEmail(true);
           setIsSignUp(false);
+          setResendTimer(60);
         } else {
           toast.error(data.error || 'Failed to create account');
         }
@@ -95,7 +110,19 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
           toast.success('Welcome back!');
           onOpenChange(false);
         } else {
-          toast.error("Invalid email or password. Please try again.");
+          const checkUser = await fetch('/api/auth/check-user', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const userData = await checkUser.json();
+          
+          if (!userData.exists) {
+            toast.error('User not found. Please sign up first.');
+            setIsSignUp(true);
+          } else {
+            toast.error("Invalid email or password. Please try again.");
+          }
         }
       }
     } catch (error) {
@@ -114,15 +141,102 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
 
     setIsLoading(true);
     try {
-      await fetch('/api/auth/forgot-password', {
+      const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
-      toast.success('Password reset link sent to your email!');
-      setIsForgotPassword(false);
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Verification code sent to your email!');
+        setIsForgotPassword(false);
+        setIsResetPassword(true);
+        setResendTimer(60);
+      } else if (data.error === 'User not found') {
+        toast.error('User not found. Please sign up first.');
+        setIsForgotPassword(false);
+        setIsSignUp(true);
+      } else {
+        toast.error(data.error || 'Failed to send reset code');
+      }
     } catch (error) {
-      toast.error('Failed to send reset email');
+      toast.error('Failed to send reset code');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyEmail = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/verify-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: verificationCode, email })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Email verified! You can now sign in.');
+        setIsVerifyEmail(false);
+        setVerificationCode('');
+        setResendTimer(0);
+      } else {
+        toast.error(data.error || 'Invalid code');
+      }
+    } catch (error) {
+      toast.error('Failed to verify code');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelVerification = async () => {
+    try {
+      await fetch('/api/auth/delete-unverified', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+    } catch (error) {
+      console.error('Failed to delete unverified user');
+    }
+    setIsVerifyEmail(false);
+    setIsResetPassword(false);
+    setIsForgotPassword(false);
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validatePassword(newPassword)) {
+      toast.error('Password must be 8+ characters with letters, numbers, and special characters');
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/verify-reset-code', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: resetCode, email, password: newPassword })
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast.success('Password reset successfully!');
+        setIsResetPassword(false);
+        setResetCode('');
+        setNewPassword('');
+        setConfirmNewPassword('');
+        setResendTimer(0);
+      } else {
+        toast.error(data.error || 'Invalid code');
+      }
+    } catch (error) {
+      toast.error('Failed to reset password');
     } finally {
       setIsLoading(false);
     }
@@ -145,15 +259,25 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl p-0 overflow-hidden">
+      <DialogContent className="sm:min-w-5xl p-0 overflow-hidden">
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="p-6">
+          <motion.div 
+            className="p-6"
+            key={isVerifyEmail ? 'verify' : isResetPassword ? 'reset' : isForgotPassword ? 'forgot' : isSignUp ? 'signup' : 'signin'}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          >
             <DialogHeader className="text-center">
               <DialogTitle className="text-2xl font-semibold mt-4">
-                {isForgotPassword ? "Forgot Password" : isSignUp ? "Create Account" : "Welcome Back !"}
+                {isVerifyEmail ? "Verify Email" : isResetPassword ? "Reset Password" : isForgotPassword ? "Forgot Password" : isSignUp ? "Create Account" : "Welcome Back !"}
               </DialogTitle>
               <p className="text-sm text-muted-foreground mb-2">
-                {isForgotPassword
+                {isVerifyEmail
+                  ? "Enter the verification code sent to your email"
+                  : isResetPassword
+                  ? "Enter code and new password"
+                  : isForgotPassword
                   ? "Enter your email to reset password"
                   : isSignUp
                   ? "Sign up to get started with Electronic"
@@ -161,7 +285,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
               </p>
             </DialogHeader>
             <div className="space-y-6 p-2">
-              <form onSubmit={isForgotPassword ? handleForgotPassword : handleCredentialsAuth} className="space-y-4">
+              <form onSubmit={isVerifyEmail ? handleVerifyEmail : isResetPassword ? handleResetPassword : isForgotPassword ? handleForgotPassword : handleCredentialsAuth} className="space-y-4">
                 {isSignUp && (
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-sm font-medium">
@@ -189,6 +313,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="h-11"
+                    disabled={isVerifyEmail || isResetPassword}
                     required
                   />
                 </div>
@@ -210,7 +335,153 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                     />
                   </div>
                 )}
-                {!isForgotPassword && (
+                {isVerifyEmail && (
+                  <div className="space-y-2">
+                    <Label htmlFor="verificationCode" className="text-sm font-medium">
+                      Verification Code
+                    </Label>
+                    <div className="flex items-center justify-between gap-3">
+                      <InputOTP maxLength={6} value={verificationCode} onChange={setVerificationCode}>
+                        <InputOTPGroup>
+                          <InputOTPSlot index={0} />
+                          <InputOTPSlot index={1} />
+                          <InputOTPSlot index={2} />
+                          <InputOTPSlot index={3} />
+                          <InputOTPSlot index={4} />
+                          <InputOTPSlot index={5} />
+                        </InputOTPGroup>
+                      </InputOTP>
+                      {resendTimer > 0 ? (
+                        <p className="text-xs text-gray-500 whitespace-nowrap">Resend in {resendTimer}s</p>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            setIsLoading(true);
+                            try {
+                              await fetch('/api/auth/send-verification', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email })
+                              });
+                              toast.success('Code resent!');
+                              setResendTimer(60);
+                            } catch (error) {
+                              toast.error('Failed to resend code');
+                            } finally {
+                              setIsLoading(false);
+                            }
+                          }}
+                          className="text-xs text-blue-600 hover:underline whitespace-nowrap"
+                        >
+                          Resend Code
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {isResetPassword && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="resetCode" className="text-sm font-medium">
+                        Verification Code
+                      </Label>
+                      <div className="flex items-center justify-between  gap-3">
+                        <InputOTP maxLength={6} value={resetCode} onChange={setResetCode}>
+                          <InputOTPGroup>
+                            <InputOTPSlot index={0} />
+                            <InputOTPSlot index={1} />
+                            <InputOTPSlot index={2} />
+                            <InputOTPSlot index={3} />
+                            <InputOTPSlot index={4} />
+                            <InputOTPSlot index={5} />
+                          </InputOTPGroup>
+                        </InputOTP>
+                        {resendTimer > 0 ? (
+                          <p className="text-xs text-gray-500 whitespace-nowrap">Resend in {resendTimer}s</p>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              setIsLoading(true);
+                              try {
+                                await fetch('/api/auth/forgot-password', {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json' },
+                                  body: JSON.stringify({ email })
+                                });
+                                toast.success('Code resent!');
+                                setResendTimer(60);
+                              } catch (error) {
+                                toast.error('Failed to resend code');
+                              } finally {
+                                setIsLoading(false);
+                              }
+                            }}
+                            className="text-xs text-blue-600 hover:underline whitespace-nowrap"
+                          >
+                            Resend Code
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword" className="text-sm font-medium">
+                        New Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="newPassword"
+                          type={showNewPassword ? "text" : "password"}
+                          placeholder="8+ chars, letters, numbers, symbols"
+                          value={newPassword}
+                          onChange={(e) => setNewPassword(e.target.value)}
+                          className="h-11 pr-10"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                          {showNewPassword ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <EyeOff className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmNewPassword" className="text-sm font-medium">
+                        Confirm Password
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="confirmNewPassword"
+                          type={showConfirmNewPassword ? "text" : "password"}
+                          placeholder="Re-enter password"
+                          value={confirmNewPassword}
+                          onChange={(e) => setConfirmNewPassword(e.target.value)}
+                          className="h-11 pr-10"
+                          required
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowConfirmNewPassword(!showConfirmNewPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                        >
+                          {showConfirmNewPassword ? (
+                            <Eye className="h-4 w-4" />
+                          ) : (
+                            <EyeOff className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+                {!isForgotPassword && !isVerifyEmail && !isResetPassword && (
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
                     <Label htmlFor="password" className="text-sm font-medium">
@@ -246,9 +517,9 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                     >
                       {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
                         <Eye className="h-4 w-4" />
+                      ) : (
+                        <EyeOff className="h-4 w-4" />
                       )}
                     </button>
                   </div>
@@ -286,10 +557,14 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         ></path>
                       </svg>
-                      {isForgotPassword ? "Sending..." : isSignUp ? "Creating Account..." : "Signing In..."}
+                      {isVerifyEmail ? "Verifying..." : isResetPassword ? "Resetting..." : isForgotPassword ? "Sending..." : isSignUp ? "Creating Account..." : "Signing In..."}
                     </>
+                  ) : isVerifyEmail ? (
+                    "Verify Email"
+                  ) : isResetPassword ? (
+                    "Reset Password"
                   ) : isForgotPassword ? (
-                    "Send Reset Link"
+                    "Send Code"
                   ) : isSignUp ? (
                     "Create Account"
                   ) : (
@@ -298,19 +573,23 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                 </button>
               </form>
 
-              {isForgotPassword && (
+              {(isForgotPassword || isVerifyEmail || isResetPassword) && (
                 <div className="text-center text-sm">
                   <Button
                     type="button"
-                    onClick={() => setIsForgotPassword(false)}
-                    className="text-primary hover:underline font-medium bg-transparent hover:bg-transparent p-0"
+                    onClick={isVerifyEmail ? handleCancelVerification : () => {
+                      setIsForgotPassword(false);
+                      setIsVerifyEmail(false);
+                      setIsResetPassword(false);
+                    }}
+                    className="text-primary hover:underline font-medium bg-transparent hover:bg-transparent p-0 cursor-pointer"
                   >
                     Back to Sign In
                   </Button>
                 </div>
               )}
 
-              {!isForgotPassword && (
+              {!isForgotPassword && !isVerifyEmail && !isResetPassword && (
               <>
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -376,6 +655,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                 )}
               </Button>
 
+              {!isVerifyEmail && (
               <div className="text-center text-sm text-muted-foreground">
                 {isSignUp
                   ? "Already have an account?"
@@ -388,12 +668,13 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                   {isSignUp ? "Sign in here" : "Sign up here"}
                 </Button>
               </div>
+              )}
               </>
               )}
             </div>
-          </div>
+          </motion.div>
           <motion.div
-            className="hidden md:flex items-center justify-center text-center text-7xl font-bold text-white tracking-wide bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 relative overflow-hidden"
+            className="hidden md:flex items-center justify-center text-center text-7xl font-bold tracking-wide bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 relative overflow-hidden"
             style={{ fontFamily: "'Great Vibes', cursive" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -401,6 +682,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
           >
             <div className="space-y-4 relative z-10">
               <motion.div
+                className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent leading-tight"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
@@ -408,6 +690,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                 Future of
               </motion.div>
               <motion.div
+                className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent leading-tight"
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, delay: 1.2 }}

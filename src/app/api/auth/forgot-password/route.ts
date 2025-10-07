@@ -1,23 +1,37 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { generateToken, generateTokenExpiry, sendEmail, getPasswordResetEmailTemplate } from '@/lib/email'
+import bcrypt from 'bcryptjs'
+import { generateVerificationCode, generateCodeExpiry, sendEmail, getPasswordResetEmailTemplate } from '@/lib/email'
 
 export async function POST(req: Request) {
   try {
     const { email } = await req.json()
 
-    const user = await prisma.user.findUnique({ where: { email } })
+    const user = await prisma.user.findUnique({ 
+      where: { 
+        email_provider: { 
+          email, 
+          provider: 'credentials' 
+        } 
+      } 
+    })
     if (!user) {
-      return NextResponse.json({ success: true })
+      return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    const token = generateToken()
-    const expires = generateTokenExpiry()
+    const code = generateVerificationCode()
+    const expires = generateCodeExpiry()
+    const hashedCode = await bcrypt.hash(code, 10)
 
     await prisma.user.update({
-      where: { email },
+      where: { 
+        email_provider: { 
+          email, 
+          provider: 'credentials' 
+        } 
+      },
       data: {
-        resetPasswordToken: token,
+        resetPasswordToken: hashedCode,
         resetPasswordExpires: expires
       }
     })
@@ -25,7 +39,7 @@ export async function POST(req: Request) {
     await sendEmail(
       email,
       'Reset your password - Electronic Web',
-      getPasswordResetEmailTemplate(token, email)
+      getPasswordResetEmailTemplate(code, email)
     )
 
     return NextResponse.json({ success: true })

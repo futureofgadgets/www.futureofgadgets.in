@@ -12,7 +12,6 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
   const searchParams = useSearchParams()
   const router = useRouter()
 
@@ -51,9 +50,8 @@ export default function ResetPasswordPage() {
 
       const data = await res.json()
       if (data.success) {
-        setIsSuccess(true)
         toast.success('Password reset successfully!')
-        setTimeout(() => router.push('/'), 2000)
+        router.push('/')
       } else {
         toast.error(data.error || 'Failed to reset password')
       }
@@ -62,18 +60,6 @@ export default function ResetPasswordPage() {
     } finally {
       setIsLoading(false)
     }
-  }
-
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
-          <div className="text-green-600 text-6xl mb-4">✓</div>
-          <h1 className="text-2xl font-bold mb-2">Password Reset Successfully!</h1>
-          <p className="text-gray-600">Redirecting to home page...</p>
-        </div>
-      </div>
-    )
   }
 
   return (

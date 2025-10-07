@@ -5,6 +5,10 @@ export async function POST(req: Request) {
   try {
     const { token, email } = await req.json()
 
+    if (email === 'admin@electronic.com') {
+      return NextResponse.json({ error: 'Admin account does not require verification' }, { status: 400 })
+    }
+
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })

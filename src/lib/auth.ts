@@ -40,7 +40,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           if (admin.password && await bcrypt.compare(credentials.password, admin.password)) {
-            return { id: admin.id, email: admin.email, name: admin.name || 'Admin', role: admin.role, emailVerified: true }
+            return { id: admin.id, email: admin.email, name: admin.name, role: admin.role }
           }
           return null
         }
@@ -48,10 +48,20 @@ export const authOptions: NextAuthOptions = {
 
 
         // Sign in existing user
-        const user = await prisma.user.findUnique({ where: { email: credentials.email } })
-        if (!user || !user.password) return null
+        const user = await prisma.user.findUnique({ 
+          where: { 
+            email_provider: { 
+              email: credentials.email, 
+              provider: 'credentials' 
+            } 
+          } 
+        })
+        if (!user || !user.password) throw new Error('USER_NOT_FOUND')
+        
         const isValid = await bcrypt.compare(credentials.password, user.password)
         if (!isValid) return null
+
+        if (!user.emailVerified) return null
 
         return { id: user.id, email: user.email, name: user.name || 'User', role: user.role, emailVerified: user.emailVerified }
       }
@@ -83,7 +93,14 @@ export const authOptions: NextAuthOptions = {
 
     async signIn({ user, account }) {
       if (account?.provider === 'google' && user.email) {
-        const existingUser = await prisma.user.findUnique({ where: { email: user.email } })
+        const existingUser = await prisma.user.findUnique({ 
+          where: { 
+            email_provider: { 
+              email: user.email, 
+              provider: 'google' 
+            } 
+          } 
+        })
         if (!existingUser) {
           await prisma.user.create({
             data: {
@@ -92,12 +109,18 @@ export const authOptions: NextAuthOptions = {
               image: user.image,
               phone: user.email === 'admin@electronic.com' ? '9905757864' : null,
               role: user.email === 'admin@electronic.com' ? 'admin' : 'user',
+              provider: 'google',
               emailVerified: true
             }
           })
         } else {
           await prisma.user.update({
-            where: { email: user.email },
+            where: { 
+              email_provider: { 
+                email: user.email, 
+                provider: 'google' 
+              } 
+            },
             data: {
               emailVerified: true,
               role: user.email === 'admin@electronic.com' ? 'admin' : existingUser.role,

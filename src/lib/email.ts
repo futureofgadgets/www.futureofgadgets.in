@@ -5,21 +5,30 @@ export function generateToken(): string {
   return crypto.randomBytes(32).toString('hex')
 }
 
+export function generateVerificationCode(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString()
+}
+
 export function generateTokenExpiry(): Date {
   return new Date(Date.now() + 24 * 60 * 60 * 1000) // 24 hours
 }
 
+export function generateCodeExpiry(): Date {
+  return new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+}
+
 export async function sendEmail(to: string, subject: string, html: string) {
-  // For development/testing without SMTP credentials
   if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.log('📧 Email would be sent to:', to)
     console.log('📧 Subject:', subject)
-    console.log('📧 Verification link:', html.match(/href="([^"]+)"/)?.[1])
+    const codeMatch = html.match(/<div[^>]*>\s*(\d{6})\s*<\/div>/)
+    if (codeMatch) {
+      console.log('📧 Verification Code:', codeMatch[1])
+    }
     return true
   }
 
   try {
-    // Production email sending with nodemailer
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: parseInt(process.env.SMTP_PORT || '587'),
@@ -41,14 +50,15 @@ export async function sendEmail(to: string, subject: string, html: string) {
     return true
   } catch (error: any) {
     console.log('⚠️ Email failed, logging to console instead')
-    console.log('📧 Verification link:', html.match(/href="([^"]+)"/)?.[1])
+    const codeMatch = html.match(/<div[^>]*>\s*(\d{6})\s*<\/div>/)
+    if (codeMatch) {
+      console.log('📧 Verification Code:', codeMatch[1])
+    }
     return true
   }
 }
 
-export function getVerificationEmailTemplate(token: string, email: string): string {
-  const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}&email=${encodeURIComponent(email)}`
-  
+export function getVerificationEmailTemplate(code: string, email: string): string {
   return `
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
       <div style="text-align: center; margin-bottom: 30px;">
@@ -59,38 +69,28 @@ export function getVerificationEmailTemplate(token: string, email: string): stri
       <div style="background: #f9fafb; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
         <h2 style="color: #1f2937; margin-top: 0;">Welcome to Electronic Web!</h2>
         <p style="color: #4b5563; line-height: 1.6;">
-          Thank you for signing up. Please verify your email address by clicking the button below:
+          Thank you for signing up. Use this verification code:
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${verificationUrl}" 
-             style="background: linear-gradient(to right, #2563eb, #7c3aed); 
-                    color: white; 
-                    padding: 12px 30px; 
-                    text-decoration: none; 
-                    border-radius: 6px; 
-                    display: inline-block;
-                    font-weight: 500;">
-            Verify Email Address
-          </a>
+          <div style="background: #2563eb; color: white; padding: 20px; border-radius: 8px; font-size: 32px; font-weight: bold; letter-spacing: 8px;">
+            ${code}
+          </div>
         </div>
         
-        <p style="color: #6b7280; font-size: 14px; margin-bottom: 0;">
-          If the button doesn't work, copy and paste this link into your browser:<br>
-          <a href="${verificationUrl}" style="color: #2563eb; word-break: break-all;">${verificationUrl}</a>
+        <p style="color: #6b7280; font-size: 14px; margin-bottom: 0; text-align: center;">
+          Enter this code in the verification form to complete your registration.
         </p>
       </div>
       
       <p style="color: #9ca3af; font-size: 12px; text-align: center;">
-        This link will expire in 24 hours. If you didn't create an account, please ignore this email.
+        This code will expire in 10 minutes. If you didn't create an account, please ignore this email.
       </p>
     </div>
   `
 }
 
-export function getPasswordResetEmailTemplate(token: string, email: string): string {
-  const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}&email=${encodeURIComponent(email)}`
-  
+export function getPasswordResetEmailTemplate(code: string, email: string): string {
   return `
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
       <div style="text-align: center; margin-bottom: 30px;">
@@ -101,30 +101,22 @@ export function getPasswordResetEmailTemplate(token: string, email: string): str
       <div style="background: #f9fafb; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
         <h2 style="color: #1f2937; margin-top: 0;">Password Reset Request</h2>
         <p style="color: #4b5563; line-height: 1.6;">
-          We received a request to reset your password. Click the button below to create a new password:
+          We received a request to reset your password. Use this verification code:
         </p>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${resetUrl}" 
-             style="background: linear-gradient(to right, #2563eb, #7c3aed); 
-                    color: white; 
-                    padding: 12px 30px; 
-                    text-decoration: none; 
-                    border-radius: 6px; 
-                    display: inline-block;
-                    font-weight: 500;">
-            Reset Password
-          </a>
+          <div style="background: #2563eb; color: white; padding: 20px; border-radius: 8px; font-size: 32px; font-weight: bold; letter-spacing: 8px;">
+            ${code}
+          </div>
         </div>
         
-        <p style="color: #6b7280; font-size: 14px; margin-bottom: 0;">
-          If the button doesn't work, copy and paste this link into your browser:<br>
-          <a href="${resetUrl}" style="color: #2563eb; word-break: break-all;">${resetUrl}</a>
+        <p style="color: #6b7280; font-size: 14px; margin-bottom: 0; text-align: center;">
+          Enter this code to reset your password.
         </p>
       </div>
       
       <p style="color: #9ca3af; font-size: 12px; text-align: center;">
-        This link will expire in 24 hours. If you didn't request this reset, please ignore this email.
+        This code will expire in 10 minutes. If you didn't request this reset, please ignore this email.
       </p>
     </div>
   `

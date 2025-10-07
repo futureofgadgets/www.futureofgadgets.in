@@ -9,11 +9,12 @@ datasource db {
 
 model User {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
-  email     String   @unique
+  email     String
   name      String?
   phone     String?
   image     String?
   role      String   @default("user")
+  provider  String
   password  String?
   emailVerified Boolean @default(false)
   emailVerificationToken String?
@@ -23,6 +24,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]
+
+  @@unique([email, provider])
 }
 
 model Category {

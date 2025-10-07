@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import bcrypt from 'bcryptjs'
-import { generateToken, generateTokenExpiry, sendEmail, getVerificationEmailTemplate } from '@/lib/email'
+import { generateVerificationCode, generateCodeExpiry, sendEmail, getVerificationEmailTemplate } from '@/lib/email'
 
 export async function POST(req: Request) {
   try {
@@ -11,14 +11,44 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 })
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email } })
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
+    }
+
+    const existingUser = await prisma.user.findUnique({ 
+      where: { 
+        email_provider: { 
+          email, 
+          provider: 'credentials' 
+        } 
+      } 
+    })
     if (existingUser) {
       return NextResponse.json({ error: 'User already exists' }, { status: 400 })
     }
 
-    const token = generateToken()
-    const expires = generateTokenExpiry()
     const hashedPassword = await bcrypt.hash(password, 12)
+    const isAdmin = email === 'admin@electronic.com'
+
+    if (isAdmin) {
+      await prisma.user.create({
+        data: {
+          email,
+          name: name || 'Admin',
+          phone: phone || '9905757864',
+          password: hashedPassword,
+          role: 'admin',
+          provider: 'credentials',
+          emailVerified: true
+        }
+      })
+      return NextResponse.json({ success: true, message: 'Admin account created!' })
+    }
+
+    const code = generateVerificationCode()
+    const expires = generateCodeExpiry()
+    const hashedCode = await bcrypt.hash(code, 10)
 
     const newUser = await prisma.user.create({
       data: {
@@ -27,22 +57,22 @@ export async function POST(req: Request) {
         phone: phone || null,
         password: hashedPassword,
         role: 'user',
+        provider: 'credentials',
         emailVerified: false,
-        emailVerificationToken: token,
+        emailVerificationToken: hashedCode,
         emailVerificationExpires: expires
       }
     })
 
     console.log('✅ User created:', newUser.email)
 
-    // Send email async (don't wait)
     sendEmail(
       email,
       'Verify your email - Electronic Web',
-      getVerificationEmailTemplate(token, email)
+      getVerificationEmailTemplate(code, email)
     ).catch(err => console.log('⚠️ Email send failed:', err.message))
 
-    return NextResponse.json({ success: true, message: 'Account created! Please check your email (or console) for verification link.' })
+    return NextResponse.json({ success: true, message: 'Verification code sent to your email!' })
   } catch (error: any) {
     console.error('❌ Signup error:', error.message || error)
     return NextResponse.json({ error: error.message || 'Failed to create account' }, { status: 500 })
