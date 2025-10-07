@@ -9,7 +9,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Admin account does not require verification' }, { status: 400 })
     }
 
-    const user = await prisma.user.findUnique({ where: { email } })
+    const user = await prisma.user.findFirst({ where: { email, provider: 'credentials' } })
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     }
 
     const updatedUser = await prisma.user.update({
-      where: { email },
+      where: { id: user.id },
       data: {
         emailVerified: true,
         emailVerificationToken: null,

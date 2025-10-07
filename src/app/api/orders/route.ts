@@ -16,7 +16,7 @@ export async function GET() {
     }
     
     // Find user by email
-    let user = await prisma.user.findUnique({
+    let user = await prisma.user.findFirst({
       where: { email: session.user.email }
     })
     
@@ -26,7 +26,8 @@ export async function GET() {
         data: {
           email: session.user.email,
           name: session.user.name || '',
-          role: session.user.role || 'user'
+          role: session.user.role || 'user',
+          provider: 'google'
         }
       })
     }
@@ -74,7 +75,7 @@ export async function POST(request: Request) {
     }
     
     // Find or create user in database
-    let user = await prisma.user.findUnique({
+    let user = await prisma.user.findFirst({
       where: { email: session.user.email }
     })
     
@@ -83,7 +84,8 @@ export async function POST(request: Request) {
         data: {
           email: session.user.email,
           name: session.user.name || '',
-          role: session.user.role || 'user'
+          role: session.user.role || 'user',
+          provider: 'google'
         }
       })
     }

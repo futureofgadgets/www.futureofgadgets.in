@@ -21,7 +21,7 @@ export const authOptions: NextAuthOptions = {
 
         // Default admin
         if (credentials.email === 'admin@electronic.com') {
-          let admin = await prisma.user.findUnique({ where: { email: credentials.email } })
+          let admin = await prisma.user.findFirst({ where: { email: credentials.email } })
           if (!admin) {
             admin = await prisma.user.create({
               data: {
@@ -29,18 +29,19 @@ export const authOptions: NextAuthOptions = {
                 name: 'Sonu',
                 phone: '9905757864',
                 role: 'admin',
-                password: await bcrypt.hash(credentials.password, 12)
+                password: await bcrypt.hash(credentials.password, 12),
+                provider: 'credentials'
               }
             })
           } else if (admin.role !== 'admin') {
             admin = await prisma.user.update({
-              where: { email: credentials.email },
+              where: { id: admin.id },
               data: { role: 'admin', name: 'Sonu', phone: '9905757864' }
             })
           }
 
           if (admin.password && await bcrypt.compare(credentials.password, admin.password)) {
-            return { id: admin.id, email: admin.email, name: admin.name, role: admin.role }
+            return { id: admin.id, email: admin.email, name: admin.name || 'Admin', role: admin.role }
           }
           return null
         }

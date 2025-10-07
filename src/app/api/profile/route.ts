@@ -14,9 +14,9 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { email: session.user.email },
-      select: { phone: true }
+      select: { phone: true, id: true }
     })
     
     return NextResponse.json({
@@ -43,8 +43,11 @@ export async function PATCH(request: NextRequest) {
     let updatedPhone = ''
     
     if (phone !== undefined) {
+      const user = await prisma.user.findFirst({ where: { email: session.user.email }, select: { id: true } })
+      if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+      
       const updatedUser = await prisma.user.update({
-        where: { email: session.user.email },
+        where: { id: user.id },
         data: { phone },
         select: { phone: true }
       })
@@ -56,7 +59,7 @@ export async function PATCH(request: NextRequest) {
     }
     
     return NextResponse.json({
-      phone: updatedPhone || (await prisma.user.findUnique({ where: { email: session.user.email }, select: { phone: true } }))?.phone || '',
+      phone: updatedPhone || (await prisma.user.findFirst({ where: { email: session.user.email }, select: { phone: true } }))?.phone || '',
       address: userAddresses.get(session.user.email) || ''
     })
   } catch (error) {
