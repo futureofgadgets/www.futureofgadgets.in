@@ -633,6 +633,8 @@ export default function AdminOrdersPage() {
                             ? "dispatched orders"
                             : statusFilter === "pending"
                             ? "pending orders"
+                            : statusFilter === "out"
+                            ? "out for delivery orders"
                             : "completed orders"}{" "}
                           found
                         </h3>
@@ -643,6 +645,8 @@ export default function AdminOrdersPage() {
                             ? "No orders have been dispatched yet."
                             : statusFilter === "pending"
                             ? "No orders are currently pending."
+                            : statusFilter === "out"
+                            ? "No orders are out for delivery."
                             : "No orders have been completed yet."}
                         </p>
                       </div>
