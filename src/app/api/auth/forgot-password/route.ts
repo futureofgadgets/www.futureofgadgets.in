@@ -29,11 +29,16 @@ export async function POST(req: Request) {
       }
     })
 
-    sendEmail(
-      email,
-      'Reset your password - Electronic Web',
-      getPasswordResetEmailTemplate(code, email)
-    ).catch(err => console.log('⚠️ Email send failed:', err.message))
+    try {
+      await sendEmail(
+        email,
+        'Reset your password - Electronic Web',
+        getPasswordResetEmailTemplate(code, email)
+      )
+      console.log('✅ Email sent to:', email)
+    } catch (err) {
+      console.log('⚠️ Email send failed:', err)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {

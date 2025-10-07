@@ -64,11 +64,16 @@ export async function POST(req: Request) {
 
     console.log('✅ User created:', newUser.email)
 
-    sendEmail(
-      email,
-      'Verify your email - Electronic Web',
-      getVerificationEmailTemplate(code, email)
-    ).catch(err => console.log('⚠️ Email send failed:', err.message))
+    try {
+      await sendEmail(
+        email,
+        'Verify your email - Electronic Web',
+        getVerificationEmailTemplate(code, email)
+      )
+      console.log('✅ Email sent to:', email)
+    } catch (err) {
+      console.log('⚠️ Email send failed:', err)
+    }
 
     return NextResponse.json({ success: true, message: 'Verification code sent to your email!' })
   } catch (error: any) {

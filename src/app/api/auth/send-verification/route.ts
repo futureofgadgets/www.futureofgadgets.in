@@ -28,11 +28,16 @@ export async function POST(req: Request) {
       }
     })
 
-    sendEmail(
-      email,
-      'Verify your email - Electronic Web',
-      getVerificationEmailTemplate(code, email)
-    ).catch(err => console.log('⚠️ Email send failed:', err.message))
+    try {
+      await sendEmail(
+        email,
+        'Verify your email - Electronic Web',
+        getVerificationEmailTemplate(code, email)
+      )
+      console.log('✅ Email sent to:', email)
+    } catch (err) {
+      console.log('⚠️ Email send failed:', err)
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
