@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/table";
 import Loading from "@/app/loading";
 import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
 type UserType = {
   id: string;
@@ -91,15 +92,21 @@ export default function AdminUsersPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, role: newRole }),
       });
+      
       if (response.ok) {
         setUsers((prev) =>
           prev.map((user) =>
             user.id === userId ? { ...user, role: newRole } : user
           )
         );
+        toast.success(`User role updated to ${newRole}`);
+      } else {
+        const errorData = await response.json();
+        toast.error(errorData.error || "Failed to update user role");
       }
     } catch (error) {
       console.error("Failed to update user role:", error);
+      toast.error("Failed to update user role");
     } finally {
       setUpdatingUser(null);
     }

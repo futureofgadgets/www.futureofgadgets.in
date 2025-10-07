@@ -268,8 +268,8 @@ export default function AdminOrdersPage() {
     if (!selectedOrder) return;
 
     // Validate file type
-    if (!file.type.startsWith("image/") && file.type !== "application/pdf") {
-      toast.error("File must be an image or PDF");
+    if (!file.type.startsWith("image/")) {
+      toast.error("File must be an image");
       return;
     }
 
@@ -282,44 +282,31 @@ export default function AdminOrdersPage() {
 
     setUploadingBill(true);
     try {
-      let base64: string;
-
-      if (file.type.startsWith("image/")) {
-        // Convert image to base64 with higher quality
-        const reader = new FileReader();
-        base64 = await new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      } else {
-        // For PDFs, convert directly to base64
-        const reader = new FileReader();
-        base64 = await new Promise<string>((resolve, reject) => {
-          reader.onload = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-        });
-      }
+      // Upload to Cloudinary
+      const formData = new FormData();
+      formData.append('file', file);
       
-      // Check if base64 is too large (MongoDB has 16MB document limit)
-      if (base64.length > 10 * 1024 * 1024) { // 10MB limit
-        throw new Error("Image too large after compression. Please use a smaller image.");
+      const uploadResponse = await fetch('/api/upload-single', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload file to Cloudinary');
       }
 
-      // Update order with base64 bill directly
+      const uploadResult = await uploadResponse.json();
+      const cloudinaryUrl = uploadResult.url;
+
+      // Update order with Cloudinary URL
       const response = await fetch("/api/admin/orders", {
         method: "PATCH",
         headers: { 
-          "Content-Type": "application/json",
-          "Content-Length": JSON.stringify({
-            orderId: selectedOrder.id,
-            billUrl: base64,
-          }).length.toString()
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           orderId: selectedOrder.id,
-          billUrl: base64,
+          billUrl: cloudinaryUrl,
         }),
       });
 
@@ -334,12 +321,7 @@ export default function AdminOrdersPage() {
         throw new Error(errorMessage);
       }
 
-      let data;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        throw new Error("Invalid response from server");
-      }
+      const data = await response.json();
       const updatedOrder = data.order;
 
       setSelectedOrder(updatedOrder);
@@ -1005,24 +987,16 @@ export default function AdminOrdersPage() {
                               <div className="flex flex-col h-full">
                                 <div className="flex-1 overflow-auto bg-gray-50 rounded-lg p-4">
                                   <div className="flex justify-center items-center min-h-[500px]">
-                                    {selectedOrder.billUrl?.startsWith('data:application/pdf') ? (
-                                      <iframe
-                                        src={selectedOrder.billUrl}
-                                        className="w-full h-[70vh] rounded-lg shadow-lg bg-white border-2 border-gray-200"
-                                        title="Bill PDF"
-                                      />
-                                    ) : (
-                                      <img
-                                        src={selectedOrder.billUrl}
-                                        alt="Bill"
-                                        className="max-w-full max-h-full object-contain rounded-lg shadow-lg bg-white border-2 border-gray-200"
-                                        style={{ maxHeight: '70vh' }}
-                                        onError={(e) => {
-                                          const target = e.target as HTMLImageElement;
-                                          target.src = "/no-image.svg";
-                                        }}
-                                      />
-                                    )}
+                                    <img
+                                      src={selectedOrder.billUrl}
+                                      alt="Bill"
+                                      className="max-w-full max-h-full object-contain rounded-lg shadow-lg bg-white border-2 border-gray-200"
+                                      style={{ maxHeight: '70vh' }}
+                                      onError={(e) => {
+                                        const target = e.target as HTMLImageElement;
+                                        target.src = "/no-image.svg";
+                                      }}
+                                    />
                                   </div>
                                 </div>
                                 <div className="flex justify-center gap-3 pt-4 border-t">
@@ -1030,8 +1004,8 @@ export default function AdminOrdersPage() {
                                     onClick={() => {
                                       const link = document.createElement("a");
                                       link.href = selectedOrder.billUrl!;
-                                      const fileExtension = selectedOrder.billUrl?.startsWith('data:application/pdf') ? 'pdf' : 'jpg';
-                                      link.download = `bill-order-${selectedOrder.id}.${fileExtension}`;
+                                      link.download = `bill-order-${selectedOrder.id}.jpg`;
+                                      link.target = '_blank';
                                       document.body.appendChild(link);
                                       link.click();
                                       document.body.removeChild(link);
@@ -1051,8 +1025,8 @@ export default function AdminOrdersPage() {
                             onClick={() => {
                               const link = document.createElement("a");
                               link.href = selectedOrder.billUrl!;
-                              const fileExtension = selectedOrder.billUrl?.startsWith('data:application/pdf') ? 'pdf' : 'jpg';
-                              link.download = `bill-order-${selectedOrder.id}.${fileExtension}`;
+                              link.download = `bill-order-${selectedOrder.id}.jpg`;
+                              link.target = '_blank';
                               document.body.appendChild(link);
                               link.click();
                               document.body.removeChild(link);
@@ -1101,7 +1075,7 @@ export default function AdminOrdersPage() {
                       <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
                         <input
                           type="file"
-                          accept="image/*,application/pdf"
+                          accept="image/*"
                           onChange={(e) => {
                             const file = e.target.files?.[0];
                             if (file) {
@@ -1124,7 +1098,7 @@ export default function AdminOrdersPage() {
                           {uploadingBill ? "Uploading..." : "Upload Bill"}
                         </label>
                         <p className="text-xs text-gray-500 mt-1">
-                          PDF, JPG, PNG (max 10MB)
+                          JPG, PNG (max 5MB)
                         </p>
                       </div>
                     )}

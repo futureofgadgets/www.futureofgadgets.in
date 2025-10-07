@@ -13,15 +13,7 @@ export function useImageCache(src: string) {
       return
     }
 
-    // For base64 images, use directly
-    if (src.startsWith('data:image/')) {
-      imageCache.set(src, src)
-      setCachedSrc(src)
-      setLoading(false)
-      return
-    }
-
-    // For regular URLs, preload
+    // For Cloudinary URLs, preload
     const img = new Image()
     img.onload = () => {
       imageCache.set(src, src)

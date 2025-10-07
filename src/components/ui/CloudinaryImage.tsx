@@ -29,7 +29,6 @@ export function CloudinaryImage({
   };
 
   // If it's already a Cloudinary URL, use it as is
-  // If it's a base64 or other URL, use it directly
   const imageUrl = imgSrc;
 
   if (fill) {

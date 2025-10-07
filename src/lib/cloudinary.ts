@@ -16,9 +16,36 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
         resource_type: 'image',
         folder: 'electronic-store',
         transformation: [
-          { width: 800, height: 600, crop: 'limit' },
-          { quality: 'auto' },
-          { format: 'webp' }
+          { width: 1200, height: 900, crop: 'limit' },
+          { quality: '95' },
+          { format: 'jpg' }
+        ]
+      },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result?.secure_url || '');
+        }
+      }
+    ).end(buffer);
+  });
+};
+
+export const uploadBillToCloudinary = async (file: File): Promise<string> => {
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
+
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload_stream(
+      {
+        resource_type: 'image',
+        folder: 'electronic-store/bills',
+        transformation: [
+          { width: 2000, height: 2000, crop: 'limit' },
+          { quality: '100' },
+          { format: 'jpg' },
+          { dpr: '2.0' }
         ]
       },
       (error, result) => {

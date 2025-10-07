@@ -495,7 +495,8 @@ export default function OrdersPage() {
                       onClick={() => {
                         const link = document.createElement('a')
                         link.href = order.billUrl!
-                        link.download = `bill-${order.id.slice(-8)}.${order.billUrl!.includes('data:image/') ? 'jpg' : 'pdf'}`
+                        link.download = `bill-${order.id.slice(-8)}.jpg`
+                        link.target = '_blank'
                         document.body.appendChild(link)
                         link.click()
                         document.body.removeChild(link)
