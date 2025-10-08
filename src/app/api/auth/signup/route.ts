@@ -18,6 +18,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 })
     }
 
+    if (!email.endsWith('@gmail.com')) {
+      return NextResponse.json({ error: 'Only @gmail.com emails are allowed' }, { status: 400 })
+    }
+
     const existingUser = await prisma.user.findFirst({ 
       where: { 
         email, 

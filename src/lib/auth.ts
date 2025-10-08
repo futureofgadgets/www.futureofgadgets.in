@@ -19,6 +19,8 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null
 
+        if (!credentials.email.endsWith('@gmail.com')) return null
+
         // Default admin
         if (credentials.email === process.env.PROTECTED_ADMIN_EMAIL_ID) {
           let admin = await prisma.user.findFirst({ where: { email: credentials.email } })
@@ -109,6 +111,9 @@ export const authOptions: NextAuthOptions = {
 
     async signIn({ user, account }) {
       if (account?.provider === 'google' && user.email) {
+        if (!user.email.endsWith('@gmail.com')) {
+          return false
+        }
         const existingUser = await prisma.user.findFirst({ 
           where: { 
             email: user.email, 

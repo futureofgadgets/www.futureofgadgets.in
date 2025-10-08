@@ -76,6 +76,11 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
   const handleCredentialsAuth = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    if (!email.endsWith('@gmail.com')) {
+      toast.error('Only @gmail.com emails are allowed');
+      return;
+    }
+
     if (isSignUp && !validatePassword(password)) {
       toast.error(
         "Password must be 8+ characters with letters, numbers, and special characters"
@@ -136,6 +141,11 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
     e.preventDefault();
     if (!email) {
       toast.error('Please enter your email');
+      return;
+    }
+
+    if (!email.endsWith('@gmail.com')) {
+      toast.error('Only @gmail.com emails are allowed');
       return;
     }
 
@@ -687,26 +697,30 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
             </div>
           </motion.div>
           <motion.div
-            className="hidden md:flex items-center justify-center text-center text-7xl font-bold tracking-wide bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 relative overflow-hidden"
-            style={{ fontFamily: "'Great Vibes', cursive" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
+            className="hidden md:flex items-center justify-center text-center text-7xl font-bold tracking-wide relative overflow-hidden"
+            style={{ 
+              fontFamily: "'Great Vibes', cursive",
+              backgroundImage: "url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80')",
+              backgroundSize: "cover",
+              backgroundPosition: "center"
+            }}
           >
+            <div className="absolute inset-0 bg-black/50"></div>
             <div className="space-y-4 relative z-10">
               <motion.div
-                className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent leading-tight"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
+                className="leading-tight drop-shadow-2xl bg-gradient-to-r from-cyan-300 to-blue-400 bg-clip-text text-transparent"
+                initial={{ opacity: 0, rotateX: -90 }}
+                animate={{ opacity: 1, rotateX: 0 }}
+                transition={{ duration: 1, ease: "easeOut" }}
               >
                 Future of
               </motion.div>
+              
               <motion.div
-                className="bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 bg-clip-text text-transparent leading-tight"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 1.2 }}
+                className="leading-tight drop-shadow-2xl bg-gradient-to-r from-purple-300 to-pink-400 bg-clip-text text-transparent"
+                initial={{ opacity: 0, rotateX: 90 }}
+                animate={{ opacity: 1, rotateX: 0 }}
+                transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
               >
                 Gadgets
               </motion.div>
