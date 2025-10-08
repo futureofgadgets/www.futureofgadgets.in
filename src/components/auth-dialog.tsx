@@ -280,7 +280,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:min-w-5xl p-0 overflow-hidden">
+      <DialogContent className="sm:min-w-5xl p-0 overflow-hidden border-none">
         <div className="grid grid-cols-1 md:grid-cols-2">
           <motion.div 
             className="p-6"
