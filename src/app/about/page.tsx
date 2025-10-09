@@ -162,7 +162,7 @@ export default function AboutPage() {
           </div>
           
           <div className="text-center bg-white rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Our Green Goals for 2024</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Our Green Goals for 2025</h3>
             <div className="grid md:grid-cols-3 gap-4 mt-4">
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">50%</div>

@@ -34,7 +34,7 @@ const HeaderSlider = () => {
   if (loading) {
     return (
       <div className="overflow-hidden relative w-full">
-        <div className="relative py-16 md:py-24 px-5 md:px-14 mt-6 sm:h-[380px] bg-gray-200 animate-pulse flex items-center">
+        <div className="relative py-16 md:py-24 px-5 md:px-14 mt-6 min-h-[200px] sm:min-h-[350px] md:min-h-[400px] xl:min-h-[450px] bg-gray-200 animate-pulse flex items-center">
           <div className="relative z-10 max-w-2xl space-y-6">
             <div className="h-5 md:h-6 bg-gray-300 rounded w-48"></div>
             <div className="space-y-3">
@@ -69,7 +69,7 @@ const HeaderSlider = () => {
         {sliderData.map((slide, index) => (
           <Link href={(slide as any).link || '/products'} key={slide.id} className="min-w-full block">
             <div
-              className="relative py-16 md:py-24 px-5 md:px-14 mt-6 cursor-pointer overflow-hidden min-h-[200px] sm:min-h-[350px] flex items-center"
+              className="relative py-16 md:py-24 px-5 md:px-14 mt-6 cursor-pointer overflow-hidden min-h-[200px] sm:min-h-[350px] md:min-h-[400px] xl:min-h-[450px] flex items-center"
               style={{
                 backgroundImage: (slide as any).image ? `url(${(slide as any).image})` : 'none',
                 backgroundSize: 'cover',
@@ -90,15 +90,15 @@ const HeaderSlider = () => {
               )}
               <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-transparent z-[1]"></div>
               <div className="relative z-10 max-w-2xl text-white">
-                <p className="md:text-base text-orange-400 pb-2 font-semibold">{slide.offer}</p>
-                <h1 className="md:text-[40px] md:leading-[48px] text-2xl font-bold mb-6">
+                <p className="text-xs sm:text-sm md:text-base text-orange-400 pb-1 sm:pb-2 font-semibold">{slide.offer}</p>
+                <h1 className="text-lg sm:text-2xl md:text-[40px] md:leading-[48px] font-bold mb-3 sm:mb-6">
                   {slide.title}
                 </h1>
-                <div className="flex items-center gap-4">
-                  <Button className="md:px-10 px-7 md:py-2.5 py-2 bg-orange-600 hover:bg-orange-700 rounded-full text-white font-medium cursor-pointer" >
+                <div className="flex items-center gap-2 sm:gap-4">
+                  <Button className="text-xs sm:text-sm md:text-base md:px-10 px-4 sm:px-7 md:py-2.5 py-1.5 sm:py-2 bg-orange-600 hover:bg-orange-700 rounded-full text-white font-medium cursor-pointer" >
                     {slide.buttonText1}
                   </Button>
-                  <Button className="group flex items-center gap-2 px-6 py-2.5 font-medium bg-white/20 hover:bg-white/30 border-none shadow-none text-white cursor-pointer rounded-full">
+                  <Button className="group flex items-center gap-1 sm:gap-2 text-xs sm:text-sm md:text-base px-4 sm:px-6 py-1.5 sm:py-2.5 font-medium bg-white/20 hover:bg-white/30 border-none shadow-none text-white cursor-pointer rounded-full">
                     {slide.buttonText2}
                     <span className="group-hover:translate-x-1 transition">→</span>
                   </Button>

@@ -55,7 +55,7 @@ export function Footer() {
         </div>
         
         <div className="border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-xs sm:text-sm text-gray-400 text-center md:text-left">© 2024 Electronic Store. All rights reserved.</p>
+          <p className="text-xs sm:text-sm text-gray-400 text-center md:text-left">© 2025 Electronic Store. All rights reserved.</p>
           <div className="flex space-x-4 sm:space-x-6 mt-3 sm:mt-4 md:mt-0">
             <Link href="/privacy" className="text-xs sm:text-sm text-gray-400 hover:text-white">Privacy Policy</Link>
             <Link href="/terms" className="text-xs sm:text-sm text-gray-400 hover:text-white">Terms of Service</Link>

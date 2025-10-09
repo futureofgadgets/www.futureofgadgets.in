@@ -59,7 +59,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1400px] px-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Featured Products</h2>
-            <Link href="/products" className="text-blue-600 hover:text-blue-700 font-semibold text-sm">View All →</Link>
+            <Link href="/products" scroll={true} className="text-blue-600 hover:text-blue-700 font-semibold text-sm">View All →</Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-3 ">
             {popularProducts.slice(0, 6).map((product) => (
@@ -98,7 +98,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1400px] px-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Best Sellers</h2>
-            <Link href="/products" className="text-blue-600 hover:text-blue-700 font-semibold text-sm">View All →</Link>
+            <Link href="/products" scroll={true} className="text-blue-600 hover:text-blue-700 font-semibold text-sm">View All →</Link>
           </div>
              <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-3 overflow-hidden">
             {popularProducts.slice(0, 6).map((product) => (
@@ -114,7 +114,7 @@ export default function HomePage() {
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Shop by Brand</h2>
                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 ">
             {['Apple', 'Samsung', 'Dell', 'HP', 'Lenovo', 'Asus'].map((brand) => (
-              <Link key={brand} href="/products" className="bg-gray-50 dark:bg-gray-900 border overflow-hidden border-gray-200 dark:border-gray-700 rounded p-5 text-center hover:bg-white dark:hover:bg-gray-800 hover:border-blue-500 hover:shadow-md transition-all group">
+              <Link key={brand} href="/products" scroll={true} className="bg-gray-50 dark:bg-gray-900 border overflow-hidden border-gray-200 dark:border-gray-700 rounded p-5 text-center hover:bg-white dark:hover:bg-gray-800 hover:border-blue-500 hover:shadow-md transition-all group">
                 <span className="text-sm font-semibold text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400">{brand}</span>
               </Link>
             ))}
@@ -127,7 +127,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1400px] px-6 ">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Trending Now</h2>
-            <Link href="/products" className="text-blue-600 hover:text-blue-700 font-semibold text-sm">View All →</Link>
+            <Link href="/products" scroll={true} className="text-blue-600 hover:text-blue-700 font-semibold text-sm">View All →</Link>
           </div>
              <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-3 ">
             {popularProducts.slice(0, 6).map((product) => (
@@ -165,7 +165,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1400px] px-6">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">New Arrivals</h2>
-            <Link href="/products" className="text-blue-600 hover:text-blue-700 font-semibold text-sm">View All →</Link>
+            <Link href="/products" scroll={true} className="text-blue-600 hover:text-blue-700 font-semibold text-sm">View All →</Link>
           </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-3 ">
             {popularProducts.slice(0, 6).map((product) => (
