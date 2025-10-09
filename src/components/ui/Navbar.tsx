@@ -123,7 +123,7 @@ export function Navbar() {
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
-      <nav className="mx-auto flex w-full items-center justify-between gap-2 px-4 py-2 md:py-3">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between gap-2 px-4 py-2 md:py-3">
         <div className="flex items-center gap-1 md:gap-6">
           <Link
             href="/"
