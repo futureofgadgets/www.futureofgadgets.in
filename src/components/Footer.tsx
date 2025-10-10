@@ -6,7 +6,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-8 sm:py-12">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           <div>
-            <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Electronic Store</h3>
+            <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Future Of Gadgets</h3>
             <p className="text-gray-400 text-xs sm:text-sm mb-3 sm:mb-4">Your trusted partner for all electronics and tech gadgets.</p>
             <div className="flex space-x-3 sm:space-x-4">
               <a href="#" className="text-gray-400 hover:text-white" aria-label="Twitter">
@@ -55,7 +55,7 @@ export function Footer() {
         </div>
         
         <div className="border-t border-gray-800 mt-6 sm:mt-8 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-xs sm:text-sm text-gray-400 text-center md:text-left">© 2025 Electronic Store. All rights reserved.</p>
+          <p className="text-xs sm:text-sm text-gray-400 text-center md:text-left">© 2025 Future Of Gadgets. All rights reserved.</p>
           <div className="flex space-x-4 sm:space-x-6 mt-3 sm:mt-4 md:mt-0">
             <Link href="/privacy" className="text-xs sm:text-sm text-gray-400 hover:text-white">Privacy Policy</Link>
             <Link href="/terms" className="text-xs sm:text-sm text-gray-400 hover:text-white">Terms of Service</Link>

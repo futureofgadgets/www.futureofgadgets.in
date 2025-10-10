@@ -62,12 +62,12 @@ export function getVerificationEmailTemplate(code: string, email: string): strin
   return `
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
       <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="color: #2563eb; margin: 0;">Electronic Web</h1>
+        <h1 style="color: #2563eb; margin: 0;">Future Of Gadgets</h1>
         <p style="color: #6b7280; margin: 5px 0;">Verify your email address</p>
       </div>
       
       <div style="background: #f9fafb; padding: 30px; border-radius: 8px; margin-bottom: 20px;">
-        <h2 style="color: #1f2937; margin-top: 0;">Welcome to Electronic Web!</h2>
+        <h2 style="color: #1f2937; margin-top: 0;">Welcome to Future Of Gadgets!</h2>
         <p style="color: #4b5563; line-height: 1.6;">
           Thank you for signing up. Use this verification code:
         </p>
@@ -94,7 +94,7 @@ export function getPasswordResetEmailTemplate(code: string, email: string): stri
   return `
     <div style="max-width: 600px; margin: 0 auto; padding: 20px; font-family: Arial, sans-serif;">
       <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="color: #2563eb; margin: 0;">Electronic Web</h1>
+        <h1 style="color: #2563eb; margin: 0;">Future Of Gadgets</h1>
         <p style="color: #6b7280; margin: 5px 0;">Reset your password</p>
       </div>
       

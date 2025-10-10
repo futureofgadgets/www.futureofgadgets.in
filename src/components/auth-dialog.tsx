@@ -194,7 +194,7 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
           redirect: false,
         });
         if (result?.ok) {
-          toast.success('Welcome to Electronic!');
+          toast.success('Welcome to Future Of Gadgets!');
           onOpenChange(false);
         } else {
           toast.error('Account created but sign in failed. Please sign in manually.');
@@ -301,8 +301,8 @@ export function AuthDialog({ open, onOpenChange, mode }: AuthDialogProps) {
                   : isForgotPassword
                   ? "Enter your email to reset password"
                   : isSignUp
-                  ? "Sign up to get started with Electronic"
-                  : "Sign in to your Electronic account"}
+                  ? "Sign up to get started with Future Of Gadgets"
+                  : "Sign in to your Future Of Gadgets account"}
               </p>
             </DialogHeader>
             <div className="space-y-6 p-2">

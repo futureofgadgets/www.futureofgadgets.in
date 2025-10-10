@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     try {
       await sendEmail(
         email,
-        'Reset your password - Electronic Web',
+        'Reset your password - Future Of Gadgets',
         getPasswordResetEmailTemplate(code, email)
       )
       console.log('✅ Email sent to:', email)

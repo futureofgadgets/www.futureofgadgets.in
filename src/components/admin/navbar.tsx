@@ -40,7 +40,7 @@ export function AdminNavbar() {
                 <Package className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">Electronic</h1>
+                <h1 className="text-2xl font-bold text-white">Future Of Gadgets</h1>
                 <p className="text-blue-200 text-sm">Admin Panel</p>
               </div>
             </Link>

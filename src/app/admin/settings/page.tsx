@@ -19,7 +19,7 @@ import {
 export default function SettingsPage() {
   const [activeSection, setActiveSection] = useState<string>('all')
   const [homeSettings, setHomeSettings] = useState({
-    heroTitle: 'Welcome to Electronic Store',
+    heroTitle: 'Welcome to Future Of Gadgets',
     heroSubtitle: 'Find the best electronics at amazing prices',
     featuredProducts: 6,
     carouselImages: 5,
@@ -95,16 +95,16 @@ export default function SettingsPage() {
   }, [])
 
   const [aboutSettings, setAboutSettings] = useState({
-    title: 'About Electronic Store',
+    title: 'About Future Of Gadgets',
     description: 'We are a leading electronics retailer providing quality products since 2020.',
     mission: 'To provide the best electronics at affordable prices with excellent customer service.'
   })
 
   const [contactSettings, setContactSettings] = useState({
-    email: 'contact@electronic.com',
-    phone: '+91 9876543210',
-    address: '123 Electronics Street, Tech City, India',
-    hours: 'Mon-Sat: 9AM-8PM, Sun: 10AM-6PM'
+    email: '',
+    phone: '',
+    address: '',
+    hours: ''
   })
 
   const handleSave = async (section: string, tag: string, data: any) => {

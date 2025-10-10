@@ -12,7 +12,7 @@ export default function AboutPage() {
       <div className="max-w-6xl mx-auto px-4 pt-20 md:pt-12">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-gray-900 mb-6">About Electronic Web</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-6">About Future Of Gadgets</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
             Your trusted destination for quality electronics and cutting-edge technology in India. 
             We&apos;re committed to making the latest innovations accessible to everyone.

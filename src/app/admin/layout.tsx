@@ -72,7 +72,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
               className="h-10 w-10 rounded bg-transparent"
             />
             <div>
-              <h1 className="text-lg font-bold text-gray-900">Electronic</h1>
+              <h1 className="text-sm md:text-lg font-bold text-gray-900">Future Of Gadgets</h1>
               <p className="text-xs text-gray-500">Admin Panel</p>
             </div>
           </Link>
