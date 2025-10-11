@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import Image from "next/image";
 
 const HeaderSlider = () => {
   const [sliderData, setSliderData] = useState<any[]>([]);
@@ -81,7 +82,9 @@ const HeaderSlider = () => {
                 <div className="absolute inset-0 bg-gray-300 animate-pulse" />
               )}
               {(slide as any).image && (
-                <img
+                <Image
+                 fetchPriority="high" 
+                 fill
                   src={(slide as any).image}
                   alt=""
                   className="absolute inset-0 w-full h-full object-cover opacity-0"
