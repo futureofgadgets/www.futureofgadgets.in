@@ -91,7 +91,7 @@ export default function ProductCard({ product }: { product: Product }) {
             });
           }}
           disabled={product.quantity <= 0}
-          className="w-full bg-[#4a5f52] hover:bg-[#3d4f43] text-white text-[10px] xs:text-xs sm:text-sm font-semibold py-2 xs:py-2.5 rounded-full flex items-center justify-center gap-1.5 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="w-full bg-yellow-400 hover:bg-yellow-500 text-black text-[10px] xs:text-xs sm:text-sm font-semibold py-3 sm:py-3.5 rounded-sm flex items-center justify-center gap-1.5 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           <ShoppingBag className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4" />
           Add to Cart

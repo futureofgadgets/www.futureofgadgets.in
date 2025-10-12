@@ -1,11 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { GitCompareArrows, Headset, ShieldCheck, Truck } from "lucide-react";
-import Title from "../ui/Title";
-
+// search?q=laptops
 const brands = [
-  { name: "Apple", image: "/brand/Apple.png" },
+  { name: "Apple", image: "/brand/Apple.png",},
   { name: "Asus", image: "/brand/Asus.png" },
   { name: "Dell", image: "/brand/dell.png" },
   { name: "HP", image: "/brand/hp.webp" },
@@ -14,56 +12,38 @@ const brands = [
   { name: "Sony", image: "/brand/acer.png" },
 ];
 
-const extraData = [
-  {
-    title: "Free Delivery",
-    description: "Free shipping over $100",
-    icon: <Truck size={45} />,
-  },
-  {
-    title: "Free Return",
-    description: "Free shipping over $100",
-    icon: <GitCompareArrows size={45} />,
-  },
-  {
-    title: "Customer Support",
-    description: "Friendly 27/7 customer support",
-    icon: <Headset size={45} />,
-  },
-  {
-    title: "Money Back guarantee",
-    description: "Quality checked by our team",
-    icon: <ShieldCheck size={45} />,
-  },
-];
+
 
 
 
 const ShopByBrands = () => {
   return (
-    <div className="mt-5 p-5 lg:p-7 rounded-md mx-auto max-w-[1400px] sm:px-6">
-      <div className="flex items-center gap-5 justify-between mb-10">
-        <Title>Shop By Brands</Title>
-        <Link href="/products" scroll={true} className="text-blue-600 hover:text-blue-700 font-semibold text-xs sm:text-sm">View All</Link>
+     <section className="bg-white py-12">
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-10">
+        <div className="border border-[#c1e5cf] dark:border-gray-600 rounded-lg p-8">
+          <div className="mb-8">
+            <h2 className="text-2xl font-semibold text-gray-900 dark:text-white pb-3 border-b border-[#c1e5cf]">Shop By Brands</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-6">
+            {brands.map((brand) => (
+            <a
+              key={brand.name}
+              href={`/search?q=${brand.name.toLowerCase()}`}
+              className="bg-gray-50 w-full h-20 flex items-center justify-center rounded-lg overflow-hidden hover:shadow-md hover:bg-white dark:hover:bg-gray-600 transition-all duration-300 border border-gray-100 dark:border-gray-600"
+            >
+              <Image
+                src={brand.image}
+                alt={brand.name}
+                width={120}
+                height={80}
+                className="w-16 h-12 object-contain transition-all duration-300"
+              />
+            </a>
+          ))}
+          </div>
+        </div>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
-        {brands.map((brand) => (
-          <Link
-            key={brand.name}
-            href="/products"
-            className="bg-white w-full h-24 flex items-center justify-center rounded-md overflow-hidden hover:shadow-lg transition"
-          >
-            <Image
-              src={brand.image}
-              alt={brand.name}
-              width={250}
-              height={250}
-              className="w-32 h-20 object-contain"
-            />
-          </Link>
-        ))}
-      </div>
-    </div>
+    </section>
   );
 };
 

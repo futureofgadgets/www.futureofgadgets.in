@@ -60,17 +60,17 @@ const HeaderSlider = () => {
   if (sliderData.length === 0) return null;
 
   return (
-    <div className="overflow-hidden relative w-full">
+    <div className="overflow-hidden relative w-full ">
       <div
-        className="flex transition-transform duration-700 ease-in-out"
+        className="flex transition-transform duration-700 ease-in-out "
         style={{
           transform: `translateX(-${currentSlide * 100}%)`,
         }}
       >
         {sliderData.map((slide, index) => (
-          <Link href={(slide as any).link || '/products'} key={slide.id} className="min-w-full block">
+          <Link href={(slide as any).link || '/products'} key={slide.id} className="min-w-full block rounded-sm overflow-hidden">
             <div
-              className="relative py-16 md:py-24 px-5 md:px-14 mt-6 cursor-pointer overflow-hidden flex items-center"
+              className="relative py-16 md:py-24 px-5 md:px-14 mt-6 cursor-pointer overflow-hidden flex items-center rounded-sm"
               style={{
                 backgroundImage: (slide as any).image ? `url(${(slide as any).image})` : 'none',
                 backgroundSize: 'cover',
@@ -79,7 +79,7 @@ const HeaderSlider = () => {
               }}
             >
               {(slide as any).image && !loadedImages.has(slide.id) && (
-                <div className="absolute inset-0 bg-gray-300 animate-pulse " />
+                <div className="absolute inset-0 bg-gray-300 animate-puls overflow-hidden" />
               )}
               {(slide as any).image && (
                 <Image
@@ -87,7 +87,7 @@ const HeaderSlider = () => {
                  fill
                   src={(slide as any).image}
                   alt=""
-                  className="absolute inset-0 w-full h-20 object-cover opacity-0"
+                  className="absolute inset-0 w-full h-20 object-cover opacity-0 rounded-sm overflow-hidden"
                   onLoad={() => setLoadedImages(prev => new Set(prev).add(slide.id))}
                 />
               )}

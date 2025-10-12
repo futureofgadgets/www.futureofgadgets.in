@@ -763,7 +763,7 @@ export function Navbar() {
                         asChild
                         className="cursor-pointer rounded-lg mb-1"
                       >
-                        <Link
+                        <a
                           href="/admin"
                           className="flex items-center gap-3 px-3 py-2.5 hover:bg-orange-50 dark:hover:bg-orange-950 transition-colors"
                         >
@@ -794,7 +794,7 @@ export function Navbar() {
                               Manage your store
                             </p>
                           </div>
-                        </Link>
+                        </a>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem
