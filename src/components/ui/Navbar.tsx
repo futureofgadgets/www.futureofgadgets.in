@@ -639,8 +639,8 @@ export function Navbar() {
               initial={{ opacity: 0, y: -100 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -100 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 shadow-2xl rounded-b-3xl"
+              transition={{ type: "tween", duration: 0.2, ease: "easeOut" }}
+              className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 shadow-2xl rounded-b-3xl will-change-transform"
             >
               <div className="p-4 pb-6">
                 <div className="flex items-center justify-between mb-4">
