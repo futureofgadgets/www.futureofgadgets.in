@@ -9,6 +9,7 @@ import { getCart } from "@/lib/cart";
 export default function BottomNav() {
   const pathname = usePathname();
   const [count, setCount] = useState(0);
+  const [wishlistCount, setWishlistCount] = useState(0);
 
   useEffect(() => {
     const updateCart = () => {
@@ -16,14 +17,24 @@ export default function BottomNav() {
       setCount(items.reduce((n, i) => n + (i.qty || 1), 0));
     };
 
+    const updateWishlist = () => {
+      const wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+      setWishlistCount(wishlist.length);
+    };
+
     updateCart();
+    updateWishlist();
 
     window.addEventListener("storage", updateCart);
     window.addEventListener("v0-cart-updated", updateCart as EventListener);
+    window.addEventListener("storage", updateWishlist);
+    window.addEventListener("wishlist-updated", updateWishlist as EventListener);
 
     return () => {
       window.removeEventListener("storage", updateCart);
       window.removeEventListener("v0-cart-updated", updateCart as EventListener);
+      window.removeEventListener("storage", updateWishlist);
+      window.removeEventListener("wishlist-updated", updateWishlist as EventListener);
     };
   }, []);
 
@@ -43,11 +54,20 @@ export default function BottomNav() {
         {/* Wishlist */}
         <Link
           href="/wishlist"
-          className={`flex flex-col items-center justify-center ${
-            pathname === "/wishlist" ? "text-orange-600" : "text-gray-600 dark:text-gray-400"
-          }`}
+          className="relative flex flex-col items-center justify-center"
         >
-          <Heart className="w-6 h-6" />
+          <Heart
+            className={`w-6 h-6 transition-colors ${
+              pathname === "/wishlist"
+                ? "fill-pink-500 text-pink-500"
+                : "text-gray-600 dark:text-gray-400"
+            }`}
+          />
+          {wishlistCount > 0 && (
+            <span className="absolute -top-1 -right-2 h-4 w-4 rounded-full bg-pink-500 text-white text-[10px] font-semibold flex items-center justify-center">
+              {wishlistCount > 9 ? "9+" : wishlistCount}
+            </span>
+          )}
         </Link>
 
         {/* Cart */}

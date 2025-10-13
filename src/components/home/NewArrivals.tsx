@@ -43,7 +43,7 @@ export default function NewArrivals(){
     setProducts(products.map(p => 
       p.id === product.id ? { ...p, quantity: p.quantity - 1 } : p
     ));
-    toast.success("Added to cart", {
+    toast.success("", {
       description: `${product.name} has been added to your cart.`
     });
   };

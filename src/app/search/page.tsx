@@ -78,7 +78,7 @@ function SearchContent() {
       }
       return p;
     }));
-    toast.success("Added to cart", {
+    toast.success("", {
       description: `${product.name} has been added to your cart.`
     });
   };

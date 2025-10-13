@@ -49,8 +49,12 @@ export default function WishlistPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen mt-5 sm:mt-2 bg-white to-white flex items-center justify-center p-4">
-        <div className="max-w-2xl w-full text-center">
+      <div className="min-h-screen mt-5 sm:mt-2 bg-white to-white p-4">
+        <header className="mb-8 text-left">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">My Wishlist</h1>
+          <p className="text-gray-600 sm:mt-2">Save your favorite items for later</p>
+        </header>
+        <div className="max-w-2xl w-full text-center mx-auto">
           <div className="relative w-32 h-32 sm:w-40 sm:h-40 mx-auto mb-6 sm:mb-8">
             <div className="absolute inset-0 bg-gradient-to-br from-pink-100 to-red-100 rounded-full animate-pulse" />
             <div className="absolute inset-4 bg-gradient-to-br from-pink-200 to-red-200 rounded-full" />
@@ -100,7 +104,7 @@ export default function WishlistPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 mt-5 sm:mt-2">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <h1 className="text-xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2">
@@ -190,7 +194,7 @@ export default function WishlistPage() {
                           price: item.price,
                           image: item.image,
                         })
-                        toast.success('Added to cart')
+                        toast.success('', { description: `${item.name} has been added to your cart.` })
                       }}
                       className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-3 text-sm transition-all shadow-md"
                     >

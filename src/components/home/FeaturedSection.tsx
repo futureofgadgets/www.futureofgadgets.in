@@ -19,7 +19,7 @@ export default function FeaturedSection() {
       price: product.price,
       image: product.frontImage || product.image
     })
-    toast.success('Added to cart', { description: product.name })
+       toast.success('', { description: `${product.name} has been added to your cart.` })
   }
 
   const handleBuyNow = (e: React.MouseEvent, product: any) => {
