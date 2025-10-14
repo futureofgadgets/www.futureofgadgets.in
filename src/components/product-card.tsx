@@ -167,7 +167,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
           </div>
           
           {onAddToCart && onBuyNow && (
-            <div className="flex gap-2 hidden sm:block ">
+            <div className="hidden sm:flex gap-2">
               <button
                 onClick={(e) => onAddToCart(e, product)}
                 disabled={currentQty === 0}
