@@ -106,7 +106,7 @@ const HeaderSlider = () => {
             className="min-w-full block sm:rounded-lg overflow-hidden"
           >
             <div
-              className="relative px-1 sm:py-16 md:py-20 sm:px-8 md:px-12 mt-5 sm:mt-10 cursor-pointer overflow-hidden flex items-center sm:rounded-lg"
+              className="relative px-1 sm:py-16 md:py-20 sm:px-8 md:px-12 mt-5 sm:mt-10 md:!min-h-[350px] lg:!min-h-[400px] cursor-pointer overflow-hidden flex items-center sm:rounded-lg"
               style={{
                 backgroundImage: (slide as any).image
                   ? `url(${(slide as any).image})`
@@ -114,7 +114,7 @@ const HeaderSlider = () => {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundColor: "#E6E9F2",
-                minHeight: "180px",
+                minHeight: "270px",
               }}
             >
               {(slide as any).image && !loadedImages.has(slide.id) && (
