@@ -64,10 +64,10 @@ export default function FeaturedSection() {
 
   return (
     <section className="py-6 sm:py-10">
-      <div className="mx-auto max-w-[1400px] px-3 sm:px-6 lg:px-8">
+     <div className="mx-auto max-w-[1440px]  sm:px-6 lg:px-11">
         {products.length > 0 && (
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 sm:mb-6 px-3 sm:px-0">
               <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Featured Products</h2>
               <Link href="/section/featured" className="sm:px-4 sm:p-2 sm:bg-blue-100 rounded-full text-blue-600 hover:text-blue-700 font-semibold text-xs sm:text-sm whitespace-nowrap hover:underline">View All</Link>
             </div>
