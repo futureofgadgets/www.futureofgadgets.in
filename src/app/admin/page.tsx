@@ -320,7 +320,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Products</h2>
-              <Link href="/admin/products" className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium hover:underline">View All →</Link>
+              <Link href="/admin/products" className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium hover:underline">View All</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -350,7 +350,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Orders</h2>
-              <Link href="/admin/orders" className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium hover:underline">View All →</Link>
+              <Link href="/admin/orders" className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium hover:underline">View All</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">
@@ -392,7 +392,7 @@ export default function AdminDashboardPage() {
           <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
               <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Users</h2>
-              <Link href="/admin/users" className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium hover:underline">View All →</Link>
+              <Link href="/admin/users" className="text-blue-600 hover:text-blue-800 text-xs sm:text-sm font-medium hover:underline">View All</Link>
             </div>
             <div className="overflow-x-auto">
               <table className="min-w-full">

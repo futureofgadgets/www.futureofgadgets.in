@@ -3,18 +3,14 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-const categoryIcons: { [key: string]: string } = {
-  laptops: "💻",
-  monitors: "🖥️",
-  keyboards: "⌨️",
-  mouse: "🖱️",
-  headphones: "🎧",
-  chargers: "🔌",
-  desktops: "🖥️",
-  speakers: "🔊",
-  webcams: "📹",
-  storage: "💾",
-  ram: "🧠",
+const categoryImages: { [key: string]: string } = {
+  laptops: "/category/laptop.jpeg",
+  monitors: "/category/monitor.jpeg",
+  keyboards: "/category/keyboard.jpeg",
+  mouse: "/category/mouse.jpeg",
+  headphones: "/category/headphones.jpeg",
+  accessories: "/category/accessories.png",
+  storage: "/category/storage.jpeg",
 };
 
 export default function CategoryPage() {
@@ -75,7 +71,7 @@ export default function CategoryPage() {
             {categories.map((cat) => (
               <Link key={cat.slug} href={`/category/${cat.slug}`}>
                 <div className="bg-white border rounded-lg p-6 hover:shadow-lg transition-shadow text-center">
-                  <div className="text-5xl mb-3">{categoryIcons[cat.slug] || "📦"}</div>
+                  <img src={categoryImages[cat.slug] || "/placeholder.svg"} alt={cat.name} className="w-16 h-16 object-contain mx-auto mb-3" />
                   <h3 className="font-semibold text-sm mb-1">{cat.name}</h3>
                   <p className="text-xs text-gray-500">{cat.count} products</p>
                 </div>

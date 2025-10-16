@@ -169,24 +169,33 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
           </Link>
 
           {onAddToCart && onBuyNow && (
-<><div className="sm:hidden flex items-center text-sm text-orange-600"><span> Buy now 
-  </span><ChevronRight className="h-4 -left-4"/></div>
-            <div className="hidden sm:flex gap-2">
-              <button
-                onClick={(e) => onAddToCart(e, product)}
-                disabled={currentQty === 0}
-                className="flex-1 bg-yellow-400 hover:bg-yellow-500  text-gray-900 font-bold py-2 text-[10px] lg:text-[12px] xl:text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
-              >
-                ADD TO CART
-              </button>
-              <button
-                onClick={(e) => onBuyNow(e, product)}
-                disabled={currentQty === 0}
-                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 text-[10px] lg:text-[12px] xl:text-sm lg:text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
-              >
-                BUY NOW
-              </button>
-            </div>
+            <>
+              {currentQty === 0 ? (
+                <div className="sm:hidden text-sm font-semibold text-red-600 text-left py-2">
+                  Out of Stock
+                </div>
+              ) : (
+                <div className="sm:hidden flex items-center text-sm text-orange-600">
+                  <span>Buy now</span>
+                  <ChevronRight className="h-4 -left-4"/>
+                </div>
+              )}
+              <div className="hidden sm:flex gap-2">
+                <button
+                  onClick={(e) => onAddToCart(e, product)}
+                  disabled={currentQty === 0}
+                  className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 text-[10px] lg:text-[12px] xl:text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+                >
+                  ADD TO CART
+                </button>
+                <button
+                  onClick={(e) => onBuyNow(e, product)}
+                  disabled={currentQty === 0}
+                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 text-[10px] lg:text-[12px] xl:text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
+                >
+                  BUY NOW
+                </button>
+              </div>
             </>
           )}
         </div>

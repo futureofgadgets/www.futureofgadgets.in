@@ -11,6 +11,18 @@ export default function BestSeller(){
   const router = useRouter()
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [displayCount, setDisplayCount] = useState(5)
+
+  useEffect(() => {
+    const updateCount = () => {
+      if (window.innerWidth < 640) setDisplayCount(4);
+      else if (window.innerWidth < 768) setDisplayCount(6);
+      else setDisplayCount(5);
+    };
+    updateCount();
+    window.addEventListener('resize', updateCount);
+    return () => window.removeEventListener('resize', updateCount);
+  }, []);
 
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault()
@@ -45,11 +57,11 @@ export default function BestSeller(){
     ]).then(([settings, allProducts]) => {
       const ids = settings.sectionProducts?.bestSeller || []
       if (ids.length > 0) {
-        setProducts(allProducts.filter((p: any) => ids.includes(p.id)).slice(0, 5))
+        setProducts(allProducts.filter((p: any) => ids.includes(p.id)))
       } else {
-        setProducts(popularProducts.slice(0, 5))
+        setProducts(popularProducts)
       }
-    }).catch(() => setProducts(popularProducts.slice(0, 5)))
+    }).catch(() => setProducts(popularProducts))
       .finally(() => setLoading(false))
   }, [])
 
@@ -61,11 +73,11 @@ export default function BestSeller(){
             <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Best Sellers</h2>
             <p className="hidden sm:block sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1">Most popular products</p>
           </div>
-           <Link href="/products" scroll={true} className="sm:px-4 sm:p-2 sm:bg-blue-100 rounded-full text-blue-600 hover:text-blue-700 font-semibold text-xs sm:text-sm whitespace-nowrap hover:underline">View All </Link>
+           <Link href="/section/best-sellers" scroll={true} className="sm:px-4 sm:p-2 sm:bg-blue-100 rounded-full text-blue-600 hover:text-blue-700 font-semibold text-xs sm:text-sm whitespace-nowrap hover:underline">View All </Link>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 sm:gap-2">
+         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-0 sm:gap-2">
           {loading ? (
-            Array.from({ length: 10 }).map((_, i) => (
+            Array.from({ length: displayCount }).map((_, i) => (
               <div key={i} className="bg-white rounded-sm p-4 animate-pulse">
                 <div className="aspect-[4/3] bg-gray-200 mb-4"></div>
                 <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -75,7 +87,7 @@ export default function BestSeller(){
               </div>
             ))
           ) : (
-            products.map((product) => (
+            products.slice(0, displayCount).map((product) => (
               <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
             ))
           )}

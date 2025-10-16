@@ -1,41 +1,33 @@
 // src/components/Loading.tsx
 "use client";
 
-import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
-export default function Loading (){
+export default function Loading() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-100/80 backdrop-blur-sm">
-      <motion.div
-        className="flex flex-col items-center"
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* Spinner Icon */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
-          className="text-blue-600"
-        >
-          <Loader2 className="w-12 h-12" />
-        </motion.div>
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white">
+      {/* Minimal rotating ring */}
+      <div className="text-center">
+        <span className="block text-2xl sm:text-3xl font-semibold text-gray-800 mb-4 tracking-wide">
+          Future Of Gadgets
+        </span>
 
-        
+        <div className="flex items-center justify-center gap-2">
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
+            className="text-blue-600"
+          >
+            <Loader2 className="w-6 h-6" />
+          </motion.div>
 
-        {/* Please wait Text */}
-        <motion.p
-          className="mt-1 ml-4 text-gray-900 text-sm italic"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          Please wait a moment ...
-        </motion.p>
-      </motion.div>
+          <span className="text-gray-600 text-sm sm:text-base font-medium">
+            Future of Gadgets is loading
+            <span className="animate-pulse text-blue-500">...</span>
+          </span>
+        </div>
+      </div>
     </div>
   );
-};
-
-
+}

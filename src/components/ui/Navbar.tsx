@@ -191,11 +191,16 @@ export function Navbar() {
   <Link
     href="/wishlist"
     aria-label="View wishlist"
-    className="relative rounded-full hover:bg-gray-100 transition-colors"
+    className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
   >
-    <Heart className="w-5 h-5 text-gray-700" />
+    <Heart className={`w-5 h-5 ${
+                    pathname === "/wishlist"
+                      ? "fill-red-500 text-red-500"
+                      : "text-gray-700 dark:text-gray-300 hover:text-red-600"
+                  }`}
+                />
     {wishlistCount > 0 && (
-      <span className="absolute -top-1.5 -right-1 h-4 w-4 rounded-full bg-pink-500 text-white text-[8px] font-bold flex items-center justify-center">
+      <span className="absolute top-1 right-0.5 h-4 w-4 rounded-full bg-pink-500 text-white text-[8px] font-bold flex items-center justify-center">
         {wishlistCount > 9 ? "9+" : wishlistCount}
       </span>
     )}
@@ -336,7 +341,7 @@ export function Navbar() {
                   }`}
                 />
                 {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 h-4.5 w-4.5 rounded-full bg-red-500 text-xs font-semibold text-white flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-4.5 w-4.5 rounded-full bg-pink-500 text-xs font-semibold text-white flex items-center justify-center">
                     {wishlistCount > 9 ? "9+" : wishlistCount}
                   </span>
                 )}

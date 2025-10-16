@@ -56,8 +56,8 @@ const HeaderSlider = () => {
     return (
       <div className="overflow-hidden relative w-full">
         <div
-          className="relative px-1 sm:py-16 md:py-20 sm:px-8 md:px-12 mt-5 sm:mt-10 bg-gray-200 animate-pulse flex items-center sm:rounded-lg"
-          style={{ height: "280px" }}
+          className="relative px-1 sm:py-16 md:py-20 sm:px-8 md:px-12 mt-5 sm:mt-10 md:!min-h-[350px] lg:!min-h-[400px] bg-gray-200 animate-pulse flex items-center sm:rounded-lg"
+          style={{ height: "240px" }}
         >
           <div className="relative z-10 max-w-2xl space-y-3 sm:space-y-4">
             <div className="h-4 sm:h-5 bg-gray-300 rounded w-32 sm:w-48"></div>
@@ -114,7 +114,7 @@ const HeaderSlider = () => {
                 backgroundSize: "cover",
                 backgroundPosition: "center",
                 backgroundColor: "#E6E9F2",
-                minHeight: "270px",
+                minHeight: "240px",
               }}
             >
               {(slide as any).image && !loadedImages.has(slide.id) && (

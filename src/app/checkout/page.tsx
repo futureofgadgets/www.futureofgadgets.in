@@ -299,64 +299,64 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <main className="min-h-screen bg-white flex items-center justify-center px-4">
+      <main className="min-h-screen bg-white flex items-center justify-center px-4 py-20 sm:py-8">
         <div className="max-w-2xl w-full">
           <div className="text-center">
             {/* Empty Cart Illustration */}
-            <div className="relative w-48 h-48 mx-auto mb-8">
+            <div className="relative w-32 h-32 sm:w-48 sm:h-48 mx-auto mb-6 sm:mb-8">
               <div className="absolute inset-0 bg-blue-50 rounded-full"></div>
-              <div className="absolute inset-8 bg-blue-100 rounded-full"></div>
+              <div className="absolute inset-6 sm:inset-8 bg-blue-100 rounded-full"></div>
               <div className="absolute inset-0 flex items-center justify-center">
-                <ShoppingBag className="w-24 h-24 text-blue-600" strokeWidth={1.5} />
+                <ShoppingBag className="w-16 h-16 sm:w-24 sm:h-24 text-blue-600" strokeWidth={1.5} />
               </div>
             </div>
 
             {/* Content */}
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">Your Cart is Empty</h1>
-            <p className="text-lg text-gray-600 mb-8 max-w-md mx-auto">
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-3 sm:mb-4">Your Cart is Empty</h1>
+            <p className="text-sm sm:text-lg text-gray-600 mb-6 sm:mb-8 max-w-md mx-auto px-4">
               Looks like you haven&apos;t added any items to your cart yet. Start shopping to find amazing products!
             </p>
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center">
               <button
                 onClick={() => router.push('/')}
-                className="px-8 py-3.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold flex items-center gap-2 shadow-lg hover:shadow-xl transition-all"
+                className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold flex items-center justify-center gap-2 shadow-lg hover:shadow-xl transition-all text-sm sm:text-base"
               >
-                <ShoppingBag className="w-5 h-5" />
+                <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5" />
                 Start Shopping
               </button>
               <button
                 onClick={() => router.push('/cart')}
-                className="px-8 py-3.5 bg-white text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold flex items-center gap-2 transition-all"
+                className="w-full sm:w-auto px-6 sm:px-8 py-2.5 sm:py-3.5 bg-white text-gray-700 border-2 border-gray-300 rounded-lg hover:bg-gray-50 font-semibold flex items-center justify-center gap-2 transition-all text-sm sm:text-base"
               >
                 View Cart
-                <ArrowRight className="w-5 h-5" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
 
             {/* Features */}
-            <div className="grid sm:grid-cols-3 gap-6 mt-16 text-left">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-10 sm:mt-16">
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center mb-3">
-                  <Package className="w-6 h-6 text-green-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-100 rounded-full flex items-center justify-center mb-2 sm:mb-3">
+                  <Package className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Free Shipping</h3>
-                <p className="text-sm text-gray-600">On all orders above ₹1000</p>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">Free Shipping</h3>
+                <p className="text-xs sm:text-sm text-gray-600">On all orders above ₹1000</p>
               </div>
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                  <Lock className="w-6 h-6 text-blue-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-100 rounded-full flex items-center justify-center mb-2 sm:mb-3">
+                  <Lock className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Secure Payment</h3>
-                <p className="text-sm text-gray-600">100% secure transactions</p>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">Secure Payment</h3>
+                <p className="text-xs sm:text-sm text-gray-600">100% secure transactions</p>
               </div>
               <div className="flex flex-col items-center text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center mb-3">
-                  <ArrowRight className="w-6 h-6 text-purple-600" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-100 rounded-full flex items-center justify-center mb-2 sm:mb-3">
+                  <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-1">Easy Returns</h3>
-                <p className="text-sm text-gray-600">7-day return policy</p>
+                <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1">Easy Returns</h3>
+                <p className="text-xs sm:text-sm text-gray-600">7-day return policy</p>
               </div>
             </div>
           </div>

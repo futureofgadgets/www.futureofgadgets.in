@@ -23,6 +23,19 @@ export default function NewArrivals(){
   const router = useRouter();
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
+    const [displayCount, setDisplayCount] = useState(10);
+
+  useEffect(() => {
+    const updateCount = () => {
+      if (window.innerWidth < 640) setDisplayCount(4);
+      else if (window.innerWidth < 768) setDisplayCount(6);
+      else if (window.innerWidth < 1024) setDisplayCount(8);
+      else setDisplayCount(10);
+    };
+    updateCount();
+    window.addEventListener('resize', updateCount);
+    return () => window.removeEventListener('resize', updateCount);
+  }, []);
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.preventDefault();
@@ -73,24 +86,26 @@ export default function NewArrivals(){
       .then((res) => res.json())
       .then((data) => {
         const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]");
-        const mappedProducts = data.map((p: any) => {
-          const cartQty = cart.reduce((sum: number, item: any) => 
-            item.id === p.id ? sum + (item.qty || 1) : sum, 0
-          );
-          return {
-            id: p.id,
-            slug: p.slug || p.name.toLowerCase().replace(/\s+/g, "-"),
-            name: p.name || p.title,
-            type: p.category || p.type,
-            description: p.description,
-            coverImage: p.frontImage,
-            images: p.images || [p.frontImage],
-            price: p.price,
-            mrp: p.mrp,
-            quantity: Math.max(0, (p.quantity || p.stock) - cartQty)
-          };
-        });
-        setProducts(mappedProducts.slice(0, 10));
+        const mappedProducts = data
+          .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+          .map((p: any) => {
+            const cartQty = cart.reduce((sum: number, item: any) => 
+              item.id === p.id ? sum + (item.qty || 1) : sum, 0
+            );
+            return {
+              id: p.id,
+              slug: p.slug || p.name.toLowerCase().replace(/\s+/g, "-"),
+              name: p.name || p.title,
+              type: p.category || p.type,
+              description: p.description,
+              coverImage: p.frontImage,
+              images: p.images || [p.frontImage],
+              price: p.price,
+              mrp: p.mrp,
+              quantity: Math.max(0, (p.quantity || p.stock) - cartQty)
+            };
+          });
+        setProducts(mappedProducts);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -103,11 +118,11 @@ export default function NewArrivals(){
             <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">New Arrivals</h2>
             <p className="hidden sm:block sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1">Fresh products just In</p>
           </div>
-          <Link href="/products" scroll={true} className="sm:px-4 sm:p-2 sm:bg-blue-100 rounded-full text-blue-600 hover:text-blue-700 font-semibold text-xs sm:text-sm whitespace-nowrap hover:underline">View All </Link>
+          <Link href="/section/new-arrivals" scroll={true} className="sm:px-4 sm:p-2 sm:bg-blue-100 rounded-full text-blue-600 hover:text-blue-700 font-semibold text-xs sm:text-sm whitespace-nowrap hover:underline">View All </Link>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 sm:gap-2">
+         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-0 sm:gap-2">
           {loading ? (
-            Array.from({ length: 10 }).map((_, i) => (
+            Array.from({ length: displayCount }).map((_, i) => (
               <div key={i} className="bg-white rounded-sm p-4 animate-pulse">
                 <div className="aspect-[4/3] bg-gray-200 mb-4"></div>
                 <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -117,7 +132,7 @@ export default function NewArrivals(){
               </div>
             ))
           ) : (
-            products.map((product) => (
+            products.slice(0, displayCount).map((product) => (
               <ProductCard key={product.id} product={product}
                   onAddToCart={handleAddToCart}
                   onBuyNow={handleBuyNow} />

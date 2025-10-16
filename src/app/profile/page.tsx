@@ -267,7 +267,7 @@ export default function ProfilePage() {
           <div className="bg-white sm:rounded-lg sm:shadow-sm sm:border border-gray-200 p-3 sm:p-6">
             <div className='flex justify-between items-center mb-3 sm:mb-6 pb-2 sm:pb-3 border-b border-gray-200'>
               <h2 className="text-sm sm:text-lg font-semibold text-gray-900">Recent Orders</h2>
-              <Link href='/orders' className='text-[10px] sm:text-sm font-medium text-blue-600 hover:text-blue-700'>View All →</Link>
+              <Link href='/orders' className='text-[10px] sm:text-sm font-medium text-blue-600 hover:text-blue-700'>View All</Link>
             </div>
             <div className="space-y-2 sm:space-y-3">
               {loadingOrders ? (

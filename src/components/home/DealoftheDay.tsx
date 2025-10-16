@@ -11,6 +11,18 @@ export default function DealoftheDay(){
   const router = useRouter()
   const [products, setProducts] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [displayCount, setDisplayCount] = useState(5)
+
+  useEffect(() => {
+    const updateCount = () => {
+      if (window.innerWidth < 640) setDisplayCount(4);
+      else if (window.innerWidth < 768) setDisplayCount(6);
+      else setDisplayCount(5);
+    };
+    updateCount();
+    window.addEventListener('resize', updateCount);
+    return () => window.removeEventListener('resize', updateCount);
+  }, []);
 
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault()
@@ -45,11 +57,11 @@ export default function DealoftheDay(){
     ]).then(([settings, allProducts]) => {
       const ids = settings.sectionProducts?.dealOfTheDay || []
       if (ids.length > 0) {
-        setProducts(allProducts.filter((p: any) => ids.includes(p.id)).slice(0, 5))
+        setProducts(allProducts.filter((p: any) => ids.includes(p.id)))
       } else {
-        setProducts(popularProducts.slice(0, 5))
+        setProducts(popularProducts)
       }
-    }).catch(() => setProducts(popularProducts.slice(0, 5)))
+    }).catch(() => setProducts(popularProducts))
       .finally(() => setLoading(false))
   }, [])
 
@@ -61,15 +73,11 @@ export default function DealoftheDay(){
             <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Deal of the Day</h2>
             <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mt-0.5 sm:mt-1">Limited time offers</p>
           </div>
-          <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-sm font-medium text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/30 px-2 sm:px-3 py-1.5 sm:py-2 rounded-full">
-           <Clock className='h-3 w-3 sm:h-4 sm:w-4' />
-            <span className="hidden sm:inline">Ends in 12:00</span>
-            <span className="sm:hidden">12:00</span>
-          </div>
+          <a href="/section/deal-of-the-day" className="sm:px-4 sm:p-2 sm:bg-blue-100 rounded-full text-blue-600 hover:text-blue-700 font-semibold text-xs sm:text-sm whitespace-nowrap hover:underline">View All</a>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-0 sm:gap-2">
+         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-0 sm:gap-2">
           {loading ? (
-            Array.from({ length: 10 }).map((_, i) => (
+            Array.from({ length: displayCount }).map((_, i) => (
               <div key={i} className="bg-white rounded-sm p-4 animate-pulse">
                 <div className="aspect-[4/3] bg-gray-200 mb-4"></div>
                 <div className="h-4 bg-gray-200 rounded mb-2"></div>
@@ -79,7 +87,7 @@ export default function DealoftheDay(){
               </div>
             ))
           ) : (
-            products.map((product) => (
+            products.slice(0, displayCount).map((product) => (
               <ProductCard key={product.id} product={product} onAddToCart={handleAddToCart} onBuyNow={handleBuyNow} />
             ))
           )}
