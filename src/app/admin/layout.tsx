@@ -200,8 +200,23 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       </Sidebar>
       <SidebarInset>
         <header className="flex h-16 items-center justify-between gap-2 sm:gap-4 border-b px-2 sm:px-4 min-w-0">
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <SidebarTrigger className="-ml-1 hidden md:flex" />
+            <Link href="/" className="flex sm:hidden items-center gap-3 p-2 ">
+            <img
+              src="/logo.png"
+              alt="Store logo"
+              className="h-10 w-10 rounded bg-transparent"
+            />
+            <div className="flex flex-col leading-[1rem] -space-y-1 ">
+              <span className="text-xs md:text-sm font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Future of
+              </span>
+              <span className="text-sm leading-5 md:text-lg font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Gadgets
+              </span>
+            </div>
+          </Link>
+          <div className="hidden sm:flex items-center gap-2 flex-shrink-0">
+            <SidebarTrigger className="-ml-1 flex" />
             <div className="text-lg font-semibold text-gray-900 truncate">
               Admin Dashboard
             </div>
@@ -274,7 +289,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
       </SidebarInset>
 
       {/* Bottom Nav for Mobile */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t md:hidden">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t sm:hidden">
         <div className="flex justify-around items-center h-14">
           {navItems.map((item) => {
             const Icon = item.icon;

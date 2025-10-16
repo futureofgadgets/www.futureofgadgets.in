@@ -188,7 +188,8 @@ export default function AdminDashboardPage() {
       <div className="w-full mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 sm:mb-2">Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 sm:mb-2 sm:hidden">Admin Dashboard</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 sm:mb-2 hidden sm:block">Dashboard</h1>
           <p className="text-sm sm:text-base lg:text-lg text-gray-600">Welcome back, {session.user?.name} 👋</p>
         </div>
 
