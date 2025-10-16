@@ -121,7 +121,7 @@ export default function CategorySlugPage() {
         </div>
 
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0 sm:gap-2">
             {[...Array(10)].map((_, i) => (
               <div key={i} className="bg-white rounded-lg p-4 animate-pulse">
                 <div className="aspect-square bg-gray-200 rounded mb-3"></div>
@@ -132,7 +132,7 @@ export default function CategorySlugPage() {
           </div>
         ) : sortedProducts.length > 0 ? (
 
-  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 sm:gap-4">
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0 sm:gap-2">
     {products.map((product) => (
       <ProductCard
         key={product.id}
