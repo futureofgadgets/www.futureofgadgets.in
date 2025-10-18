@@ -37,7 +37,7 @@ export default function NewArrivals(){
     return () => window.removeEventListener('resize', updateCount);
   }, []);
 
-  const handleAddToCart = (e: React.MouseEvent, product: Product) => {
+  const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault();
     e.stopPropagation();
     if (product.quantity === 0) {
@@ -51,7 +51,8 @@ export default function NewArrivals(){
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.coverImage
+      image: product.coverImage,
+      color: product.selectedColor || product.color
     });
     setProducts(products.map(p => 
       p.id === product.id ? { ...p, quantity: p.quantity - 1 } : p
@@ -61,7 +62,7 @@ export default function NewArrivals(){
     });
   };
 
-  const handleBuyNow = (e: React.MouseEvent, product: Product) => {
+  const handleBuyNow = (e: React.MouseEvent, product: any) => {
     e.preventDefault();
     e.stopPropagation();
     if (product.quantity === 0) {
@@ -75,7 +76,8 @@ export default function NewArrivals(){
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.coverImage
+      image: product.coverImage,
+      color: product.selectedColor || product.color
     });
     router.push("/cart");
   };
@@ -86,8 +88,15 @@ export default function NewArrivals(){
       .then((res) => res.json())
       .then((data) => {
         const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]");
+        const now = new Date().getTime();
+        const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000);
+        
         const mappedProducts = data
-          .sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
+          .filter((p: any) => {
+            const updatedAt = new Date(p.updatedAt || p.createdAt || 0).getTime();
+            return updatedAt >= thirtyDaysAgo;
+          })
+          .sort((a: any, b: any) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime())
           .map((p: any) => {
             const cartQty = cart.reduce((sum: number, item: any) => 
               item.id === p.id ? sum + (item.qty || 1) : sum, 0
@@ -102,7 +111,8 @@ export default function NewArrivals(){
               images: p.images || [p.frontImage],
               price: p.price,
               mrp: p.mrp,
-              quantity: Math.max(0, (p.quantity || p.stock) - cartQty)
+              quantity: Math.max(0, (p.quantity || p.stock) - cartQty),
+              color: p.color
             };
           });
         setProducts(mappedProducts);

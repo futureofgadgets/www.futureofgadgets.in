@@ -19,6 +19,7 @@ type Product = {
   mrp?: number;
   quantity?: number;
   stock?: number;
+  color?: string;
 };
 
 type ProductCardProps = {
@@ -30,6 +31,7 @@ type ProductCardProps = {
 export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductCardProps) {
   const [shareProduct, setShareProduct] = useState<Product | null>(null);
   const [isWished, setIsWished] = useState(false);
+  const [availableQty, setAvailableQty] = useState(0);
 
   useEffect(() => {
     setIsWished(isInWishlist(product.id));
@@ -37,8 +39,28 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
     window.addEventListener('wishlist-updated', onUpdate);
     return () => window.removeEventListener('wishlist-updated', onUpdate);
   }, [product.id]);
+
+  useEffect(() => {
+    const calculateAvailableQty = () => {
+      const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]");
+      const cartQty = cart.reduce((sum: number, item: any) => 
+        item.id === product.id ? sum + (item.qty || 1) : sum, 0
+      );
+      const totalQty = Number(product.quantity ?? product.stock ?? 0);
+      setAvailableQty(Math.max(0, totalQty - cartQty));
+    };
+
+    calculateAvailableQty();
+    window.addEventListener('storage', calculateAvailableQty);
+    window.addEventListener('v0-cart-updated', calculateAvailableQty);
+    
+    return () => {
+      window.removeEventListener('storage', calculateAvailableQty);
+      window.removeEventListener('v0-cart-updated', calculateAvailableQty);
+    };
+  }, [product.id, product.quantity, product.stock]);
+
   const imageUrl = product.coverImage || product.frontImage || product.image || "/placeholder.svg";
-  const currentQty = Number(product.quantity ?? product.stock ?? 0);
   const mrp = Number(product.mrp) || 0;
   const price = Number(product.price) || 0;
   const discountPct = mrp > 0 && mrp > price ? Math.round(((mrp - price) / mrp) * 100) : 0;
@@ -111,7 +133,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
                 }}
               />
             </div>
-            {currentQty === 0 && (
+            {availableQty === 0 && (
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                 <span className="bg-red-600 text-white px-4 py-2 font-bold text-sm">OUT OF STOCK</span>
               </div>
@@ -171,7 +193,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
           {onAddToCart && onBuyNow && (
             <>
             
-              {currentQty === 0 ? (
+              {availableQty === 0 ? (
                 <Link href={`/products/${product.slug}`} className="sm:hidden text-sm font-semibold text-red-600 text-left py-2">
                   Out of Stock
                 </Link>
@@ -183,15 +205,21 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
               )}
               <div className="hidden sm:flex gap-2">
                 <button
-                  onClick={(e) => onAddToCart(e, product)}
-                  disabled={currentQty === 0}
+                  onClick={(e) => {
+                    const defaultColor = product.color ? product.color.split(',')[0].trim() : undefined;
+                    onAddToCart(e, { ...product, selectedColor: defaultColor });
+                  }}
+                  disabled={availableQty === 0}
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 text-gray-900 font-bold py-2 text-[10px] lg:text-[12px] xl:text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
                 >
                   ADD TO CART
                 </button>
                 <button
-                  onClick={(e) => onBuyNow(e, product)}
-                  disabled={currentQty === 0}
+                  onClick={(e) => {
+                    const defaultColor = product.color ? product.color.split(',')[0].trim() : undefined;
+                    onBuyNow(e, { ...product, selectedColor: defaultColor });
+                  }}
+                  disabled={availableQty === 0}
                   className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 text-[10px] lg:text-[12px] xl:text-sm transition-all rounded-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-md"
                 >
                   BUY NOW

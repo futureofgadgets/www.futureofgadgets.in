@@ -30,7 +30,8 @@ export default function FeaturedSection() {
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.frontImage || product.image
+      image: product.frontImage || product.image,
+      color: product.selectedColor || product.color
     })
        toast.success('', { description: `${product.name} has been added to your cart.` })
   }
@@ -43,7 +44,8 @@ export default function FeaturedSection() {
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.frontImage || product.image
+      image: product.frontImage || product.image,
+      color: product.selectedColor || product.color
     })
     router.push('/cart')
   }

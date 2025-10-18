@@ -31,7 +31,15 @@ export default function SectionPage() {
       if (section) {
         setTitle(section.title)
         if (slug === 'new-arrivals') {
-          setProducts(allProducts.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()))
+          const now = new Date().getTime()
+          const thirtyDaysAgo = now - (30 * 24 * 60 * 60 * 1000)
+          const newProducts = allProducts
+            .filter((p: any) => {
+              const updatedAt = new Date(p.updatedAt || p.createdAt || 0).getTime()
+              return updatedAt >= thirtyDaysAgo
+            })
+            .sort((a: any, b: any) => new Date(b.updatedAt || b.createdAt || 0).getTime() - new Date(a.updatedAt || a.createdAt || 0).getTime())
+          setProducts(newProducts)
         } else if (slug === 'trending') {
           const trending = allProducts
             .filter((p: any) => p.mrp && p.mrp > p.price)
@@ -54,12 +62,14 @@ export default function SectionPage() {
   const handleAddToCart = (e: React.MouseEvent, product: any) => {
     e.preventDefault()
     e.stopPropagation()
+    const defaultColor = product.color ? product.color.split(',')[0].trim() : undefined
     addToCart({
       id: product.id,
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.frontImage || product.image
+      image: product.frontImage || product.image,
+      color: defaultColor
     })
     toast.success('', { description: `${product.name} has been added to your cart.` })
   }
@@ -67,12 +77,14 @@ export default function SectionPage() {
   const handleBuyNow = (e: React.MouseEvent, product: any) => {
     e.preventDefault()
     e.stopPropagation()
+    const defaultColor = product.color ? product.color.split(',')[0].trim() : undefined
     addToCart({
       id: product.id,
       slug: product.slug,
       name: product.name,
       price: product.price,
-      image: product.frontImage || product.image
+      image: product.frontImage || product.image,
+      color: defaultColor
     })
     router.push('/cart')
   }
@@ -84,7 +96,9 @@ export default function SectionPage() {
         <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-4 mx-auto px-4 xl:px-0">{title}</h1>
         
         {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-0 sm:gap-2">
+          <div>
+            <div className="h-10 w-54 bg-gray-200 rounded ml-3 -mt-2"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-0 sm:gap-2">
             {Array.from({ length: 10 }).map((_, i) => (
               <div key={i} className="bg-white rounded-lg p-4 animate-pulse">
                 <div className="aspect-[4/3] bg-gray-200 mb-4"></div>
@@ -94,6 +108,7 @@ export default function SectionPage() {
                 <div className="h-3 bg-gray-200 rounded w-3/4"></div>
               </div>
             ))}
+            </div> 
           </div>
         ) : products.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-0 sm:gap-2">
