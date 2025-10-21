@@ -262,7 +262,7 @@ function SearchContent() {
 
         {query && !loading && suggestions.length > 0 && (
           <div className="mt-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6">{results.length === 0 ? 'You might also like' : 'Related Products'}</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 px-4 xl:px-0">{results.length === 0 ? 'You might also like' : 'Related Products'}</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0 sm:gap-2">
               {suggestions.map((product) => (
                 <ProductCard
