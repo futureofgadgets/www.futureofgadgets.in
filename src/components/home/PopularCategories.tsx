@@ -5,12 +5,14 @@ import { ArrowRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const categoryData = [
-  { name: "Laptops", image: "/category/laptop.jpeg", href: "/category/laptops" },
-  { name: "Keyboards", image: "/category/keyboard.jpeg", href: "/category/keyboards" },
-  { name: "Mouse", image: "/category/mouse.jpeg", href: "/category/mouse" },
-  { name: "Headphones", image: "/category/headphones.jpeg", href: "/category/headphones" },
-  { name: "Accessories", image: "/category/accessories.png", href: "/category/accessories" },
+  { name: "Touch Laptop", image: "/category/touchscreen.png", href: "/search?q=touch-laptop" },
+  { name: "Gaming Laptop", image: "/category/best-gaming-laptop.jpg", href: "/search?q=gaming-laptop" },
+  { name: "Office Laptop", image: "/category/office_laptop.jpg", href: "/search?q=office-laptop" },
+  { name: "Regular Laptop", image: "/category/regular_laptop.jpg", href: "/search?q=regular-laptop" },
+  { name: "Slim Laptop", image: "/category/ultra_thin_laptop.jpg", href: "/search?q=slim-laptop" },
+  { name: "Pro Laptop", image: "/category/pro_laptop.jpg", href: "/search?q=pro-laptop" },
 ];
+
 
 export default function PopularCategories() {
   const [categories, setCategories] = useState(categoryData.map(c => ({ ...c, count: 0 })));
@@ -30,7 +32,7 @@ export default function PopularCategories() {
       .catch(() => {});
   }, []);
   return (
-    <section className="py-6 sm:py-10">
+    <section className="py-6">
       <div className="mx-auto max-w-[1400px] px-3 sm:px-6 lg:px-8">
         <div className="border border-[#c1e5cf] dark:border-gray-700 rounded-lg p-4 sm:p-6">
           <div className="mb-4 sm:mb-6">
@@ -41,7 +43,7 @@ export default function PopularCategories() {
 
            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
             {categories.map((category) => (
-              <Link
+              <Link target="blank"
                 key={category.name}
                 href={category.href}
                 className="bg-[#f6f6f6] dark:bg-gray-800 p-3 sm:p-5 rounded-lg hover:bg-[#e7e7e7] dark:hover:bg-gray-700 hover:shadow-md transition-all duration-300 group"
@@ -58,12 +60,12 @@ export default function PopularCategories() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base mb-0.5 truncate">
+                    <h3 className="font-semibold text-gray-900 dark:text-white text-sm sm:text-base mb-1 truncate">
                       {category.name}
                     </h3>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">
-                      ({category.count}) items
-                    </p>
+                    <span className="inline-flex items-center gap-1 text-xs sm:text-sm text-[#4a5f52] dark:text-green-400 font-medium group-hover:gap-2 transition-all">
+                      Shop Now <ArrowRight size={14} className="sm:w-4 sm:h-4" />
+                    </span>
                   </div>
                 </div>
               </Link>

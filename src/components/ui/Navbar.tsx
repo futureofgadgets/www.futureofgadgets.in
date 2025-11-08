@@ -157,7 +157,8 @@ export function Navbar() {
             {/* Desktop nav */}
             <div className="hidden md:flex items-center gap-1 xl:ml-2">
               {[
-                { href: "/category", label: "Category" },
+                { href: "/category/laptop", label: "Laptops" },
+                { href: "/category/accessories", label: "Accessories" },
                 { href: "/about", label: "About" },
                 { href: "/contact", label: "Support" },
               ].map((link) => (
