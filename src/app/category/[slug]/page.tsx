@@ -43,7 +43,7 @@ export default function CategorySlugPage({ params }: { params: Promise<{ slug: s
       <div className="min-h-[90vh] flex flex-row items-center justify-center bg-white py-12">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-2xl sm:text-3xl font-bold mb-4">Category Not Available</h1>
-          <p className="text-gray-600 mb-6">The category you're looking for doesn't exist.</p>
+          <p className="text-gray-600 mb-6">The category you&apos;re looking for doesn&apos;t exist.</p>
           <Link href="/" className="text-blue-600 hover:underline">Go back to home</Link>
         </div>
       </div>
