@@ -12,6 +12,7 @@ import NewArrivals from "@/components/home/NewArrivals";
 import FeaturedSection from "@/components/home/FeaturedSection";
 import { GitCompareArrows, Headset, ShieldCheck, Truck } from "lucide-react";
 import Review from "@/components/home/review";
+import Laptopcarousal from "@/components/home/laptop-carousal";
 
 export default function HomePage() {
 
@@ -43,13 +44,14 @@ export default function HomePage() {
      <main className="min-h-screen bg-gray-50/5">
       {/* Hero Slider */}
       <section className="bg-white dark:bg-gray-800">
-        <div className="mx-auto max-w-[1400px] sm:px-6">
+        <div className="mx-auto max-w-[1400px] sm:px-6 sm:pb-6">
           <HeaderSlider />
         </div>
       </section>
       <div className="space-y-4 sm:space-y-8">
-        <NewArrivals />
+        <Laptopcarousal />
         <DealoftheDay />
+        <NewArrivals />
         <FeaturedSection/>
         <PopularCategories />
         <PromotionalBanner />

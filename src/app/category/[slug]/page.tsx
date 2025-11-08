@@ -1,160 +1,80 @@
 "use client";
-
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import ProductCard from "@/components/product-card";
-import { addToCart } from "@/lib/cart";
-import { toast } from "sonner";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import Link from "next/link";
+import Image from "next/image";
 
-export default function CategorySlugPage() {
-  const params = useParams();
-  const router = useRouter();
-  const slug = params.slug as string;
-  
-  const [products, setProducts] = useState<any[]>([]);
+export default function CategorySlugPage({ params }: { params: Promise<{ slug: string }> }) {
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sortBy, setSortBy] = useState("default");
+  const [title, setTitle] = useState("");
+  const [slug, setSlug] = useState("");
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await fetch("/api/products");
-        const data = await response.json();
-        const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]");
-        
-        const filtered = data.filter(
-          (product: any) => product.category?.toLowerCase() === slug.toLowerCase()
-        ).map((p: any) => {
-          const cartQty = cart.reduce((sum: number, item: any) => 
-            item.id === p.id ? sum + (item.qty || 1) : sum, 0
-          );
-          return {
-            ...p,
-            quantity: Math.max(0, (p.quantity || p.stock || 0) - cartQty)
-          };
-        });
-        
-        setProducts(filtered);
-      } catch (error) {
-        console.error("Error:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProducts();
-  }, [slug]);
-
-  const handleAddToCart = (e: React.MouseEvent, product: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (product.quantity === 0) {
-      toast.error("Out of Stock");
-      return;
-    }
-    addToCart({
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      price: product.price,
-      image: product.frontImage || product.image,
+    params.then(p => {
+      setSlug(p.slug);
+      fetch('/api/settings')
+        .then(res => res.json())
+        .then(data => {
+          if (p.slug === 'laptop' && data.laptopCategories) {
+            setCategories(data.laptopCategories);
+            setTitle('Laptop Categories');
+          } else if (p.slug === 'accessories' && data.accessories) {
+            setCategories(data.accessories);
+            setTitle('Accessories');
+          } else if (data.categorySections) {
+            const section = data.categorySections.find((s: any) => 
+              s.title.toLowerCase().replace(/\s+/g, '-') === p.slug
+            );
+            if (section) {
+              setCategories(section.categories);
+              setTitle(section.title);
+            }
+          }
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
     });
-    toast.success("Added to cart");
-  };
+  }, [params]);
 
-  const handleBuyNow = (e: React.MouseEvent, product: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (product.quantity === 0) {
-      toast.error("Out of Stock");
-      return;
-    }
-    addToCart({
-      id: product.id,
-      slug: product.slug,
-      name: product.name,
-      price: product.price,
-      image: product.frontImage || product.image,
-    });
-    router.push("/cart");
-  };
+  if (loading) return <div className="min-h-screen bg-white py-12"><div className="max-w-7xl mx-auto px-4">Loading...</div></div>;
 
-  const sortProducts = (products: any[]) => {
-    const sorted = [...products];
-    switch (sortBy) {
-      case "price-asc":
-        return sorted.sort((a, b) => (a.price || 0) - (b.price || 0));
-      case "price-desc":
-        return sorted.sort((a, b) => (b.price || 0) - (a.price || 0));
-      case "name-asc":
-        return sorted.sort((a, b) => a.name.localeCompare(b.name));
-      case "name-desc":
-        return sorted.sort((a, b) => b.name.localeCompare(a.name));
-      default:
-        return sorted;
-    }
-  };
-
-  const sortedProducts = sortProducts(products);
-  const categoryName = slug.charAt(0).toUpperCase() + slug.slice(1);
+  if (!title && categories.length === 0) {
+    return (
+      <div className="min-h-[90vh] flex flex-row items-center justify-center bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4 text-center">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-4">Category Not Available</h1>
+          <p className="text-gray-600 mb-6">The category you're looking for doesn't exist.</p>
+          <Link href="/" className="text-blue-600 hover:underline">Go back to home</Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6 px-4 xl:px-0 flex items-center justify-between">
-          <div className="">
-            <h1 className="text-2xl font-bold">{categoryName}</h1>
-            <p className="text-gray-600 text-sm ml-1">{products.length} products</p>
+    <div className="min-h-screen bg-white py-12">
+      <div className="max-w-7xl mx-auto px-4">
+        <h1 className="text-2xl sm:text-3xl font-bold mb-8">{title}</h1>
+        
+        {categories.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-600">No items found in this category.</p>
           </div>
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-32 sm:w-[120px]">
-              <SelectValue placeholder="Sort by" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="default">Sort by</SelectItem>
-              <SelectItem value="price-asc">Price: Low to High</SelectItem>
-              <SelectItem value="price-desc">Price: High to Low</SelectItem>
-              <SelectItem value="name-asc">Name: A to Z</SelectItem>
-              <SelectItem value="name-desc">Name: Z to A</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {loading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0 sm:gap-2">
-            {[...Array(10)].map((_, i) => (
-              <div key={i} className="bg-white rounded-lg p-4 animate-pulse">
-                <div className="aspect-square bg-gray-200 rounded mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-2/3"></div>
-              </div>
-            ))}
-          </div>
-        ) : sortedProducts.length > 0 ? (
-
-  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0 sm:gap-2">
-    {products.map((product) => (
-      <ProductCard
-        key={product.id}
-        product={product}
-        onAddToCart={handleAddToCart}
-        onBuyNow={handleBuyNow}
-      />
-    ))}
-  </div>
-
-
         ) : (
-          <div className="text-center py-20">
-            <div className="text-6xl mb-4">📦</div>
-            <h3 className="text-xl font-bold mb-2">No Products Found</h3>
-            <p className="text-gray-600 mb-6">Check back later</p>
-            <button
-              onClick={() => router.push("/category")}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-            >
-              Browse Categories
-            </button>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.map((item) => (
+              <Link key={item.slug} href={`/category/${item.heading || slug}/${item.slug}`}>
+                <div className="bg-white border rounded-lg p-6 hover:shadow-lg transition-shadow text-center">
+                  <Image 
+                    src={item.image} 
+                    alt={item.name} 
+                    width={64}
+                    height={64}
+                    className="w-16 h-16 object-contain mx-auto mb-3" 
+                  />
+                  <h3 className="font-semibold text-sm mb-1">{item.name}</h3>
+                </div>
+              </Link>
+            ))}
           </div>
         )}
       </div>

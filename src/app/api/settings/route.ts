@@ -56,36 +56,73 @@ const defaultSettings = {
     bestSeller: [],
     trendingNow: [],
     featuredSection: [],
-  }
+  },
+  laptopCategories: [
+    { name: "Open Box Laptop's", slug: "open-box", image: "/category/laptop.jpeg", heading: "laptop" },
+    { name: "Refurbished Laptop's", slug: "refurbished", image: "/category/laptop.jpeg", heading: "laptop" },
+    { name: "Brand New Laptop's", slug: "brand-new", image: "/category/laptop.jpeg", heading: "laptop" },
+    { name: "Desktop", slug: "desktop", image: "/category/monitor.jpeg", heading: "laptop" },
+    { name: "Mobile Phone", slug: "mobile", image: "/category/accessories.png", heading: "laptop" },
+    { name: "Gadgets", slug: "gadgets", image: "/category/accessories.png", heading: "laptop" },
+  ],
+  accessories: [
+    { name: "Charger & Power Cable", slug: "charger", image: "/category/accessories.png", heading: "accessories" },
+    { name: "Ram", slug: "ram", image: "/category/storage.jpeg", heading: "accessories" },
+    { name: "SSD", slug: "ssd", image: "/category/storage.jpeg", heading: "accessories" },
+    { name: "Battery", slug: "battery", image: "/category/accessories.png", heading: "accessories" },
+    { name: "Laptop Parts", slug: "laptop-parts", image: "/category/accessories.png", heading: "accessories" },
+    { name: "Screen", slug: "screen", image: "/category/monitor.jpeg", heading: "accessories" },
+    { name: "Keyboard & Keyboard", slug: "keyboard", image: "/category/keyboard.jpeg", heading: "accessories" },
+    { name: "Mouse & Pad", slug: "mouse", image: "/category/mouse.jpeg", heading: "accessories" },
+    { name: "Monitor's", slug: "monitors", image: "/category/monitor.jpeg", heading: "accessories" },
+    { name: "Cable's", slug: "cables", image: "/category/accessories.png", heading: "accessories" },
+    { name: "HeadPhone", slug: "headphone", image: "/category/headphones.jpeg", heading: "accessories" },
+    { name: "Speaker", slug: "speaker", image: "/category/accessories.png", heading: "accessories" },
+    { name: "Cleaner", slug: "cleaner", image: "/category/accessories.png", heading: "accessories" },
+    { name: "Pen Drive", slug: "pen-drive", image: "/category/storage.jpeg", heading: "accessories" },
+    { name: "Laptop Stand", slug: "laptop-stand", image: "/category/accessories.png", heading: "accessories" },
+    { name: "USB HUB", slug: "usb-hub", image: "/category/accessories.png", heading: "accessories" },
+    { name: "External Case", slug: "external-case", image: "/category/accessories.png", heading: "accessories" },
+  ]
 }
 
 export async function GET() {
-  const settings = await prisma.setting.findMany()
-  
-  if (settings.length === 0) {
+  try {
+    const settings = await prisma.setting.findMany()
+    
+    if (settings.length === 0) {
+      return NextResponse.json(defaultSettings)
+    }
+    
+    const result = settings.reduce((acc, setting) => {
+      acc[setting.tag] = setting.data
+      return acc
+    }, {} as Record<string, any>)
+    
+    return NextResponse.json({ ...defaultSettings, ...result })
+  } catch (error) {
+    console.error('GET /api/settings error:', error)
     return NextResponse.json(defaultSettings)
   }
-  
-  const result = settings.reduce((acc, setting) => {
-    acc[setting.tag] = setting.data
-    return acc
-  }, {} as Record<string, any>)
-  
-  return NextResponse.json({ ...defaultSettings, ...result })
 }
 
 export async function POST(req: Request) {
-  const { tag, data } = await req.json()
-  
-  if (!tag || !data) {
-    return NextResponse.json({ error: 'Tag and data are required' }, { status: 400 })
+  try {
+    const { tag, data } = await req.json()
+    
+    if (!tag || !data) {
+      return NextResponse.json({ error: 'Tag and data are required' }, { status: 400 })
+    }
+    
+    const setting = await prisma.setting.upsert({
+      where: { tag },
+      update: { data },
+      create: { tag, data }
+    })
+    
+    return NextResponse.json({ success: true, setting })
+  } catch (error) {
+    console.error('POST /api/settings error:', error)
+    return NextResponse.json({ error: 'Failed to save settings', details: String(error) }, { status: 500 })
   }
-  
-  const setting = await prisma.setting.upsert({
-    where: { tag },
-    update: { data },
-    create: { tag, data }
-  })
-  
-  return NextResponse.json({ success: true, setting })
 }
