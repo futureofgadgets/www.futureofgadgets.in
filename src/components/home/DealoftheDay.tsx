@@ -70,7 +70,7 @@ export default function DealoftheDay(){
 
   return (
     <section className="py-6 sm:py-10 bg-gradient-to-r from-red-50 to-orange-50 dark:from-gray-800 dark:to-gray-700">
-      <div className="mx-auto max-w-8xl  sm:px-6 lg:px-11">
+      <div className="mx-auto max-w-[1440px] sm:px-6 lg:px-11">
         <div className="flex items-center justify-between mb-4 sm:mb-6 px-3 sm:px-0">
           <div>
             <h2 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Deal of the Day</h2>

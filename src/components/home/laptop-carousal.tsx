@@ -106,11 +106,11 @@ export default function LaptopCarousel() {
 
   return (
     <section className="py-3 sm:pt-6 sm:pb-10 bg-white">
-      <div className="mx-auto max-w-7xl px-2 sm:px-4">
+      <div className="mx-auto max-w-[1380px] px-2 sm:px-4">
         <div className="relative">
           <div
             ref={scrollRef}
-            className="flex gap-2 sm:gap-4 md:gap-5 overflow-x-auto scrollbar-hidden select-none touch-pan-x"
+            className="flex gap-2 sm:gap-4 md:gap-10 overflow-x-auto scrollbar-hidden select-none touch-pan-x"
             style={{
               WebkitOverflowScrolling: "touch",
               touchAction: "pan-x",
@@ -137,9 +137,9 @@ export default function LaptopCarousel() {
                     <Image
                       src={category.image}
                       alt={category.name}
-                      width={200}
-                      height={200}
-                      className="object-contain group-hover:scale-110 transition-transform duration-300"
+                      width={90}
+                      height={90}
+                      className="object-contain scale-110 group-hover:scale-120 transition-transform duration-300"
                     />
                   </div>
                   <div className="absolute bottom-0 left-0 right-0 bg-black text-white text-center py-0.5 sm:py-1.5 text-[9px] sm:text-xs font-semibold">

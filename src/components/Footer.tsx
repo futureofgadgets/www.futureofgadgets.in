@@ -27,7 +27,7 @@ export function Footer({ className = "" }: FooterProps) {
   }, []);
 
   return (
-    <footer className={`bg-gradient-to-b from-gray-900 to-black text-white ${className}`}>
+    <footer className={`bg-gradient-to-b mx-auto from-gray-900 to-black text-white ${className}`}>
       <div className="mx-auto max-w-7xl px-4 sm:px-6 py-10 sm:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 sm:gap-10">
           {/* Brand Section */}
