@@ -113,3 +113,14 @@ model Review {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model CustomerReview {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerName String
+  message      String
+  rating       Int
+  ratingCount  Int
+  imageUrl     String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
