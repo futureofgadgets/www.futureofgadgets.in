@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { addToCart } from "@/lib/cart";
 import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
 import { toast } from "sonner";
-import { ShoppingCart, Heart, Share2, Star, Truck, Shield, RotateCcw, CreditCard, Check, ChevronRight, Package, Award, Zap, Headphones, Copy, X } from "lucide-react";
+import { ShoppingCart, Heart, Share2, Star, Truck, Shield, RotateCcw, CreditCard, Check, ChevronRight, Award, Copy, X } from "lucide-react";
 import Loading from "@/app/loading";
 
 type Product = {
@@ -459,7 +459,7 @@ export default function ProductPage() {
                       selectedImage === index ? 'border-blue-600' : 'border-gray-200'
                     }`}
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
                   </button>
                 ))}
               </div>
@@ -946,7 +946,7 @@ export default function ProductPage() {
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
             <button
               onClick={() => {
-                const url = typeof window !== 'undefined' ? window.location.href : '';
+                const url = window.location.href;
                 window.open(`https://wa.me/?text=${encodeURIComponent(product.name + ' - ' + url)}`, '_blank');
               }}
               className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
@@ -961,7 +961,7 @@ export default function ProductPage() {
 
             <button
               onClick={() => {
-                const url = typeof window !== 'undefined' ? window.location.href : '';
+                const url = window.location.href;
                 window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
               }}
               className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
@@ -976,7 +976,7 @@ export default function ProductPage() {
 
             <button
               onClick={() => {
-                const url = typeof window !== 'undefined' ? window.location.href : '';
+                const url = window.location.href;
                 window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(product.name)}&url=${encodeURIComponent(url)}`, '_blank');
               }}
               className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
@@ -991,7 +991,7 @@ export default function ProductPage() {
 
             <button
               onClick={() => {
-                const url = typeof window !== 'undefined' ? window.location.href : '';
+                const url = window.location.href;
                 window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
               }}
               className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
@@ -1006,7 +1006,7 @@ export default function ProductPage() {
 
             <button
               onClick={() => {
-                const url = typeof window !== 'undefined' ? window.location.href : '';
+                const url = window.location.href;
                 window.open(`https://telegram.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(product.name)}`, '_blank');
               }}
               className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
@@ -1025,7 +1025,7 @@ export default function ProductPage() {
                   navigator.share({
                     title: product.name,
                     text: product.description,
-                    url: typeof window !== 'undefined' ? window.location.href : ''
+                    url: window.location.href
                   }).catch(() => {});
                 }}
                 className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
@@ -1039,7 +1039,7 @@ export default function ProductPage() {
 
             <button
               onClick={() => {
-                const url = typeof window !== 'undefined' ? window.location.href : '';
+                const url = window.location.href;
                 const subject = encodeURIComponent(product.name);
                 const body = encodeURIComponent(`Check out this product: ${product.name}\n\n${url}`);
                 window.location.href = `mailto:?subject=${subject}&body=${body}`;
@@ -1069,7 +1069,7 @@ export default function ProductPage() {
           <div className="flex gap-2 pt-3 border-t">
             <input
               type="text"
-              value={typeof window !== 'undefined' ? window.location.href : ''}
+              value={window.location.href}
               readOnly
               className="flex-1 px-2 sm:px-3 py-2 border rounded text-xs sm:text-sm bg-gray-50 truncate"
             />
