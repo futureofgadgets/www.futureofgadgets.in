@@ -34,11 +34,11 @@ export default function WhatsAppFloat() {
   if (!contactSettings.phone) return null;
 
   return (
-    <div className="fixed bottom-18 right-4 sm:bottom-6 sm:right-6 z-50">
+    <div className="fixed bottom-18 right-4 md:bottom-6 md:right-6 z-50">
       <div className="absolute inset-0 bg-green-300 rounded-full animate-ping opacity-75"></div>
       <button
         onClick={handleWhatsAppClick}
-        className="relative bg-green-500 hover:bg-green-600 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+        className="relative bg-green-500 hover:bg-green-600 text-white p-2 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:cursor-pointer"
         aria-label="Contact us on WhatsApp"
       >
       <img 

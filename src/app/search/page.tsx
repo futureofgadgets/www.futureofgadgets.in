@@ -188,8 +188,8 @@ function SearchContent() {
           <div className="mb-8">
             <div className="flex items-center justify-between px-4 xl:px-0">
               <div className="">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">Search Results</h1>
-                <p className="text-gray-600 ">{results.length} products found for <span className="font-semibold">&quot;{query}&quot;</span></p>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 md:mb-2">Search Results</h1>
+                <p className="text-gray-600 text-sm sm:text-base lg:text-lg">{results.length} products found for <span className="font-semibold">&quot;{query}&quot;</span></p>
               </div>
               {results.length > 0 && (
                 <DropdownMenu>

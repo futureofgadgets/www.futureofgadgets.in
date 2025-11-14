@@ -267,13 +267,13 @@ export function Navbar() {
                     setSelectedIndex(-1);
                   }
                 }}
-                placeholder="Search laptops, keyboards, monitors..."
-                className="w-full h-10 rounded-full pl-10 pr-12"
+                placeholder="Search products..."
+                className="w-full h-10 rounded-full pl-10 pr-20"
                 aria-autocomplete="list"
                 aria-expanded={showSuggestions}
               />
               <Search
-                className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground z-50"
                 aria-hidden
               />
               <Button
