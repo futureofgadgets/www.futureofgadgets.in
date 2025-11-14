@@ -248,7 +248,7 @@ export default function CartView() {
                   let availableStock = 0
                   if (product) {
                     if (i.selectedRam) {
-                      const ramOption = product.ramOptions?.find(r => r.size === i.selectedRam)
+                      const ramOption = product.ramOptions?.find((r: any) => r.size === i.selectedRam)
                       availableStock = ramOption ? ramOption.quantity : 0
                     } else {
                       availableStock = product.quantity
@@ -278,7 +278,7 @@ export default function CartView() {
                             <p className="text-xs text-gray-600 mb-1">Color: {i.color}</p>
                           )}
                           {i.selectedRam && (() => {
-                            const ramOption = product?.ramOptions?.find(r => r.size === i.selectedRam)
+                            const ramOption = product?.ramOptions?.find((r: any) => r.size === i.selectedRam)
                             const ramPrice = ramOption?.price || 0
                             return (
                               <p className="text-xs text-gray-600 mb-1">
@@ -287,7 +287,7 @@ export default function CartView() {
                             )
                           })()}
                           {i.selectedStorage && (() => {
-                            const storageOption = product?.storageOptions?.find(s => s.size === i.selectedStorage)
+                            const storageOption = product?.storageOptions?.find((s: any) => s.size === i.selectedStorage)
                             const storagePrice = storageOption?.price || 0
                             return (
                               <p className="text-xs text-gray-600 mb-1">
@@ -332,7 +332,7 @@ export default function CartView() {
                                 let originalStock = 0
                                 if (product) {
                                   if (i.selectedRam) {
-                                    const ramOption = product.ramOptions?.find(r => r.size === i.selectedRam)
+                                    const ramOption = product.ramOptions?.find((r: any) => r.size === i.selectedRam)
                                     originalStock = ramOption ? ramOption.quantity : 0
                                     
                                     // Count total RAM usage across all cart items with same RAM
