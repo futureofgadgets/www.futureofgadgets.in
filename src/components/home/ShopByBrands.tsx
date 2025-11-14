@@ -95,7 +95,7 @@ const ShopByBrands = () => {
                 alt={brand.name}
                 width={100}
                 height={70}
-                className="w-12 h-9 sm:w-16 sm:h-12 object-contain transition-all duration-300"
+                className="w-12 h-9 sm:w-16 sm:h-12 object-contain transition-all duration-300 scale-130 hover:scale-150"
               />
             </a>
           ))}

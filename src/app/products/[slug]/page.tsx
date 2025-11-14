@@ -797,8 +797,8 @@ export default function ProductPage() {
                       onClick={() => setSelectedWarranty(selectedWarranty?.duration === warranty.duration ? null : warranty)}
                       className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
                         selectedWarranty?.duration === warranty.duration
-                          ? 'border-blue-600 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300'
+                          ? 'border-blue-600 bg-blue-50/40'
+                          : 'border-gray-200 hover:border-blue-400'
                       }`}
                     >
                       <span className="font-medium">{warranty.duration} Extended Warranty</span>
@@ -938,7 +938,7 @@ export default function ProductPage() {
             <h3 className="text-lg font-semibold mb-3 mt-6">What&apos;s in the Box</h3>
             <ol className="space-y-2 text-gray-700 list-decimal list-inside">
               {product.boxContents && product.boxContents.split('\n').map((line, index) => (
-                <li key={index} className="break-words">{line}</li>
+                <li key={index} className="break-words !mb-0">{line}</li>
               ))}
             </ol>
           </div>

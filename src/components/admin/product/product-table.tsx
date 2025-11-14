@@ -205,6 +205,7 @@ export default function ProductTable() {
             color: p.color ?? "",
             ramOptions: p.ramOptions || [],
             storageOptions: p.storageOptions || [],
+            warrantyOptions: p.warrantyOptions || [],
           };
         });
         setData(items);
