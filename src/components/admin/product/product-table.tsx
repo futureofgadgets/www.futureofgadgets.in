@@ -537,8 +537,6 @@ export default function ProductTable() {
         operatingSystem: values.operatingSystem || "",
         graphics: values.graphics || "",
         color: values.color || "",
-        warranty: values.warranty || "",
-        warrantyType: values.warrantyType || "",
         ramOptions: ramOptions,
         storageOptions: storageOptions,
         warrantyOptions: warrantyOptions,

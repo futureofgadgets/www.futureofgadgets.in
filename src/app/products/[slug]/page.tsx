@@ -931,7 +931,7 @@ export default function ProductPage() {
               {product.warrantyType && (
                 <div className="flex justify-between py-2 border-b">
                   <span className="text-gray-600">Warranty Type</span>
-                  <span className="font-medium text-right">{product.warrantyType} Warranty</span>
+                  <span className="font-medium text-right">{product.warrantyType}</span>
                 </div>
               )}
               <div className="flex justify-between py-2">
