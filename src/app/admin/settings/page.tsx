@@ -85,11 +85,17 @@ export default function SettingsPage() {
   const [categorySections, setCategorySections] = useState<{ id: number; title: string; categories: { name: string; slug: string; image: string; heading: string }[]; files: (File | null)[]; saved: boolean }[]>([])
   const [editingSection, setEditingSection] = useState<number | null>(null)
   const [sectionLoading, setSectionLoading] = useState<Record<number, boolean>>({})
+  const [promotionalBanners, setPromotionalBanners] = useState([
+    { title: '', subtitle: '', description: '', link: '', bgColor: 'from-slate-900 to-slate-800', textColor: 'text-orange-400' },
+    { title: '', subtitle: '', description: '', link: '', bgColor: 'from-blue-600 to-blue-700', textColor: 'text-blue-100' }
+  ])
+  const [promotionalLoading, setPromotionalLoading] = useState(false)
 
   const sections = [
     { id: 'all', name: 'All', icon: Settings, color: 'text-gray-600' },
     { id: 'home', name: 'Home Page', icon: Home, color: 'text-blue-600' },
     { id: 'slider', name: 'Home Slider', icon: ImageIcon, color: 'text-indigo-600' },
+    { id: 'promotional', name: 'Promotional Banners', icon: Gift, color: 'text-orange-600' },
     { id: 'categories', name: 'Categories', icon: Package, color: 'text-green-600' },
     { id: 'contact', name: 'Contact Page', icon: Mail, color: 'text-purple-600' },
   ]
@@ -189,6 +195,9 @@ export default function SettingsPage() {
           saved: true,
           files: s.categories?.map(() => null) || []
         })))
+      }
+      if ((data as any).promotionalBanners) {
+        setPromotionalBanners((data as any).promotionalBanners)
       }
       setProducts(productsData || [])
     }).catch(() => {})
@@ -574,6 +583,82 @@ export default function SettingsPage() {
           </div>
         )
 
+      case 'promotional':
+        return (
+          <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <Gift className="h-6 w-6 text-orange-600" />
+              <h2 className="text-xl font-semibold text-gray-900">Promotional Banners (2 Blocks)</h2>
+            </div>
+
+            <div className="space-y-6">
+              {promotionalBanners.map((banner, index) => (
+                <div key={index} className="border rounded-lg p-4">
+                  <h3 className="font-semibold mb-3">Banner {index + 1}</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                      <Input value={banner.title} onChange={(e) => {
+                        const updated = [...promotionalBanners]
+                        updated[index].title = e.target.value
+                        setPromotionalBanners(updated)
+                      }} placeholder="e.g., LAPTOPS" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Subtitle</label>
+                      <Input value={banner.subtitle} onChange={(e) => {
+                        const updated = [...promotionalBanners]
+                        updated[index].subtitle = e.target.value
+                        setPromotionalBanners(updated)
+                      }} placeholder="e.g., Up to 40%-70% Off" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                      <Input value={banner.description} onChange={(e) => {
+                        const updated = [...promotionalBanners]
+                        updated[index].description = e.target.value
+                        setPromotionalBanners(updated)
+                      }} placeholder="e.g., Premium laptops at affordable prices" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">Link</label>
+                      <Input value={banner.link} onChange={(e) => {
+                        const updated = [...promotionalBanners]
+                        updated[index].link = e.target.value
+                        setPromotionalBanners(updated)
+                      }} placeholder="e.g., /category/laptops" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Background Gradient</label>
+                        <Input value={banner.bgColor} onChange={(e) => {
+                          const updated = [...promotionalBanners]
+                          updated[index].bgColor = e.target.value
+                          setPromotionalBanners(updated)
+                        }} placeholder="e.g., from-slate-900 to-slate-800" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Text Color</label>
+                        <Input value={banner.textColor} onChange={(e) => {
+                          const updated = [...promotionalBanners]
+                          updated[index].textColor = e.target.value
+                          setPromotionalBanners(updated)
+                        }} placeholder="e.g., text-orange-400" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <LoadingButton onClick={async () => {
+                setPromotionalLoading(true)
+                await handleSave('Promotional banners', 'promotionalBanners', promotionalBanners)
+                setPromotionalLoading(false)
+              }} loading={promotionalLoading}>Save Promotional Banners</LoadingButton>
+            </div>
+          </div>
+        )
+
       case 'contact':
         return (
           <div className="space-y-6">
@@ -760,6 +845,7 @@ export default function SettingsPage() {
           <div className="space-y-8">
             {renderSection('home')}
             {renderSection('slider')}
+            {renderSection('promotional')}
             {renderSection('categories')}
             {renderSection('contact')}
           </div>
@@ -769,6 +855,7 @@ export default function SettingsPage() {
           <div className="space-y-8">
             {renderSection('home')}
             {renderSection('slider')}
+            {renderSection('promotional')}
             {renderSection('categories')}
             {renderSection('contact')}
           </div>
