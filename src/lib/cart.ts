@@ -91,3 +91,24 @@ export function clearCart() {
     window.dispatchEvent(new CustomEvent("v0-cart-updated", { detail: { items: [] } }))
   }
 }
+
+export function updateWarranty(id: string, newWarranty: { duration: string; price: number } | undefined, color?: string, selectedRam?: string, selectedStorage?: string, currentWarranty?: { duration: string; price: number }) {
+  const items = read()
+  const idx = items.findIndex((i) => 
+    i.id === id &&
+    i.color === color &&
+    i.selectedRam === selectedRam &&
+    i.selectedStorage === selectedStorage &&
+    i.warranty?.duration === currentWarranty?.duration
+  )
+  if (idx >= 0) {
+    const item = items[idx]
+    const basePrice = currentWarranty ? item.price - currentWarranty.price : item.price
+    items[idx] = {
+      ...item,
+      warranty: newWarranty,
+      price: basePrice + (newWarranty?.price || 0)
+    }
+    write(items)
+  }
+}

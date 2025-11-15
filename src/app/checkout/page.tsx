@@ -541,7 +541,7 @@ export default function CheckoutPage() {
                             {it.color && <span className="text-xs text-gray-500">Color: {it.color}</span>}
                             {(it as any).selectedRam && <span className="text-xs text-gray-500">RAM: {(it as any).selectedRam}{ramPrice !== 0 && ` (+₹${ramPrice.toLocaleString()})`}</span>}
                             {(it as any).selectedStorage && <span className="text-xs text-gray-500">Storage: {(it as any).selectedStorage}{storagePrice !== 0 && ` (+₹${storagePrice.toLocaleString()})`}</span>}
-                            {it.warranty && <span className="text-xs text-gray-600">Warranty: {it.warranty.duration} (+₹{it.warranty.price.toLocaleString()})</span>}
+                            {it.warranty && <span className="text-xs text-gray-600">Ext Warranty: {it.warranty.duration} (+₹{it.warranty.price.toLocaleString()})</span>}
                           </div>
                           <p className="text-sm font-semibold text-gray-900 mt-1">₹{(it.price || 0).toLocaleString()}</p>
                         </div>

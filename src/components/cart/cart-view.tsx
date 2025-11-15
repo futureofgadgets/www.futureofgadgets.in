@@ -4,12 +4,13 @@ import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/ui/loading-button"
 import { toast } from "sonner"
-import { getCart, updateQty, removeFromCart, clearCart } from "@/lib/cart"
+import { getCart, updateQty, removeFromCart, clearCart, updateWarranty, addToCart } from "@/lib/cart"
 import { useSession } from "next-auth/react"
 import { AuthDialog } from "@/components/auth-dialog"
 import Link from "next/link"
 import Image from "next/image"
-import { ShoppingBag, Trash2, Plus, Minus, Tag, Lock, Truck, ArrowRight, X } from "lucide-react"
+import { ShoppingBag, Trash2, Plus, Minus, Tag, Lock, Truck, ArrowRight, X, Shield } from "lucide-react"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import CartSkeleton from "@/components/skeletons/CartSkeleton"
 import { useRouter } from "next/navigation"
 import { Input } from "@/components/ui/input"
@@ -54,6 +55,8 @@ export default function CartView() {
   })
   const [promoLoading, setPromoLoading] = useState(false)
   const [availablePromos, setAvailablePromos] = useState<any[]>([])
+  const [warrantyDialogOpen, setWarrantyDialogOpen] = useState(false)
+  const [selectedCartItem, setSelectedCartItem] = useState<CartItem | null>(null)
 
   useEffect(() => {
     setItems(getCart())
@@ -256,7 +259,7 @@ export default function CartView() {
                   }
                   
                   const isOutOfStock = availableStock < (i.qty || 1)
-                  const uniqueKey = `${i.id}-${i.color || ''}-${i.selectedRam || ''}-${i.selectedStorage || ''}-${i.warranty?.duration || ''}`
+                  const uniqueKey = `${i.id}-${i.color || ''}-${i.selectedRam || ''}-${i.selectedStorage || ''}-${i.warranty?.duration || ''}-${idx}`
                   
                   return (
                     <li key={uniqueKey} className={`p-3 sm:p-4 hover:bg-white transition-colors ${isOutOfStock ? 'bg-gray-50' : ''}`}>
@@ -272,7 +275,7 @@ export default function CartView() {
                         </Link>
                         <div className="flex-1 min-w-0">
                           <Link href={`/products/${i.slug}`}>
-                            <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 line-clamp-2">{i.name}</h3>
+                            <h3 className="text-sm sm:text-base font-semibold text-gray-900 mb-1 line-clamp-2 hover:text-blue-600">{i.name}</h3>
                           </Link>
                           {i.color && (
                             <p className="text-xs text-gray-600 mb-1">Color: {i.color}</p>
@@ -296,7 +299,7 @@ export default function CartView() {
                             )
                           })()}
                           {i.warranty && (
-                            <p className="text-xs text-gray-600 mb-1">Warranty: {i.warranty.duration} (+₹{i.warranty.price.toLocaleString()})</p>
+                            <p className="text-xs text-gray-600 mb-1">Ext Warranty: {i.warranty.duration} (+₹{i.warranty.price.toLocaleString()})</p>
                           )}
                           {isOutOfStock ? (
                             <p className="text-xs sm:text-sm text-red-600 font-semibold mb-2">Out of Stock</p>
@@ -304,7 +307,11 @@ export default function CartView() {
                             <p className="text-xs sm:text-sm text-green-600 mb-2">In Stock</p>
                           )}
                           <p className="text-base sm:text-lg font-bold text-gray-900 mb-2">₹{(i.price * (i.qty || 1)).toLocaleString()}</p>
+
+
+                        <div className="flex flex-col-reverse items-start gap-2 sm:gap-0 sm:flex-row sm:items-center justify-between">
                         <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+                          
                           <div className="flex items-center">
                             <button
                               onClick={() => {
@@ -372,6 +379,17 @@ export default function CartView() {
                             <span className="hidden sm:inline">Remove</span>
                           </button>
                         </div>
+
+                        <button 
+                            onClick={() => {
+                              setSelectedCartItem(i)
+                              setWarrantyDialogOpen(true)
+                            }}
+                            className="text-xs sm:text-sm p-2 rounded-sm text-white bg-blue-600 hover:bg-blue-700 font-medium hover:cursor-pointer"
+                          >
+                            Extended Warranty
+                          </button>
+                           </div>
                       </div>
                       </div>
                     </li>
@@ -577,6 +595,63 @@ export default function CartView() {
         </div>
       )}
       <AuthDialog open={showAuthDialog} onOpenChange={setShowAuthDialog} mode={authMode} />
+      
+      {/* Extended Warranty Dialog */}
+      <Dialog open={warrantyDialogOpen} onOpenChange={setWarrantyDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-blue-600" />
+              Extended Warranty
+            </DialogTitle>
+          </DialogHeader>
+          {selectedCartItem && (() => {
+            const product = products.find(p => p.id === selectedCartItem.id)
+            const warrantyOptions = product?.warrantyOptions || []
+            
+            return (
+              <div className="space-y-3">
+                {warrantyOptions.length === 0 ? (
+                  <p className="text-sm text-gray-600">No extended warranty options available for this product.</p>
+                ) : (
+                  <>
+                    <p className="text-sm text-gray-600">Select an extended warranty plan for your product:</p>
+                    <div className="space-y-2">
+                      {warrantyOptions.map((warranty: any, index: number) => (
+                        <button
+                          key={index}
+                          onClick={() => {
+                            const isSelected = selectedCartItem.warranty?.duration === warranty.duration
+                            updateWarranty(
+                              selectedCartItem.id,
+                              isSelected ? undefined : warranty,
+                              selectedCartItem.color,
+                              selectedCartItem.selectedRam,
+                              selectedCartItem.selectedStorage,
+                              selectedCartItem.warranty
+                            )
+                            setItems(getCart())
+                            toast.success(isSelected ? 'Warranty removed' : 'Warranty updated')
+                            setWarrantyDialogOpen(false)
+                          }}
+                          className={`w-full flex items-center justify-between p-3 rounded-lg border-2 transition-all ${
+                            selectedCartItem.warranty?.duration === warranty.duration
+                              ? 'border-blue-600 bg-blue-50'
+                              : 'border-gray-200 hover:border-blue-400'
+                          }`}
+                        >
+                          <span className="font-medium">{warranty.duration} Extended Warranty</span>
+                          <span className="font-bold text-blue-600">₹{warranty.price.toLocaleString()}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
