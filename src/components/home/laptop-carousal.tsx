@@ -31,7 +31,7 @@ const laptopCategories = [
   },
   {
     name: "Precision",
-    image: "/category/office_laptop.jpg",
+    image: "/category/Precision.jpg",
     href: "/search?q=office-laptop",
   },
   {
