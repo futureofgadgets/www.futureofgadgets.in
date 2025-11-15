@@ -7,6 +7,7 @@ export default function PromotionalBanner(){
       { title: 'LAPTOPS', subtitle: 'Up to 40%-70% Off', description: 'Premium laptops at affordable prices', link: '/category/laptops', bgColor: 'from-slate-900 to-slate-800', textColor: 'text-orange-400' },
       { title: 'Renewed Laptops', subtitle: 'Starting Price ₹15,499', description: 'A++ conditions at lowest price', link: '/category/monitors', bgColor: 'from-blue-600 to-blue-700', textColor: 'text-blue-100' }
     ])
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
       fetch('/api/settings')
@@ -15,7 +16,27 @@ export default function PromotionalBanner(){
           if (data.promotionalBanners) setBanners(data.promotionalBanners)
         })
         .catch(() => {})
+        .finally(() => setLoading(false))
     }, [])
+
+    if (loading) {
+      return (
+        <section className="py-6">
+          <div className="mx-auto max-w-[1400px] px-3 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+              {[1, 2].map((i) => (
+                <div key={i} className="relative overflow-hidden rounded-xl bg-gray-200 p-6 sm:p-8 md:p-10 animate-pulse">
+                  <div className="h-4 bg-gray-300 rounded w-20 mb-2"></div>
+                  <div className="h-8 bg-gray-300 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-300 rounded w-1/2 mb-4"></div>
+                  <div className="h-4 bg-gray-300 rounded w-24"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )
+    }
 
     return (
          <section className="py-6">
