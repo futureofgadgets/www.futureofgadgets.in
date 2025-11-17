@@ -15,11 +15,7 @@ export const uploadToCloudinary = async (file: File): Promise<string> => {
       {
         resource_type: 'image',
         folder: 'electronic-store',
-        transformation: [
-          { width: 1200, height: 900, crop: 'limit' },
-          { quality: '95' },
-          { format: 'jpg' }
-        ]
+        chunk_size: 6000000
       },
       (error, result) => {
         if (error) {

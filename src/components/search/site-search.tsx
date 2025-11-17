@@ -90,7 +90,7 @@ export function SiteSearch({ className }: { className?: string }) {
                 }}
               >
                 <img
-                  src={s.image || "/no-image.svg?height=40&width=40&query=product"}
+                  src={s.image || "/placeholder.svg?height=40&width=40&query=product"}
                   alt={`${s.title} image`}
                   className="h-10 w-10 rounded object-cover"
                 />

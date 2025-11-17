@@ -92,7 +92,7 @@ export default function CartView() {
       if (!product) return true
       
       // For products with RAM options, check total RAM usage across all storage combinations
-      if (item.selectedRam) {
+      if (product.ramOptions && product.ramOptions.length > 0 && item.selectedRam) {
         const ramOption = (product as any).ramOptions?.find((r: any) => r.size === item.selectedRam)
         if (!ramOption) return true
         
@@ -250,7 +250,7 @@ export default function CartView() {
                   
                   let availableStock = 0
                   if (product) {
-                    if (i.selectedRam) {
+                    if (product.ramOptions && product.ramOptions.length > 0 && i.selectedRam) {
                       const ramOption = product.ramOptions?.find((r: any) => r.size === i.selectedRam)
                       availableStock = ramOption ? ramOption.quantity : 0
                     } else {
@@ -345,7 +345,7 @@ export default function CartView() {
                                 const currentQty = i.qty || 1
                                 let originalStock = 0
                                 if (product) {
-                                  if (i.selectedRam) {
+                                  if (product.ramOptions && product.ramOptions.length > 0 && i.selectedRam) {
                                     const ramOption = product.ramOptions?.find((r: any) => r.size === i.selectedRam)
                                     originalStock = ramOption ? ramOption.quantity : 0
                                     

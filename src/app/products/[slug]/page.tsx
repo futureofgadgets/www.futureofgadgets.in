@@ -104,7 +104,7 @@ export default function ProductPage() {
         slug: product.slug,
         name: product.name,
         price: itemPrice,
-        image: product.frontImage || product.image || product.coverImage || "/no-image.svg",
+        image: product.frontImage || product.image || product.coverImage || "/placeholder.svg",
         color: selectedColor || product.color,
         selectedRam: selectedRam?.size || undefined,
         selectedStorage: selectedStorage?.size || undefined,
@@ -112,23 +112,30 @@ export default function ProductPage() {
       });
     }
     
-    if (selectedRam && selectedStorage) {
-      const updatedRamOptions = product.ramOptions?.map(r => 
-        r.size === selectedRam.size ? { ...r, quantity: r.quantity - quantity } : r
-      );
-      const updatedStorageOptions = product.storageOptions?.map(s => 
-        s.size === selectedStorage.size ? { ...s, quantity: s.quantity - quantity } : s
-      );
-      setProduct({ ...product, ramOptions: updatedRamOptions, storageOptions: updatedStorageOptions });
-      
-      // Update selectedRam reference to reflect new quantity
-      const updatedSelectedRam = updatedRamOptions?.find(r => r.size === selectedRam.size);
-      if (updatedSelectedRam) {
-        setSelectedRam(updatedSelectedRam);
+    if (product.ramOptions && product.ramOptions.length > 0) {
+      // Handle RAM-based products
+      if (selectedRam && selectedStorage) {
+        const updatedRamOptions = product.ramOptions?.map(r => 
+          r.size === selectedRam.size ? { ...r, quantity: r.quantity - quantity } : r
+        );
+        const updatedStorageOptions = product.storageOptions?.map(s => 
+          s.size === selectedStorage.size ? { ...s, quantity: s.quantity - quantity } : s
+        );
+        setProduct({ ...product, ramOptions: updatedRamOptions, storageOptions: updatedStorageOptions });
+        
+        // Update selectedRam reference to reflect new quantity
+        const updatedSelectedRam = updatedRamOptions?.find(r => r.size === selectedRam.size);
+        if (updatedSelectedRam) {
+          setSelectedRam(updatedSelectedRam);
+        }
       }
-      
-      setAvailableStock(availableStock - quantity);
+    } else {
+      // Handle products without RAM options - update total quantity
+      const updatedProduct = { ...product, quantity: product.quantity - quantity };
+      setProduct(updatedProduct);
     }
+    
+    setAvailableStock(availableStock - quantity);
     setQuantity(1);
     
     toast.success("Added to Cart", {
@@ -161,7 +168,7 @@ export default function ProductPage() {
         slug: product.slug,
         name: product.name,
         price: itemPrice,
-        image: product.frontImage || product.image || product.coverImage || "/no-image.svg",
+        image: product.frontImage || product.image || product.coverImage || "/placeholder.svg",
         color: selectedColor || product.color,
         selectedRam: selectedRam?.size || undefined,
         selectedStorage: selectedStorage?.size || undefined,
@@ -169,20 +176,27 @@ export default function ProductPage() {
       });
     }
     
-    if (selectedRam && selectedStorage) {
-      const updatedRamOptions = product.ramOptions?.map(r => 
-        r.size === selectedRam.size ? { ...r, quantity: r.quantity - quantity } : r
-      );
-      const updatedStorageOptions = product.storageOptions?.map(s => 
-        s.size === selectedStorage.size ? { ...s, quantity: s.quantity - quantity } : s
-      );
-      setProduct({ ...product, ramOptions: updatedRamOptions, storageOptions: updatedStorageOptions });
-      
-      // Update selectedRam reference to reflect new quantity
-      const updatedSelectedRam = updatedRamOptions?.find(r => r.size === selectedRam.size);
-      if (updatedSelectedRam) {
-        setSelectedRam(updatedSelectedRam);
+    if (product.ramOptions && product.ramOptions.length > 0) {
+      // Handle RAM-based products
+      if (selectedRam && selectedStorage) {
+        const updatedRamOptions = product.ramOptions?.map(r => 
+          r.size === selectedRam.size ? { ...r, quantity: r.quantity - quantity } : r
+        );
+        const updatedStorageOptions = product.storageOptions?.map(s => 
+          s.size === selectedStorage.size ? { ...s, quantity: s.quantity - quantity } : s
+        );
+        setProduct({ ...product, ramOptions: updatedRamOptions, storageOptions: updatedStorageOptions });
+        
+        // Update selectedRam reference to reflect new quantity
+        const updatedSelectedRam = updatedRamOptions?.find(r => r.size === selectedRam.size);
+        if (updatedSelectedRam) {
+          setSelectedRam(updatedSelectedRam);
+        }
       }
+    } else {
+      // Handle products without RAM options - update total quantity
+      const updatedProduct = { ...product, quantity: product.quantity - quantity };
+      setProduct(updatedProduct);
     }
     
     router.push("/cart");
@@ -325,9 +339,17 @@ export default function ProductPage() {
       setFinalPrice(price);
       
       // Calculate available stock based on selected configuration
-      if (selectedRam && selectedStorage) {
-        const stock = Math.min(selectedRam.quantity, selectedStorage.quantity);
-        setAvailableStock(Math.max(0, stock));
+      if (product.ramOptions && product.ramOptions.length > 0) {
+        // Use RAM/storage based stock calculation
+        if (selectedRam && selectedStorage) {
+          const stock = Math.min(selectedRam.quantity, selectedStorage.quantity);
+          setAvailableStock(Math.max(0, stock));
+        } else if (selectedRam) {
+          setAvailableStock(Math.max(0, selectedRam.quantity));
+        }
+      } else {
+        // Use total product quantity when no RAM options
+        setAvailableStock(Math.max(0, product.quantity));
       }
       
       // Auto-select next available RAM if current is out of stock
@@ -367,6 +389,12 @@ export default function ProductPage() {
                   );
                   return { ...storage, quantity: Math.max(0, storage.quantity - cartQty) };
                 });
+              } else {
+                // Update total quantity for products without RAM options
+                const cartQty = cart.reduce((sum: number, item: any) => 
+                  item.id === found.id ? sum + (item.qty || 1) : sum, 0
+                )
+                found.quantity = Math.max(0, found.quantity - cartQty)
               }
               setProduct(found);
               if (selectedRam) {
@@ -411,7 +439,7 @@ export default function ProductPage() {
   if (product.image && !allImages.includes(product.image)) allImages.push(product.image);
   if (product.coverImage && !allImages.includes(product.coverImage)) allImages.push(product.coverImage);
   
-  const images = allImages.length > 0 ? allImages : ["/no-image.svg"];
+  const images = allImages.length > 0 ? allImages : ["/placeholder.svg"];
   const mrp = Number(product.mrp) || 0;
   const price = finalPrice;
   const baseMrp = mrp + (selectedRam?.price || 0) + (selectedStorage?.price || 0);
@@ -455,6 +483,12 @@ export default function ProductPage() {
                 src={images[selectedImage]}
                 alt={product.name}
                 className="w-full h-full object-contain p-2 sm:p-4 cursor-pointer lg:cursor-crosshair"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  if (target.src !== '/placeholder.svg') {
+                    target.src = '/placeholder.svg';
+                  }
+                }}
               />
               {showZoom && (
                 <div 
@@ -487,7 +521,7 @@ export default function ProductPage() {
                       slug: product.slug,
                       name: product.name,
                       price: product.price,
-                      image: product.frontImage || product.image || product.coverImage || "/no-image.svg",
+                      image: product.frontImage || product.image || product.coverImage || "/placeholder.svg",
                       description: product.description
                     });
                     setIsWishlisted(added);
@@ -523,7 +557,17 @@ export default function ProductPage() {
                       selectedImage === index ? 'border-blue-600' : 'border-gray-200'
                     }`}
                   >
-                    <img src={img} alt={`Product ${index + 1}`} className="w-full h-full object-cover" />
+                    <img 
+                      src={img} 
+                      alt={`Product ${index + 1}`} 
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        if (target.src !== '/placeholder.svg') {
+                          target.src = '/placeholder.svg';
+                        }
+                      }}
+                    />
                   </button>
                 ))}
               </div>
@@ -719,7 +763,7 @@ export default function ProductPage() {
               </div>
 
               {/* Buttons */}
-              {availableStock === 0 || (selectedRam && selectedRam.quantity === 0) ? (
+              {availableStock === 0 ? (
                 <div></div>
               ) : (
                 <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
@@ -1158,7 +1202,7 @@ export default function ProductPage() {
                   slug: product.slug,
                   name: product.name,
                   price: product.price,
-                  image: product.frontImage || product.image || product.coverImage || "/no-image.svg",
+                  image: product.frontImage || product.image || product.coverImage || "/placeholder.svg",
                   description: product.description
                 });
                 setIsWishlisted(added);
@@ -1231,6 +1275,12 @@ export default function ProductPage() {
                   src={img}
                   alt={product.name}
                   className="max-w-full max-h-full object-contain"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== '/placeholder.svg') {
+                      target.src = '/placeholder.svg';
+                    }
+                  }}
                 />
               </div>
             ))}
@@ -1257,7 +1307,17 @@ export default function ProductPage() {
                   selectedImage === index ? 'border-blue-600' : 'border-white'
                 }`}
               >
-                <img src={img} alt="" className="w-full h-full object-cover" />
+                <img 
+                  src={img} 
+                  alt="" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    if (target.src !== '/placeholder.svg') {
+                      target.src = '/placeholder.svg';
+                    }
+                  }}
+                />
               </button>
             ))}
           </div>

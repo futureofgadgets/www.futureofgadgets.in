@@ -25,7 +25,7 @@ export function CloudinaryImage({
   const [imgSrc, setImgSrc] = useState(src);
 
   const handleError = () => {
-    setImgSrc('/no-image.svg');
+    setImgSrc('/placeholder.svg');
   };
 
   // If it's already a Cloudinary URL, use it as is

@@ -1061,7 +1061,7 @@ export default function AdminOrdersPage() {
                                       style={{ maxHeight: '70vh' }}
                                       onError={(e) => {
                                         const target = e.target as HTMLImageElement;
-                                        target.src = "/no-image.svg";
+                                        target.src = "/placeholder.svg";
                                       }}
                                     />
                                   </div>

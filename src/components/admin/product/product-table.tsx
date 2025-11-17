@@ -79,21 +79,21 @@ type Item = {
   color?: string;
   warranty?: string;
   warrantyType?: string;
-  ramOptions?: { size: string; price: number }[];
-  storageOptions?: { size: string; price: number }[];
+  ramOptions?: { size: string; price: number; quantity?: number }[];
+  storageOptions?: { size: string; price: number; quantity?: number }[];
   warrantyOptions?: { duration: string; price: number }[];
 };
 
 const itemSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  category: z.string().min(1, "Category is required"),
-  description: z.string().min(1, "Description is required"),
-  price: z.number().min(0, "Price is required"),
+  name: z.string().optional(),
+  category: z.string().optional(),
+  description: z.string().optional(),
+  price: z.number().min(0).optional(),
   mrp: z.number().min(0).optional(),
   discount: z.number().min(0).optional(),
   quantity: z.number().min(0).optional(),
   brand: z.string().optional(),
-  modelName: z.string().min(1, "Model name is required"),
+  modelName: z.string().optional(),
   warranty: z.string().optional(),
   warrantyType: z.string().optional(),
   screenSize: z.string().optional(),
@@ -174,10 +174,12 @@ export default function ProductTable() {
     }
   }, [mrp, price]);
 
-  // Auto-calculate quantity from RAM options
+  // Auto-calculate quantity from RAM options only if RAM options exist
   useEffect(() => {
-    const totalQty = ramOptions.reduce((sum, opt) => sum + (opt.quantity || 0), 0);
-    form.setValue("quantity", totalQty);
+    if (ramOptions.length > 0) {
+      const totalQty = ramOptions.reduce((sum, opt) => sum + (opt.quantity || 0), 0);
+      form.setValue("quantity", totalQty);
+    }
   }, [ramOptions]);
 
   useEffect(() => {
@@ -193,7 +195,7 @@ export default function ProductTable() {
             description: p.description ?? "",
             boxContents: p.boxContents ?? "",
             image:
-              p.frontImage ?? p.image ?? p.coverImage ?? "/no-image.svg",
+              p.frontImage ?? p.image ?? p.coverImage ?? "/placeholder.svg",
             images: Array.isArray(p.images)
               ? p.images
               : p.images?.split?.(",").map((s: string) => s.trim()) ?? [],
@@ -203,7 +205,7 @@ export default function ProductTable() {
             brand: p.brand ?? "",
             modelName: p.modelName ?? "",
             sku: p.sku ?? `SKU-${Date.now()}`,
-            updatedAt: p.updatedAt ?? new Date().toISOString(),
+            updatedAt: p.updatedAt ?? p.createdAt ?? new Date().toISOString(),
             screenSize: p.screenSize ?? "",
             cpuModel: p.cpuModel ?? "",
             operatingSystem: p.operatingSystem ?? "",
@@ -254,17 +256,29 @@ export default function ProductTable() {
     return result;
   }, [data, query, activeFilter]);
   
-
-  
   const outOfStockCount = useMemo(() => {
     return data.filter(p => p.quantity === 0).length;
   }, [data]);
 
   useEffect(() => {
     if (open && !editId) {
+      console.log('Resetting form for create mode');
       form.reset(defaultValues);
       setDescriptionLines([""]);
       setBoxContents([""]);
+      setFrontImage(null);
+      setAdditionalImages([]);
+      setCurrentFrontImage("");
+      setCurrentImages([]);
+      setRamOptions([]);
+      setStorageOptions([]);
+      setWarrantyOptions([]);
+      
+      // Force form to be valid initially
+      setTimeout(() => {
+        form.clearErrors();
+        console.log('Form state after reset:', form.formState);
+      }, 100);
     }
     if (!open) {
       setEditId(null);
@@ -339,7 +353,6 @@ export default function ProductTable() {
       invalidateCache("products");
     } catch (err: any) {
       setData(originalData);
-      console.error(err);
       toast.error(`Delete failed: ${err.message}`);
     } finally {
       setDeleting(null);
@@ -364,7 +377,7 @@ export default function ProductTable() {
         setCategories(data.categories || []);
       }
     } catch (err) {
-      console.error('Failed to fetch categories:', err);
+      // Failed to fetch categories
     }
   };
 
@@ -425,10 +438,43 @@ export default function ProductTable() {
   };
 
   const onSubmit = async (values: ItemFormValues) => {
-    if (!frontImage && !editId && !currentFrontImage) {
-      toast.error("Front image is required");
+    
+    // Comprehensive validation
+    if (!values.name?.trim()) {
+      toast.error("Product name is required");
       return;
     }
+
+    // Check for duplicate name
+    const duplicateName = data.find(item => 
+      item.name.toLowerCase() === values.name.trim().toLowerCase() && 
+      item.id !== editId
+    );
+    if (duplicateName) {
+      toast.error("Product with this Title name already exists");
+      return;
+    }
+
+    if (!values.category?.trim()) {
+      toast.error("Category is required");
+      return;
+    }
+
+    if (!values.modelName?.trim()) {
+      toast.error("Model name is required");
+      return;
+    }
+
+    if (!values.price || values.price <= 0) {
+      toast.error("Valid price is required");
+      return;
+    }
+
+    // Make image optional for now to test form submission
+    // if (!editId && !frontImage && !currentFrontImage) {
+    //   toast.error("Front image is required for new product");
+    //   return;
+    // }
 
     if (values.mrp && values.price > values.mrp) {
       toast.error("Selling price cannot be greater than MRP");
@@ -440,14 +486,18 @@ export default function ProductTable() {
       return;
     }
 
-    setUploading(true);
+    // Remove RAM validation - make it optional
+
+    setUploading(true); 
+    // toast.loading(editId ? "Updating product..." : "Creating product...", { id: 'product-submit' });
+    
     try {
       let frontImageUrl = currentFrontImage;
       let additionalImageUrls = currentImages;
 
       // Only upload new images if files are selected
       if (frontImage || additionalImages.length > 0) {
-        const filesToUpload = [];
+        const filesToUpload: File[] = [];
 
         if (frontImage) {
           filesToUpload.push(frontImage);
@@ -457,21 +507,30 @@ export default function ProductTable() {
           filesToUpload.push(...additionalImages);
         }
 
-        const uploadedUrls = await uploadFilesToCloudinary(filesToUpload);
+        try {
+          const uploadedUrls = await uploadFilesToCloudinary(filesToUpload);
 
-        if (frontImage) frontImageUrl = uploadedUrls[0];
-        if (additionalImages.length > 0)
-          additionalImageUrls = uploadedUrls.slice(frontImage ? 1 : 0);
+          if (frontImage) frontImageUrl = uploadedUrls[0];
+          if (additionalImages.length > 0)
+            additionalImageUrls = uploadedUrls.slice(frontImage ? 1 : 0);
+        } catch (uploadError: any) {
+          toast.warning('Image upload failed, creating product without images');
+          frontImageUrl = 'https://via.placeholder.com/300';
+          additionalImageUrls = [];
+        }
+      } else {
+        // Use placeholder if no images
+        frontImageUrl = frontImageUrl || 'https://via.placeholder.com/300';
       }
 
-      const productData = {
+      const productData: any = {
         name: values.name,
         title: values.name,
         slug: generateSlug(values.name),
         category: values.category,
         description: descriptionLines.filter(line => line.trim()).join('\n'),
         boxContents: boxContents.filter(line => line.trim()).join('\n'),
-        frontImage: frontImageUrl,
+        frontImage: frontImageUrl || 'https://via.placeholder.com/300',
         images: additionalImageUrls,
         price: values.price,
         mrp: values.mrp || values.price,
@@ -488,72 +547,108 @@ export default function ProductTable() {
         ramOptions: ramOptions,
         storageOptions: storageOptions,
         warrantyOptions: warrantyOptions,
-        status: "active" as const,
+        status: "active",
         sku: editId
           ? data.find((item) => item.id === editId)?.sku || `SKU-${Date.now()}`
           : `SKU-${Date.now()}`,
-      };
-
-      const url = editId ? `/api/products/${editId}` : "/api/products";
-      const method = editId ? "PUT" : "POST";
-
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(productData),
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(
-          errorData?.error || `Failed to ${editId ? "update" : "add"} item`
-        );
-      }
-
-      // Optimistic update - update UI immediately
-      const newItem = {
-        id: editId || Date.now().toString(),
-        slug: generateSlug(values.name),
-        name: values.name,
-        title: values.name,
-        category: values.category,
-        description: descriptionLines.filter(line => line.trim()).join('\n'),
-        boxContents: boxContents.filter(line => line.trim()).join('\n'),
-        image: frontImageUrl,
-        images: additionalImageUrls,
-        price: values.price,
-        mrp: values.mrp || values.price,
-        quantity: values.quantity || 0,
-        brand: values.brand || "",
-        modelName: values.modelName || "",
-        warranty: values.warranty || "",
-        warrantyType: values.warrantyType || "",
-        sku: editId
-          ? data.find((item) => item.id === editId)?.sku || `SKU-${Date.now()}`
-          : `SKU-${Date.now()}`,
-        updatedAt: new Date().toISOString(),
-        screenSize: values.screenSize || "",
-        cpuModel: values.cpuModel || "",
-        operatingSystem: values.operatingSystem || "",
-        graphics: values.graphics || "",
-        color: values.color || "",
-        ramOptions: ramOptions,
-        storageOptions: storageOptions,
-        warrantyOptions: warrantyOptions,
       };
 
       if (editId) {
-        setData((prev) =>
-          prev.map((item) => (item.id === editId ? newItem : item))
-        );
+        // Update existing product (PUT)
+        const url = `/api/products/${editId}`;
+        const res = await fetch(url, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(productData),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData?.error || "Failed to update item");
+        }
+
+        // optimistic update
+        const updatedItem = {
+          id: editId,
+          slug: productData.slug,
+          name: productData.name,
+          title: productData.title,
+          category: productData.category,
+          description: productData.description,
+          boxContents: productData.boxContents,
+          image: productData.frontImage,
+          images: productData.images,
+          price: productData.price,
+          mrp: productData.mrp,
+          quantity: productData.quantity,
+          brand: productData.brand || "",
+          modelName: productData.modelName || "",
+          warranty: productData.warranty || "",
+          warrantyType: productData.warrantyType || "",
+          sku: productData.sku,
+          updatedAt: new Date().toISOString(),
+          screenSize: productData.screenSize || "",
+          cpuModel: productData.cpuModel || "",
+          operatingSystem: productData.operatingSystem || "",
+          graphics: productData.graphics || "",
+          color: productData.color || "",
+          ramOptions: productData.ramOptions || [],
+          storageOptions: productData.storageOptions || [],
+          warrantyOptions: productData.warrantyOptions || [],
+        };
+
+        setData((prev) => prev.map((item) => (item.id === editId ? updatedItem : item)));
+        invalidateCache("products");
+        toast.success("Item updated successfully!", { id: 'product-submit' });
       } else {
+        // Create new product (POST)
+        const res = await fetch("/api/products", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(productData),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData?.error || errData?.details || "Failed to create product");
+        }
+
+        const created = await res.json();
+
+        // Map server response into Item shape and prepend to list
+        const newItem: Item = {
+          id: created.id ?? `${Date.now()}`,
+          slug: created.slug ?? productData.slug,
+          name: created.name ?? productData.name,
+          title: created.title ?? productData.title,
+          category: created.category ?? productData.category,
+          description: created.description ?? productData.description,
+          boxContents: created.boxContents ?? productData.boxContents,
+          image: created.frontImage ?? productData.frontImage,
+          images: Array.isArray(created.images) ? created.images : (productData.images || []),
+          price: Number(created.price ?? productData.price),
+          mrp: Number(created.mrp ?? productData.mrp),
+          quantity: Number(created.quantity ?? created.stock ?? productData.quantity ?? 0),
+          brand: created.brand ?? productData.brand ?? "",
+          modelName: created.modelName ?? productData.modelName ?? "",
+          sku: created.sku ?? productData.sku,
+          updatedAt: created.updatedAt ?? created.createdAt ?? new Date().toISOString(),
+          screenSize: created.screenSize ?? productData.screenSize ?? "",
+          cpuModel: created.cpuModel ?? productData.cpuModel ?? "",
+          operatingSystem: created.operatingSystem ?? productData.operatingSystem ?? "",
+          graphics: created.graphics ?? productData.graphics ?? "",
+          color: created.color ?? productData.color ?? "",
+          ramOptions: created.ramOptions ?? productData.ramOptions ?? [],
+          storageOptions: created.storageOptions ?? productData.storageOptions ?? [],
+          warrantyOptions: created.warrantyOptions ?? productData.warrantyOptions ?? [],
+        };
+
         setData((prev) => [newItem, ...prev]);
+        invalidateCache("products");
+        toast.success("Item created successfully!", { id: 'product-submit' });
       }
 
-      // Invalidate cache to ensure fresh data on next load
-      invalidateCache("products");
-
-      toast.success(`Item ${editId ? "updated" : "added"} successfully!`);
+      // Reset UI
       form.reset(defaultValues);
       setFrontImage(null);
       setAdditionalImages([]);
@@ -567,7 +662,19 @@ export default function ProductTable() {
       setEditId(null);
       setOpen(false);
     } catch (err: any) {
-      toast.error(`Failed: ${err.message}`);
+      
+      // Show specific error messages
+      if (err.message.includes('Image upload failed')) {
+        toast.error(err.message, { id: 'product-submit' });
+      } else if (err.message.includes('already exists')) {
+        toast.error('A product with this name already exists. Please use a different name.', { id: 'product-submit' });
+      } else if (err.message.includes('required fields')) {
+        toast.error('Please fill in all required fields', { id: 'product-submit' });
+      } else if (err.message.includes('Unique constraint')) {
+        toast.error('Product name must be unique', { id: 'product-submit' });
+      } else {
+        toast.error(`Failed to ${editId ? 'update' : 'create'} product: ${err.message}`, { id: 'product-submit' });
+      }
     } finally {
       setUploading(false);
     }
@@ -578,10 +685,7 @@ export default function ProductTable() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Filter Tabs */}
-     
-      
-      {/* Search + Add button */}
+      {/* Search + Add buttons */}
       <div className="flex flex-col md:flex-row px-4 items-start md:items-center justify-between gap-3">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
           <Input
@@ -594,796 +698,734 @@ export default function ProductTable() {
             Clear
           </Button>
         </div>
-<div className="space-x-2 flex flex-col sm:flex-row justify-between md:justify-end sm:w-fit w-full">
-        <Dialog open={categoryOpen} onOpenChange={setCategoryOpen}>
-          <DialogTrigger asChild>
-            <Button className="cursor-pointer w-full md:w-auto mt-2 md:mt-0">
-              Category <Plus />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-md">
-            <DialogHeader>
-              <DialogTitle>Manage Categories</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Add new category"
-                  value={newCategory}
-                  onChange={(e) => setNewCategory(e.target.value)}
-                />
-                <LoadingButton
-                  onClick={handleAddCategory}
-                  disabled={!newCategory.trim()}
-                  loading={categoryLoading}
-                >
-                  Add
-                </LoadingButton>
-              </div>
-              <div className="space-y-2 max-h-60 overflow-y-auto">
-                {categories.sort().map((category) => (
-                  <div key={category} className="flex items-center justify-between p-2 border rounded">
-                    <span>{category}</span>
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                        >
-                          <Trash2 />
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Delete Category</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Are you sure you want to delete {category}? This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction
-                            onClick={() => handleDeleteCategory(category)}
-                            className="bg-red-600 hover:bg-red-700"
-                          >
-                            Delete
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
 
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button className="cursor-pointer w-full md:w-auto mt-2 md:mt-0">
-              Add Item <Plus />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="min-w-[95vw] md:min-w-[85vw] lg:min-w-[80vw] h-[90vh] max-w-none overflow-y-auto p-4 md:p-6 lg:p-8">
-            <DialogHeader className="pb-6">
-              <DialogTitle className="text-2xl font-semibold">
-                {editId ? "Edit Item" : "Add New Item"}
-              </DialogTitle>
-            </DialogHeader>
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-10"
-              >
-                <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
-                  <div className="flex flex-col space-y-6 w-full lg:w-1/2">
-                    <h3 className="text-lg lg:text-xl font-semibold text-gray-900 border-b-2 pb-3">
-                      Product Details
-                    </h3>
-                    <div className="space-y-6">
-                      {/* Name */}
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Title Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Title Name" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* Brand */}
-                      <FormField
-                        control={form.control}
-                        name="brand"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Brand (Optional)</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="e.g. ASUS, Dell, Samsung"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* Model Name */}
-                      <FormField
-                        control={form.control}
-                        name="modelName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Model Name</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="e.g. Vivobook 15, XPS 13"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* Warranty */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="warranty"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Warranty</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="e.g. 1 Year, 2 Years"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="warrantyType"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Warranty Type</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="e.g. Onsite, Carry-in"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      {/* Category with dropdown */}
-                      <FormField
-                        control={form.control}
-                        name="category"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Category</FormLabel>
-                            <FormControl>
-                              <Select
-                                value={field.value}
-                                onValueChange={field.onChange}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a category" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {categories.sort().map((type) => (
-                                    <SelectItem key={type} value={type}>
-                                      {type}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      {/* MRP, Discount, Selling Price, Quantity */}
-                      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="mrp"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>MRP (INR)</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="e.g. 109999"
-                                  value={field.value === 0 ? "" : field.value}
-                                  onChange={(e) => field.onChange(Number(e.target.value) || 0)}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="discount"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Discount %</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Auto"
-                                  value={field.value === 0 ? "" : field.value}
-                                  readOnly
-                                  className="bg-gray-100 cursor-not-allowed"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="price"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Selling Price (INR)</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="e.g. 89999"
-                                  value={field.value === 0 ? "" : field.value}
-                                  onChange={(e) => field.onChange(Number(e.target.value) || 0)}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="quantity"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Total Qty</FormLabel>
-                              <FormControl>
-                                <Input
-                                  type="number"
-                                  placeholder="Auto"
-                                  value={field.value === 0 ? "" : field.value}
-                                  readOnly
-                                  className="bg-gray-100 cursor-not-allowed"
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-
-                      {/* Description */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <FormLabel>Description</FormLabel>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => setDescriptionLines([...descriptionLines, ""])}
-                          >
-                            <Plus className="w-4 h-4 mr-1" /> Add Line
-                          </Button>
-                        </div>
-                        {descriptionLines.map((line, index) => (
-                          <div key={index} className="flex gap-2 items-center">
-                            <Textarea
-                            className="w-120"
-                              placeholder={`Description line ${index + 1}`}
-                              value={line}
-                              onChange={(e) => {
-                                const updated = [...descriptionLines];
-                                updated[index] = e.target.value;
-                                setDescriptionLines(updated);
-                              }}
-                            />
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => setDescriptionLines(descriptionLines.filter((_, i) => i !== index))}
-                              disabled={descriptionLines.length === 1}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                                
-                    </div>
-                  </div>
-
-                  <div className="w-full lg:w-1/2">
-                    {/* Product Details Section */}
-                    <div className="flex-1 space-y-6">
-                      <h3 className="text-lg lg:text-xl font-semibold text-gray-900 border-b-2 pb-3">
-                        Product Specification
-                      </h3>
-                      <FormField
-                        control={form.control}
-                        name="screenSize"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Screen Size</FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="e.g. 15.6 inches"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="cpuModel"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>CPU Model</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="e.g. Intel Core i5"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="operatingSystem"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Operating System</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="e.g. Windows 11"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <FormField
-                          control={form.control}
-                          name="graphics"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Graphics</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="e.g. Intel UHD Graphics"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="color"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Color</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="e.g. Black, Silver"
-                                  {...field}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      {/* RAM Options */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <FormLabel>RAM Options</FormLabel>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => setRamOptions([...ramOptions, { size: "", price: 0, quantity: 0 }])}
-                          >
-                            <Plus className="w-4 h-4 mr-1" /> Add RAM
-                          </Button>
-                        </div>
-                        {ramOptions.map((option, index) => (
-                          <div key={index} className="flex gap-2 items-end">
-                            <div className="flex-1">
-                              <Input
-                                placeholder="e.g. 8GB DDR4"
-                                value={option.size}
-                                onChange={(e) => {
-                                  const updated = [...ramOptions];
-                                  updated[index].size = e.target.value;
-                                  setRamOptions(updated);
-                                }}
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <Input
-                                type="number"
-                                placeholder={index === 0 ? "(default)" : "Additional price in ₹"}
-                                value={option.price === 0 ? "" : option.price}
-                                onChange={(e) => {
-                                  const updated = [...ramOptions];
-                                  updated[index].price = Number(e.target.value) || 0;
-                                  setRamOptions(updated);
-                                }}
-                                disabled={index === 0}
-                                className={index === 0 ? "bg-gray-100" : ""}
-                              />
-                            </div>
-                            <div className="w-24">
-                              <Input
-                                type="number"
-                                placeholder="Qty"
-                                value={option.quantity === 0 ? "" : option.quantity}
-                                onChange={(e) => {
-                                  const updated = [...ramOptions];
-                                  updated[index].quantity = Number(e.target.value) || 0;
-                                  setRamOptions(updated);
-                                }}
-                              />
-                            </div>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => setRamOptions(ramOptions.filter((_, i) => i !== index))}
-                              disabled={index === 0}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Storage Options */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <FormLabel>Storage Options</FormLabel>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => setStorageOptions([...storageOptions, { size: "", price: 0, quantity: 0 }])}
-                          >
-                            <Plus className="w-4 h-4 mr-1" /> Add Storage
-                          </Button>
-                        </div>
-                        {storageOptions.map((option, index) => (
-                          <div key={index} className="flex gap-2 items-end">
-                            <div className="flex-1">
-                              <Input
-                                placeholder="e.g. 512GB SSD"
-                                value={option.size}
-                                onChange={(e) => {
-                                  const updated = [...storageOptions];
-                                  updated[index].size = e.target.value;
-                                  setStorageOptions(updated);
-                                }}
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <Input
-                                type="number"
-                                placeholder={index === 0 ? "(default)" : "Additional price in ₹"}
-                                value={option.price === 0 ? "" : option.price}
-                                onChange={(e) => {
-                                  const updated = [...storageOptions];
-                                  updated[index].price = Number(e.target.value) || 0;
-                                  setStorageOptions(updated);
-                                }}
-                                disabled={index === 0}
-                                className={index === 0 ? "bg-gray-100" : ""}
-                              />
-                            </div>
-                            <div className="w-24">
-                              <Input
-                                type="number"
-                                placeholder="Qty"
-                                value={option.quantity === 0 ? "" : option.quantity}
-                                onChange={(e) => {
-                                  const updated = [...storageOptions];
-                                  updated[index].quantity = Number(e.target.value) || 0;
-                                  setStorageOptions(updated);
-                                }}
-                              />
-                            </div>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => setStorageOptions(storageOptions.filter((_, i) => i !== index))}
-                              disabled={index === 0}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Warranty Options */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <FormLabel>Extended Warranty Options</FormLabel>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => setWarrantyOptions([...warrantyOptions, { duration: "", price: 0 }])}
-                          >
-                            <Plus className="w-4 h-4 mr-1" /> Add Warranty
-                          </Button>
-                        </div>
-                        {warrantyOptions.map((option, index) => (
-                          <div key={index} className="flex gap-2 items-end">
-                            <div className="flex-1">
-                              <Input
-                                placeholder="e.g. 3 months, 6 months, 12 months"
-                                value={option.duration}
-                                onChange={(e) => {
-                                  const updated = [...warrantyOptions];
-                                  updated[index].duration = e.target.value;
-                                  setWarrantyOptions(updated);
-                                }}
-                              />
-                            </div>
-                            <div className="flex-1">
-                              <Input
-                                type="number"
-                                placeholder="Price in ₹"
-                                value={option.price === 0 ? "" : option.price}
-                                onChange={(e) => {
-                                  const updated = [...warrantyOptions];
-                                  updated[index].price = Number(e.target.value) || 0;
-                                  setWarrantyOptions(updated);
-                                }}
-                              />
-                            </div>
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => setWarrantyOptions(warrantyOptions.filter((_, i) => i !== index))}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-
-                        {/* Box Contents */}
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between">
-                          <FormLabel>What&apos;s in the Box</FormLabel>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => setBoxContents([...boxContents, ""])}
-                          >
-                            <Plus className="w-4 h-4 mr-1" /> Add box
-                          </Button>
-                        </div>
-                        {boxContents.map((line, index) => (
-                          <div key={index} className="flex gap-2 items-center">
-                            <Input
-                              placeholder={`Item ${index + 1}`}
-                              value={line}
-                              onChange={(e) => {
-                                const updated = [...boxContents];
-                                updated[index] = e.target.value;
-                                setBoxContents(updated);
-                              }}
-                            />
-                            <Button
-                              type="button"
-                              size="sm"
-                              variant="destructive"
-                              onClick={() => setBoxContents(boxContents.filter((_, i) => i !== index))}
-                              disabled={boxContents.length === 1}
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                  
-                    {/* First Row - Form Fields */}
-                  </div>
-                  
-                </div>
-                  {/* Images Section */}
-                    <div className="flex-1 space-y-6 mt-6">
-                      <h3 className="text-lg lg:text-xl font-semibold text-gray-900 border-b-2 pb-3">
-                        Product Images
-                      </h3>
-
-                      <div className="space-y-6">
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            Front Image *
-                          </label>
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              const file = e.target.files?.[0] || null;
-                              if (file) {
-                                const validation = validateImageFile(file);
-                                if (!validation.valid) {
-                                  toast.error(validation.error);
-                                  return;
-                                }
-                                const totalImages = 1 + additionalImages.length;
-                                if (totalImages > 5) {
-                                  toast.error(
-                                    `Maximum 5 images allowed. You have ${additionalImages.length} additional images.`
-                                  );
-                                  return;
-                                }
-                              }
-                              setFrontImage(file);
-                            }}
-                            className="cursor-pointer"
-                          />
-                          {frontImage ? (
-                            <div className="mt-2">
-                              <img
-                                src={URL.createObjectURL(frontImage)}
-                                alt="New Preview"
-                                className="w-20 h-20 object-cover rounded"
-                              />
-                            </div>
-                          ) : (
-                            currentFrontImage && (
-                              <div className="mt-2">
-                                <img
-                                  src={currentFrontImage}
-                                  alt="Current Image"
-                                  className="w-20 h-20 object-cover rounded border-2 border-blue-200"
-                                />
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Current image
-                                </p>
-                              </div>
-                            )
-                          )}
-                        </div>
-
-                        <div>
-                          <label className="block text-sm font-medium mb-2">
-                            Additional Images
-                          </label>
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={(e) => {
-                              const files = Array.from(e.target.files || []);
-
-                              // Validate each file
-                              for (const file of files) {
-                                const validation = validateImageFile(file);
-                                if (!validation.valid) {
-                                  toast.error(
-                                    `${file.name}: ${validation.error}`
-                                  );
-                                  return;
-                                }
-                              }
-
-                              const totalImages =
-                                (frontImage ? 1 : 0) + files.length;
-                              if (totalImages > 5) {
-                                toast.error(
-                                  `Maximum 5 images allowed (including front image). You selected ${totalImages} images.`
-                                );
-                                return;
-                              }
-                              setAdditionalImages(files);
-                            }}
-                            className="cursor-pointer"
-                          />
-                          <p className="text-xs text-gray-500 mt-1">
-                            Max 4 additional images (5 total including front
-                            image)
-                          </p>
-                          {additionalImages.length > 0 ? (
-                            <div className="mt-2 flex gap-2 flex-wrap">
-                              {additionalImages.map((img, index) => (
-                                <img
-                                  key={index}
-                                  src={URL.createObjectURL(img)}
-                                  alt={`New Preview ${index + 1}`}
-                                  className="w-16 h-16 object-cover rounded"
-                                />
-                              ))}
-                            </div>
-                          ) : (
-                            currentImages.length > 0 && (
-                              <div className="mt-2">
-                                <div className="flex gap-2 flex-wrap">
-                                  {currentImages.map((img, index) => (
-                                    <img
-                                      key={index}
-                                      src={img}
-                                      alt={`Current ${index + 1}`}
-                                      className="w-16 h-16 object-cover rounded border-2 border-blue-200"
-                                    />
-                                  ))}
-                                </div>
-                                <p className="text-xs text-gray-500 mt-1">
-                                  Current additional images
-                                </p>
-                              </div>
-                            )
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-
-                {/* Action Buttons */}
-                <div className="flex gap-4 justify-end pt-6 border-t-2 mt-8">
-                  <Button
-                    className="cursor-pointer"
-                    type="button"
-                    variant="outline"
-                    onClick={() => setOpen(false)}
+        <div className="space-x-2 flex flex-col sm:flex-row justify-between md:justify-end sm:w-fit w-full">
+          {/* Category Manager */}
+          <Dialog open={categoryOpen} onOpenChange={setCategoryOpen}>
+            <DialogTrigger asChild>
+              <Button className="cursor-pointer w-full md:w-auto mt-2 md:mt-0">
+                Category <Plus />
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Manage Categories</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add new category"
+                    value={newCategory}
+                    onChange={(e) => setNewCategory(e.target.value)}
+                  />
+                  <LoadingButton
+                    onClick={handleAddCategory}
+                    disabled={!newCategory.trim()}
+                    loading={categoryLoading}
                   >
-                    Cancel
-                  </Button>
-                  <LoadingButton type="submit" loading={uploading}>
-                    {editId ? "Update Item" : "Save"}
+                    Add
                   </LoadingButton>
                 </div>
-              </form>
-            </Form>
-          </DialogContent>
-        </Dialog>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {categories.sort().map((category) => (
+                    <div key={category} className="flex items-center justify-between p-2 border rounded">
+                      <span>{category}</span>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                          >
+                            <Trash2 />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Category</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete {category}? This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteCategory(category)}
+                              className="bg-red-600 hover:bg-red-700"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+
+          {/* Add Item button (opens same dialog in create mode) */}
+          <Button
+            onClick={() => {
+              setEditId(null);
+              setOpen(true);
+            }}
+            className="cursor-pointer w-full md:w-auto mt-2 md:mt-0"
+          >
+            Add Item <Plus />
+          </Button>
+
+          {/* The form Dialog (shared for Add/Edit) */}
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogContent className="min-w-[95vw] md:min-w-[85vw] lg:min-w-[80vw] h-[90vh] max-w-none overflow-y-auto p-4 md:p-6 lg:p-8">
+              <DialogHeader className="pb-6">
+                <DialogTitle className="text-2xl font-semibold">
+                  {editId ? "Edit Item" : "Add Item"}
+                </DialogTitle>
+              </DialogHeader>
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
+                  console.log('Form validation errors:', errors);
+                  toast.error('Please fix form validation errors');
+                })} className="space-y-10">
+                  <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+                    <div className="flex flex-col space-y-6 w-full lg:w-1/2">
+                      <h3 className="text-lg lg:text-xl font-semibold text-gray-900 border-b-2 pb-3">
+                        Product Details
+                      </h3>
+                      <div className="space-y-6">
+                        {/* Name */}
+                        <FormField
+                          control={form.control}
+                          name="name"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Title Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="Title Name" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Brand */}
+                        <FormField
+                          control={form.control}
+                          name="brand"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Brand (Optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g. ASUS, Dell, Samsung" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Model Name */}
+                        <FormField
+                          control={form.control}
+                          name="modelName"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Model Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g. Vivobook 15, XPS 13" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Warranty */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="warranty"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Warranty</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g. 1 Year, 2 Years" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="warrantyType"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Warranty Type</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g. Onsite, Carry-in" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Category with dropdown */}
+                        <FormField
+                          control={form.control}
+                          name="category"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Category</FormLabel>
+                              <FormControl>
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a category" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {categories.sort().map((type) => (
+                                      <SelectItem key={type} value={type}>
+                                        {type}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* MRP, Discount, Selling Price, Quantity */}
+                        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="mrp"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>MRP (INR)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="e.g. 109999"
+                                    value={field.value === 0 ? "" : field.value}
+                                    onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="discount"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Discount %</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="Auto"
+                                    value={field.value === 0 ? "" : field.value}
+                                    readOnly
+                                    className="bg-gray-100 cursor-not-allowed"
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="price"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Selling Price (INR)</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder="e.g. 89999"
+                                    value={field.value === 0 ? "" : field.value}
+                                    onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="quantity"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Total Qty</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    type="number"
+                                    placeholder={ramOptions.length > 0 ? "Auto" : "Enter quantity"}
+                                    value={field.value === 0 ? "" : field.value}
+                                    onChange={(e) => field.onChange(Number(e.target.value) || 0)}
+                                    readOnly={ramOptions.length > 0}
+                                    className={ramOptions.length > 0 ? "bg-gray-100 cursor-not-allowed" : ""}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* Description */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel>Description</FormLabel>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => setDescriptionLines([...descriptionLines, ""])}
+                            >
+                              <Plus className="w-4 h-4 mr-1" /> Add Line
+                            </Button>
+                          </div>
+                          {descriptionLines.map((line, index) => (
+                            <div key={index} className="flex gap-2 items-center">
+                              <Textarea
+                                className="w-120"
+                                placeholder={`Description line ${index + 1}`}
+                                value={line}
+                                onChange={(e) => {
+                                  const updated = [...descriptionLines];
+                                  updated[index] = e.target.value;
+                                  setDescriptionLines(updated);
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setDescriptionLines(descriptionLines.filter((_, i) => i !== index))}
+                                disabled={descriptionLines.length === 1}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full lg:w-1/2">
+                      {/* Product Specification */}
+                      <div className="flex-1 space-y-6">
+                        <h3 className="text-lg lg:text-xl font-semibold text-gray-900 border-b-2 pb-3">
+                          Product Specification
+                        </h3>
+                        <FormField
+                          control={form.control}
+                          name="screenSize"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Screen Size (Optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="e.g. 15.6 inches" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="cpuModel"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>CPU Model (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g. Intel Core i5" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="operatingSystem"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Operating System (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g. Windows 11" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name="graphics"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Graphics (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g. Intel UHD Graphics" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={form.control}
+                            name="color"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Color (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="e.g. Black, Silver" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+
+                        {/* RAM Options */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel>RAM Options (Optional)</FormLabel>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => setRamOptions([...ramOptions, { size: "", price: 0, quantity: 0 }])}
+                            >
+                              <Plus className="w-4 h-4 mr-1" /> Add RAM
+                            </Button>
+                          </div>
+                          {ramOptions.length > 0 && ramOptions.map((option, index) => (
+                            <div key={index} className="flex gap-2 items-end">
+                              <div className="flex-1">
+                                <Input
+                                  placeholder="e.g. 8GB DDR4"
+                                  value={option.size}
+                                  onChange={(e) => {
+                                    const updated = [...ramOptions];
+                                    updated[index].size = e.target.value;
+                                    setRamOptions(updated);
+                                  }}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <Input
+                                  type="number"
+                                  placeholder={index === 0 ? "(default)" : "Additional price in ₹"}
+                                  value={option.price === 0 ? "" : option.price}
+                                  onChange={(e) => {
+                                    const updated = [...ramOptions];
+                                    updated[index].price = Number(e.target.value) || 0;
+                                    setRamOptions(updated);
+                                  }}
+                                  disabled={index === 0}
+                                  className={index === 0 ? "bg-gray-100" : ""}
+                                />
+                              </div>
+                              <div className="w-24">
+                                <Input
+                                  type="number"
+                                  placeholder="Qty"
+                                  value={option.quantity === 0 ? "" : option.quantity}
+                                  onChange={(e) => {
+                                    const updated = [...ramOptions];
+                                    updated[index].quantity = Number(e.target.value) || 0;
+                                    setRamOptions(updated);
+                                  }}
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setRamOptions(ramOptions.filter((_, i) => i !== index))}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Storage Options */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel>Storage Options (Optional)</FormLabel>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => setStorageOptions([...storageOptions, { size: "", price: 0, quantity: 0 }])}
+                            >
+                              <Plus className="w-4 h-4 mr-1" /> Add Storage
+                            </Button>
+                          </div>
+                          {storageOptions.length > 0 && storageOptions.map((option, index) => (
+                            <div key={index} className="flex gap-2 items-end">
+                              <div className="flex-1">
+                                <Input
+                                  placeholder="e.g. 512GB SSD"
+                                  value={option.size}
+                                  onChange={(e) => {
+                                    const updated = [...storageOptions];
+                                    updated[index].size = e.target.value;
+                                    setStorageOptions(updated);
+                                  }}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <Input
+                                  type="number"
+                                  placeholder={index === 0 ? "(default)" : "Additional price in ₹"}
+                                  value={option.price === 0 ? "" : option.price}
+                                  onChange={(e) => {
+                                    const updated = [...storageOptions];
+                                    updated[index].price = Number(e.target.value) || 0;
+                                    setStorageOptions(updated);
+                                  }}
+                                  disabled={index === 0}
+                                  className={index === 0 ? "bg-gray-100" : ""}
+                                />
+                              </div>
+                              <div className="w-24">
+                                <Input
+                                  type="number"
+                                  placeholder="Qty"
+                                  value={option.quantity === 0 ? "" : option.quantity}
+                                  onChange={(e) => {
+                                    const updated = [...storageOptions];
+                                    updated[index].quantity = Number(e.target.value) || 0;
+                                    setStorageOptions(updated);
+                                  }}
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setStorageOptions(storageOptions.filter((_, i) => i !== index))}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Warranty Options */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel>Extended Warranty Options (Optional)</FormLabel>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => setWarrantyOptions([...warrantyOptions, { duration: "", price: 0 }])}
+                            >
+                              <Plus className="w-4 h-4 mr-1" /> Add Warranty
+                            </Button>
+                          </div>
+                          {warrantyOptions.map((option, index) => (
+                            <div key={index} className="flex gap-2 items-end">
+                              <div className="flex-1">
+                                <Input
+                                  placeholder="e.g. 3 months, 6 months, 12 months"
+                                  value={option.duration}
+                                  onChange={(e) => {
+                                    const updated = [...warrantyOptions];
+                                    updated[index].duration = e.target.value;
+                                    setWarrantyOptions(updated);
+                                  }}
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <Input
+                                  type="number"
+                                  placeholder="Price in ₹"
+                                  value={option.price === 0 ? "" : option.price}
+                                  onChange={(e) => {
+                                    const updated = [...warrantyOptions];
+                                    updated[index].price = Number(e.target.value) || 0;
+                                    setWarrantyOptions(updated);
+                                  }}
+                                />
+                              </div>
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setWarrantyOptions(warrantyOptions.filter((_, i) => i !== index))}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Box Contents */}
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <FormLabel>What&apos;s in the Box</FormLabel>
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => setBoxContents([...boxContents, ""])}
+                            >
+                              <Plus className="w-4 h-4 mr-1" /> Add box
+                            </Button>
+                          </div>
+                          {boxContents.map((line, index) => (
+                            <div key={index} className="flex gap-2 items-center">
+                              <Input
+                                placeholder={`Item ${index + 1}`}
+                                value={line}
+                                onChange={(e) => {
+                                  const updated = [...boxContents];
+                                  updated[index] = e.target.value;
+                                  setBoxContents(updated);
+                                }}
+                              />
+                              <Button
+                                type="button"
+                                size="sm"
+                                variant="destructive"
+                                onClick={() => setBoxContents(boxContents.filter((_, i) => i !== index))}
+                                disabled={boxContents.length === 1}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Images Section */}
+                  <div className="flex-1 space-y-6 mt-6">
+                    <h3 className="text-lg lg:text-xl font-semibold text-gray-900 border-b-2 pb-3">
+                      Product Images
+                    </h3>
+
+                    <div className="space-y-6">
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Front Image {editId ? "(optional)" : "*"}</label>
+                        <Input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0] || null;
+                            if (file) {
+                              const validation = validateImageFile(file);
+                              if (!validation.valid) {
+                                toast.error(validation.error);
+                                e.target.value = '';
+                                return;
+                              }
+                              const totalImages = 1 + additionalImages.length;
+                              if (totalImages > 5) {
+                                toast.error(`Maximum 5 images allowed. You have ${additionalImages.length} additional images.`);
+                                e.target.value = '';
+                                return;
+                              }
+                            }
+                            setFrontImage(file);
+                          }}
+                          className="cursor-pointer"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Max 5MB • JPEG, PNG, GIF, WebP</p>
+                        {frontImage ? (
+                          <div className="mt-2">
+                            <img src={URL.createObjectURL(frontImage)} alt="New Preview" className="w-20 h-20 object-cover rounded" />
+                          </div>
+                        ) : (
+                          currentFrontImage && (
+                            <div className="mt-2">
+                              <img src={currentFrontImage} alt="Current Image" className="w-20 h-20 object-cover rounded border-2 border-blue-200" />
+                              <p className="text-xs text-gray-500 mt-1">Current image</p>
+                            </div>
+                          )
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium mb-2">Additional Images</label>
+                        <Input
+                          type="file"
+                          accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                          multiple
+                          onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+
+                            // Validate each file
+                            for (const file of files) {
+                              const validation = validateImageFile(file);
+                              if (!validation.valid) {
+                                toast.error(`${file.name}: ${validation.error}`);
+                                e.target.value = '';
+                                return;
+                              }
+                            }
+
+                            const totalImages = (frontImage ? 1 : 0) + files.length;
+                            if (totalImages > 5) {
+                              toast.error(`Maximum 5 images allowed (including front image). You selected ${totalImages} images.`);
+                              e.target.value = '';
+                              return;
+                            }
+                            setAdditionalImages(files);
+                          }}
+                          className="cursor-pointer"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Max 4 additional images • 5MB each • JPEG, PNG, GIF, WebP</p>
+                        {additionalImages.length > 0 ? (
+                          <div className="mt-2 flex gap-2 flex-wrap">
+                            {additionalImages.map((img, index) => (
+                              <img key={index} src={URL.createObjectURL(img)} alt={`New Preview ${index + 1}`} className="w-16 h-16 object-cover rounded" />
+                            ))}
+                          </div>
+                        ) : (
+                          currentImages.length > 0 && (
+                            <div className="mt-2">
+                              <div className="flex gap-2 flex-wrap">
+                                {currentImages.map((img, index) => (
+                                  <img key={index} src={img} alt={`Current ${index + 1}`} className="w-16 h-16 object-cover rounded border-2 border-blue-200" />
+                                ))}
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1">Current additional images</p>
+                            </div>
+                          )
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-4 justify-end pt-6 border-t-2 mt-8">
+                    <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+                    <LoadingButton 
+                      type="submit" 
+                      loading={uploading}
+                      disabled={uploading}
+                    >
+                      {editId ? "Update Item" : "Create Item"}
+                    </LoadingButton>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
-
-       <div className="flex text-sm overflow-x-auto gap-3 sm:gap-8 px-4 sm:px-6 lg:px-8 pt-4 border-t border-gray-200">
+      {/* Filters row */}
+      <div className="flex text-sm overflow-x-auto gap-3 sm:gap-8 px-4 sm:px-6 lg:px-8 pt-4 border-t border-gray-200">
         <button
           onClick={() => setActiveFilter("all")}
           className={`pb-0 font-medium border-b-2 transition whitespace-nowrap ${
-            activeFilter === "all"
-              ? "border-blue-600 text-blue-700"
-              : "border-transparent text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            activeFilter === "all" ? "border-blue-600 text-blue-700" : "border-transparent text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
           }`}
         >
           All Products
@@ -1393,9 +1435,7 @@ export default function ProductTable() {
             key={category}
             onClick={() => setActiveFilter(category)}
             className={`pb-0 font-medium border-b-2 transition whitespace-nowrap ${
-              activeFilter === category
-                ? "border-blue-600 text-blue-700"
-                : "border-transparent text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+              activeFilter === category ? "border-blue-600 text-blue-700" : "border-transparent text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
             }`}
           >
             {category}
@@ -1404,9 +1444,7 @@ export default function ProductTable() {
         <button
           onClick={() => setActiveFilter("out-of-stock")}
           className={`pb-0 font-medium border-b-2 transition whitespace-nowrap ${
-            activeFilter === "out-of-stock"
-              ? "border-red-500 text-red-600"
-              : "border-transparent text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
+            activeFilter === "out-of-stock" ? "border-red-500 text-red-600" : "border-transparent text-gray-400 hover:text-gray-600 transition-colors cursor-pointer"
           }`}
         >
           Out of Stock ({outOfStockCount})
@@ -1415,22 +1453,16 @@ export default function ProductTable() {
 
       {/* Table */}
       <Table>
-        <TableCaption>
-          Inventory overview. Low-stock items (≤5) are highlighted.
-        </TableCaption>
+        <TableCaption>Inventory overview. Low-stock items (≤5) are highlighted.</TableCaption>
         <TableHeader className="bg-gray-50">
           <TableRow className="border-t hover:bg-transparent">
-            <TableHead className="px-2 md:px-3 lg:px-6 py-4 text-left text-sm font-semibold text-gray-600">
-              Item
-            </TableHead>
+            <TableHead className="px-2 md:px-3 lg:px-6 py-4 text-left text-sm font-semibold text-gray-600">Item</TableHead>
             <TableHead className="hidden md:table-cell">Category</TableHead>
             <TableHead className="hidden lg:table-cell">Description</TableHead>
             <TableHead>Price</TableHead>
             <TableHead className="hidden md:table-cell">Quantity</TableHead>
             <TableHead className="hidden lg:table-cell">Updated</TableHead>
-            <TableHead className="px-2 md:px-3 lg:px-6 py-4 text-left text-sm font-semibold text-gray-600">
-              Actions
-            </TableHead>
+            <TableHead className="px-2 md:px-3 lg:px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -1477,33 +1509,14 @@ export default function ProductTable() {
           {filtered.map((item) => {
             const lowStock = item.quantity <= 5;
             return (
-              <TableRow
-                key={item.id}
-                className={`${lowStock ? "bg-muted/40" : ""}`}
-              >
+              <TableRow key={item.id} className={`${lowStock ? "bg-muted/40" : ""}`}>
                 <TableCell>
-                  <div
-                    className="flex items-center gap-2 md:gap-3 cursor-pointer hover:bg-gray-50 p-1 md:p-2 rounded hover:underline"
-                    onClick={() =>
-                      window.open(`/products/${item.slug}`, "_blank")
-                    }
-                  >
-                    <img
-                      src={item.image || "/no-image.svg"}
-                      alt={item.name}
-                      className="h-10 w-10 md:h-12 md:w-12 rounded-md border object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = "/no-image.svg";
-                      }}
-                    />
+                  <div className="flex items-center gap-2 md:gap-3 cursor-pointer hover:bg-gray-50 p-1 md:p-2 rounded hover:underline" onClick={() => window.open(`/products/${item.slug}`, "_blank")}>
+                    <img src={item.image || "/placeholder.svg"} alt={item.name} className="h-10 w-10 md:h-12 md:w-12 rounded-md border object-cover" onError={(e) => { e.currentTarget.src = "/placeholder.svg"; }} />
                     <div className="min-w-0 flex-1">
                       <div className="font-medium text-sm md:text-base truncate">{item.name.slice(0, 14)}...</div>
-                      <div className="text-xs text-muted-foreground md:hidden">
-                        {item.category}
-                      </div>
-                      <div className="text-xs text-muted-foreground hidden md:block">
-                        ID: {item.id.slice(0, 8)}...
-                      </div>
+                      <div className="text-xs text-muted-foreground md:hidden">{item.category}</div>
+                      <div className="text-xs text-muted-foreground hidden md:block">ID: {item.id.slice(0, 8)}...</div>
                     </div>
                   </div>
                 </TableCell>
@@ -1511,89 +1524,58 @@ export default function ProductTable() {
                 <TableCell className="hidden lg:table-cell">{item.description.slice(0, 20)}...</TableCell>
                 <TableCell className="text-left">
                   <div className="font-medium">₹{item.price.toFixed(2)}</div>
-                  <div className="text-xs text-muted-foreground md:hidden">
-                    Qty: {item.quantity}
-                  </div>
+                  <div className="text-xs text-muted-foreground md:hidden">Qty: {item.quantity}</div>
                 </TableCell>
                 <TableCell className="text-center hidden md:table-cell">{item.quantity}</TableCell>
-                <TableCell className="hidden lg:table-cell">
-                  {new Date(item.updatedAt).toLocaleDateString()}
-                </TableCell>
+                <TableCell className="hidden lg:table-cell">{new Date(item.updatedAt).toLocaleDateString()}</TableCell>
                 <TableCell className="align-middle">
                   <div className="flex gap-1 md:gap-2">
                     {/* Edit with AlertDialog */}
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="cursor-pointer text-xs md:text-sm px-2 md:px-3"
-                        >
-                          Edit
-                        </Button>
+                        <Button size="sm" variant="outline" className="cursor-pointer text-xs md:text-sm px-2 md:px-3">Edit</Button>
                       </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Edit Item</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to edit{" "}
-                          <span className="font-semibold">{item.name}</span>?
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="cursor-pointer">
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="border border-blue-500 
-                 bg-blue-100 hover:bg-blue-200 text-blue-800 
-                 font-semibold cursor-pointer"
-                          onClick={() => handleEditClick(item)}
-                        >
-                          Edit
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Edit Item</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to edit <span className="font-semibold">{item.name}</span>?
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="border border-blue-500 bg-blue-100 hover:bg-blue-200 text-blue-800 font-semibold cursor-pointer"
+                            onClick={() => handleEditClick(item)}
+                          >
+                            Edit
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
 
-                    {/* Delete with AlertDialog */}
+                    {/* Delete */}
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
-                        <LoadingButton
-                          size="sm"
-                          variant="destructive"
-                          loading={deleting === item.id}
-                          disabled={deleting !== null}
-                          className="text-xs md:text-sm px-2 md:px-3"
-                        >
-                          Delete
-                        </LoadingButton>
+                        <LoadingButton size="sm" variant="destructive" loading={deleting === item.id} disabled={deleting !== null} className="text-xs md:text-sm px-2 md:px-3">Delete</LoadingButton>
                       </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>
-                          Are you absolutely sure?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently
-                          delete{" "}
-                          <span className="font-semibold">{item.name}</span>.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel className="cursor-pointer">
-                          Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction
-                          className="border border-red-500 
-                 bg-red-100 hover:bg-red-200 text-red-700 
-                 font-semibold cursor-pointer"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete <span className="font-semibold">{item.name}</span>.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel className="cursor-pointer">Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="border border-red-500 bg-red-100 hover:bg-red-200 text-red-700 font-semibold cursor-pointer"
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
                     </AlertDialog>
                   </div>
                 </TableCell>
