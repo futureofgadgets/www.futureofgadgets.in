@@ -62,7 +62,7 @@ export async function POST(req: Request) {
       category: String(data.category).trim(),
       description: String(data.description || '').trim(),
       frontImage: String(data.frontImage || '').trim(),
-      images: Array.isArray(data.images) ? data.images.filter(img => img && typeof img === 'string') : [],
+      images: Array.isArray(data.images) ? data.images.filter((img: any) => img && typeof img === 'string') : [],
       price: price,
       mrp: Number(data.mrp) || price,
       stock: calculatedQty,
