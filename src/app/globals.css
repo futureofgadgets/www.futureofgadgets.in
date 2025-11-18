@@ -131,3 +131,21 @@
 }
 
 
+/* Global shimmer skeleton (overrides animate-pulse and provides .shimmer) */
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+.animate-pulse {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right, #f8f9fa 8%, #e9ecef 18%, #f8f9fa 33%);
+  background-size: 800px 100%;
+}
+
+.shimmer {
+  animation: shimmer 2s infinite;
+  background: linear-gradient(to right, #f8f9fa 8%, #e9ecef 18%, #f8f9fa 33%);
+  background-size: 800px 100%;
+}
+

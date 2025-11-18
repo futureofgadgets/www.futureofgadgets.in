@@ -6,6 +6,7 @@ import { Share2, Copy, X, Heart, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { toggleWishlist, isInWishlist } from "@/lib/wishlist";
+import { Button } from "./ui/button";
 
 type Product = {
   id: string;
@@ -227,7 +228,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
           <div className="bg-white rounded-lg p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-semibold">Share Product</h3>
-              <button onClick={() => setShareProduct(null)} className="p-1 hover:bg-gray-100 rounded">
+              <button onClick={() => setShareProduct(null)} className="p-2 hover:bg-gray-100 rounded-full hover:cursor-pointer">
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -308,23 +309,7 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
                 <span className="text-xs font-medium">Telegram</span>
               </button>
 
-              {navigator.share && (
-                <button
-                  onClick={() => {
-                    navigator.share({
-                      title: shareProduct.name,
-                      text: shareProduct.description,
-                      url: `${window.location.origin}/products/${shareProduct.slug}`
-                    }).catch(() => {});
-                  }}
-                  className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
-                >
-                  <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
-                    <Share2 className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="text-xs font-medium">More</span>
-                </button>
-              )}
+             
 
               <button
                 onClick={() => {
@@ -343,24 +328,41 @@ export default function ProductCard({ product, onAddToCart, onBuyNow }: ProductC
                 <span className="text-xs font-medium">Email</span>
               </button>
 
-              <button
-                onClick={handleCopyLink}
-                className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
-              >
-                <div className="w-12 h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                  <Copy className="w-6 h-6 text-white" />
-                </div>
-                <span className="text-xs font-medium">Copy Link</span>
-              </button>
+               {navigator.share && (
+                <button
+                  onClick={() => {
+                    navigator.share({
+                      title: shareProduct.name,
+                      text: shareProduct.description,
+                      url: `${window.location.origin}/products/${shareProduct.slug}`
+                    }).catch(() => {});
+                  }}
+                  className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
+                    <Share2 className="w-6 h-6 text-white" />
+                  </div>
+                  <span className="text-xs font-medium">More</span>
+                </button>
+              )}
+
+              
             </div>
 
-            <div className="flex gap-2 pt-3 border-t">
+            <div className="flex gap-1 pt-3 border-t overflow-scroll">
               <input
                 type="text"
                 readOnly
                 value={`${window.location.origin}/products/${shareProduct.slug}`}
                 className="flex-1 px-3 py-2 border rounded text-sm bg-gray-50"
               />
+
+              <Button
+                onClick={handleCopyLink}
+                className="flex flex-col items-center gap-2 p-3 px-5 hover:bg-purple-700 hover:cursor-pointer rounded transition-colors bg-purple-600"
+              >
+                <span className="text-xs font-medium">Copy </span>
+              </Button>
             </div>
           </div>
         </div>

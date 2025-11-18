@@ -208,7 +208,7 @@ export default function SettingsPage() {
     switch (id) {
       case 'home':
         return (
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white sm:rounded-lg sm:shadow-sm border-b pb-6 sm:border p-0 sm:p-6">
             <div className="flex items-center gap-3 mb-6">
               <Home className="h-6 w-6 text-blue-600" />
               <Link href='/' className="text-xl font-semibold text-gray-900 hover:underline underline-offset-2">Home Page Sections</Link>
@@ -259,12 +259,12 @@ export default function SettingsPage() {
 
       case 'slider':
         return (
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white sm:rounded-lg sm:shadow-sm border-b pb-6 sm:border p-0 sm:p-6">
             <div className="flex items-center justify-between mb-6">
               <div className="flex items-center gap-3">
                 <ImageIcon className="h-6 w-6 text-indigo-600" />
                 <Link target='blank' href='/' className="text-xl font-semibold text-gray-900 hover:underline underline-offset-2">Home Slider Settings</Link>
-                <span className="text-sm text-gray-500">(Atleast 3 Slider is Always show)</span>
+                <span className="text-sm text-gray-500 hidden sm:block">(Atleast 3 Slider is Always show)</span>
               </div>
               <Button
                 onClick={() => {
@@ -397,7 +397,7 @@ export default function SettingsPage() {
         return (
           <div className="space-y-6">
             {/* Create Category Sections */}
-            <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="bg-white sm:rounded-lg sm:shadow-sm border-b pb-6 sm:border p-0 sm:p-6">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <Package className="h-6 w-6 text-blue-600" />
@@ -585,7 +585,7 @@ export default function SettingsPage() {
 
       case 'promotional':
         return (
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white sm:rounded-lg sm:shadow-sm border-b pb-6 sm:border p-0 sm:p-6">
             <div className="flex items-center gap-3 mb-6">
               <Gift className="h-6 w-6 text-orange-600" />
               <h2 className="text-xl font-semibold text-gray-900">Promotional Banners (2 Blocks)</h2>
@@ -662,7 +662,7 @@ export default function SettingsPage() {
       case 'contact':
         return (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white sm:rounded-lg sm:shadow-sm border-b sm:border p-2 sm:p-6">
               <div className="flex items-center gap-3 mb-6">
                 <Mail className="h-6 w-6 text-purple-600" />
                 <Link target='blank' href='/contact' className="text-xl font-semibold text-gray-900 hover:underline-offset-2">Contact Page Settings</Link>
@@ -719,7 +719,7 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm border p-6">
+            <div className="bg-white sm:rounded-lg sm:shadow-sm sm:border p-2 sm:p-6">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-lg font-semibold text-gray-900">YouTube Video Links</h3>
                 <Button onClick={() => {
@@ -840,7 +840,7 @@ export default function SettingsPage() {
         ))}
       </div>
 
-      <div className="flex-1 p-6 overflow-auto">
+      <div className="flex-1 px-2 py-6 sm:p-6 overflow-auto">
         {activeSection === 'all' ? (
           <div className="space-y-8">
             {renderSection('home')}

@@ -85,7 +85,126 @@ export default function AdminUsersPage() {
     fetchUsers();
   }, [session, status]);
 
-  if (status === "loading") return <Loading />;
+  if (status === "loading" || loading) {
+    return (
+      <div className="bg-gray-50 min-h-screen py-4 sm:py-10">
+        <div className="w-full mx-auto">
+          {/* Page Header - Static */}
+          <div className="mb-6 flex flex-col gap-4 px-4 sm:px-6">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center gap-2 sm:gap-3">
+                <Users className="h-6 w-6 sm:h-9 sm:w-9 text-blue-600" />
+                <span className="hidden sm:inline">User Management</span>
+                <span className="sm:hidden">Users</span>
+              </h1>
+              <p className="text-gray-600 mt-1 sm:mt-2 text-sm sm:text-base">
+                Manage accounts, roles and permissions
+              </p>
+            </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9 sm:pl-10 w-full sm:w-96 rounded-lg border-gray-300 focus:ring-2 focus:ring-blue-500 bg-white text-sm sm:text-base"
+              />
+            </div>
+          </div>
+
+          {/* Stats Cards - Only values skeleton */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 px-4 sm:px-6">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Total Users</p>
+                <div className="h-6 sm:h-8 bg-gray-200 rounded w-12 sm:w-16 animate-pulse mt-1"></div>
+              </div>
+              <div className="h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full bg-blue-100">
+                <Users className="h-6 w-6 text-blue-600" />
+              </div>
+            </div>
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Admins</p>
+                <div className="h-6 sm:h-8 bg-gray-200 rounded w-10 sm:w-12 animate-pulse mt-1"></div>
+              </div>
+              <div className="h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full bg-orange-100">
+                <Crown className="h-6 w-6 text-orange-600" />
+              </div>
+            </div>
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6 flex items-center justify-between hover:shadow-md transition-shadow">
+              <div>
+                <p className="text-xs sm:text-sm font-medium text-gray-500">Regular Users</p>
+                <div className="h-6 sm:h-8 bg-gray-200 rounded w-12 sm:w-16 animate-pulse mt-1"></div>
+              </div>
+              <div className="h-10 w-10 sm:h-12 sm:w-12 flex items-center justify-center rounded-full bg-green-100">
+                <User className="h-6 w-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          {/* Users Table */}
+          <div className="bg-white overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table className="min-w-full">
+                <TableHeader className="bg-gray-50 sticky top-0 z-10 border-t">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="px-3 py-4 sm:px-6">
+                      <div className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+                        User <span className="hidden sm:inline"><ArrowUpDown className="h-4 w-4" /></span>
+                      </div>
+                    </TableHead>
+                    <TableHead className="px-3 sm:px-6 hidden sm:table-cell">
+                      <div className="flex items-center gap-2 text-sm">
+                        Role <ArrowUpDown className="h-4 w-4" />
+                      </div>
+                    </TableHead>
+                    <TableHead className="px-3 sm:px-6 hidden md:table-cell">
+                      <div className="flex items-center gap-2 text-sm">
+                        Joined <ArrowUpDown className="h-4 w-4" />
+                      </div>
+                    </TableHead>
+                    <TableHead className="px-3 sm:px-6 text-xs sm:text-sm">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: 5 }).map((_, idx) => (
+                    <TableRow
+                      key={idx}
+                      className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                    >
+                      <TableCell className="px-3 sm:px-6 py-3 sm:py-4">
+                        <div className="flex items-center">
+                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-200 animate-pulse flex-shrink-0"></div>
+                          <div className="ml-2 sm:ml-4 min-w-0 flex-1">
+                            <div className="h-3 sm:h-4 bg-gray-200 rounded w-20 sm:w-32 animate-pulse mb-1"></div>
+                            <div className="h-2 sm:h-3 bg-gray-200 rounded w-24 sm:w-32 animate-pulse"></div>
+                            <div className="sm:hidden mt-1">
+                              <div className="h-5 bg-gray-200 rounded-full w-12 animate-pulse"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
+                        <div className="h-5 sm:h-6 bg-gray-200 rounded-full w-12 sm:w-16 animate-pulse"></div>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-500 hidden md:table-cell">
+                        <div className="h-3 sm:h-4 bg-gray-200 rounded w-16 sm:w-20 animate-pulse"></div>
+                      </TableCell>
+                      <TableCell className="px-3 sm:px-6 py-3 sm:py-4">
+                        <div className="h-6 sm:h-8 bg-gray-200 rounded w-16 sm:w-24 animate-pulse"></div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   if (
     !session ||
@@ -195,96 +314,29 @@ export default function AdminUsersPage() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mb-6 px-4 sm:px-6">
-          {loading ? (
-            [...Array(3)].map((_, i) => (
-              <div key={i} className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="h-3 sm:h-4 bg-gray-200 rounded w-16 sm:w-20 mb-2 animate-pulse"></div>
-                    <div className="h-6 sm:h-8 bg-gray-200 rounded w-10 sm:w-12 animate-pulse"></div>
-                  </div>
-                  <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gray-200 rounded-full animate-pulse"></div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <>
-              <StatCard
-                label="Total Users"
-                value={users.length}
-                icon={<Users className="h-6 w-6 text-blue-600" />}
-                color="bg-blue-100"
-              />
-              <StatCard
-                label="Admins"
-                value={adminCount}
-                icon={<Crown className="h-6 w-6 text-orange-600" />}
-                color="bg-orange-100"
-              />
-              <StatCard
-                label="Regular Users"
-                value={userCount}
-                icon={<User className="h-6 w-6 text-green-600" />}
-                color="bg-green-100"
-              />
-            </>
-          )}
+          <StatCard
+            label="Total Users"
+            value={users.length}
+            icon={<Users className="h-6 w-6 text-blue-600" />}
+            color="bg-blue-100"
+          />
+          <StatCard
+            label="Admins"
+            value={adminCount}
+            icon={<Crown className="h-6 w-6 text-orange-600" />}
+            color="bg-orange-100"
+          />
+          <StatCard
+            label="Regular Users"
+            value={userCount}
+            icon={<User className="h-6 w-6 text-green-600" />}
+            color="bg-green-100"
+          />
         </div>
 
         {/* Users Table */}
         <div className="bg-white overflow-hidden">
-          {loading ? (
-            <div className="overflow-x-auto">
-              <Table className="min-w-full">
-                  <TableHeader className="bg-gray-50 sticky top-0 z-10 border-t">
-                  <TableRow className="hover:bg-transparent">
-                    <TableHead className="px-3 py-4 sm:px-6">
-                      <div className="h-3 sm:h-4 bg-gray-200 rounded w-8 sm:w-12 animate-pulse"></div>
-                    </TableHead>
-                    <TableHead className="px-3 sm:px-6 hidden sm:table-cell">
-                      <div className="h-3 sm:h-4 bg-gray-200 rounded w-8 sm:w-12 animate-pulse"></div>
-                    </TableHead>
-                    <TableHead className="px-3 sm:px-6 hidden md:table-cell">
-                      <div className="h-3 sm:h-4 bg-gray-200 rounded w-12 sm:w-16 animate-pulse"></div>
-                    </TableHead>
-                    <TableHead className="px-3 sm:px-6 text-xs sm:text-sm">
-                      <div className="h-3 sm:h-4 bg-gray-200 rounded w-12 sm:w-16 animate-pulse"></div>
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {Array.from({ length: 5 }).map((_, idx) => (
-                    <TableRow
-                      key={idx}
-                      className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                    >
-                      <TableCell className="px-3 sm:px-6 py-3 sm:py-4">
-                        <div className="flex items-center">
-                          <div className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-200 animate-pulse flex-shrink-0"></div>
-                          <div className="ml-2 sm:ml-4 min-w-0 flex-1">
-                            <div className="h-3 sm:h-4 bg-gray-200 rounded w-20 sm:w-32 animate-pulse mb-1"></div>
-                            <div className="h-2 sm:h-3 bg-gray-200 rounded w-24 sm:w-32 animate-pulse"></div>
-                            <div className="sm:hidden mt-1">
-                              <div className="h-5 bg-gray-200 rounded-full w-12 animate-pulse"></div>
-                            </div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="px-3 sm:px-6 py-3 sm:py-4 hidden sm:table-cell">
-                        <div className="h-5 sm:h-6 bg-gray-200 rounded-full w-12 sm:w-16 animate-pulse"></div>
-                      </TableCell>
-                      <TableCell className="px-3 sm:px-6 py-3 sm:py-4 text-sm text-gray-500 hidden md:table-cell">
-                        <div className="h-3 sm:h-4 bg-gray-200 rounded w-16 sm:w-20 animate-pulse"></div>
-                      </TableCell>
-                      <TableCell className="px-3 sm:px-6 py-3 sm:py-4">
-                        <div className="h-6 sm:h-8 bg-gray-200 rounded w-16 sm:w-24 animate-pulse"></div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : filteredAndSortedUsers.length === 0 ? (
+          {filteredAndSortedUsers.length === 0 ? (
             <div className="p-8 sm:p-12 text-center">
               <Users className="h-10 w-10 sm:h-12 sm:w-12 text-gray-400 mx-auto mb-3 sm:mb-4" />
               <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">

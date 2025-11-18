@@ -414,7 +414,206 @@ export default function ProductPage() {
   }, [product, slug, selectedRam, selectedStorage]);
 
   if (loading) return (
-   <Loading/>
+    <div className="min-h-screen bg-gray-50/50">
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        {/* Breadcrumb skeleton */}
+        <div className="flex items-center my-4 sm:mt-2 sm:mb-3 gap-1">
+          <div className="h-3 w-12 bg-gray-200 shimmer rounded"></div>
+          <div className="w-3 h-3 bg-gray-200 shimmer rounded"></div>
+          <div className="h-3 w-16 bg-gray-200 shimmer rounded"></div>
+          <div className="w-3 h-3 bg-gray-200 shimmer rounded"></div>
+          <div className="h-3 w-24 bg-gray-200 shimmer rounded"></div>
+        </div>
+
+        <div className="grid lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6">
+          {/* Left: Images skeleton */}
+          <div className="lg:col-span-2 bg-white rounded-lg p-3 sm:p-4 lg:p-6 h-fit border border-gray-100">
+            {/* Main image skeleton */}
+            <div className="aspect-square bg-gray-100 shimmer rounded-lg mb-3 sm:mb-4 relative">
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex gap-2">
+                <div className="w-8 h-8 bg-gray-200 shimmer rounded-full"></div>
+                <div className="w-8 h-8 bg-gray-200 shimmer rounded-full sm:hidden"></div>
+              </div>
+            </div>
+            
+            {/* Thumbnail images skeleton */}
+            <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 bg-gray-200 shimmer rounded-lg"></div>
+              ))}
+            </div>
+
+            {/* Share button skeleton */}
+            <div className="hidden sm:flex gap-2 sm:gap-3 mt-3 sm:mt-4">
+              <div className="flex-1 h-10 bg-gray-200 shimmer rounded-lg"></div>
+            </div>
+          </div>
+
+          {/* Right: Details skeleton */}
+          <div className="lg:col-span-3 space-y-3 sm:space-y-4 lg:space-y-6">
+            {/* Product Info skeleton */}
+            <div className="bg-white rounded-lg p-3 sm:p-4 lg:p-6 shadow-sm">
+              {/* Title skeleton */}
+              <div className="mb-4">
+                <div className="h-6 sm:h-7 lg:h-8 bg-gray-200 shimmer rounded mb-2"></div>
+                <div className="h-6 sm:h-7 lg:h-8 bg-gray-200 shimmer rounded w-3/4"></div>
+              </div>
+              
+              {/* Brand skeleton */}
+              <div className="h-4 bg-gray-200 shimmer rounded w-32 mb-3"></div>
+
+              {/* Rating skeleton */}
+              <div className="flex items-center gap-2 mb-4">
+                <div className="h-6 w-12 bg-gray-200 shimmer rounded"></div>
+                <div className="h-4 w-20 bg-gray-200 shimmer rounded"></div>
+              </div>
+
+              {/* Price skeleton */}
+              <div className="mb-4">
+                <div className="flex items-baseline gap-2 sm:gap-3 mb-2 flex-wrap">
+                  <div className="h-8 sm:h-10 w-32 bg-gray-200 shimmer rounded"></div>
+                  <div className="h-6 w-24 bg-gray-200 shimmer rounded"></div>
+                  <div className="h-5 w-16 bg-gray-200 shimmer rounded"></div>
+                </div>
+                <div className="h-3 w-40 bg-gray-200 shimmer rounded"></div>
+              </div>
+
+              {/* Stock & Quantity skeleton */}
+              <div className="mb-6 space-y-4">
+                <div className="h-4 w-48 bg-gray-200 shimmer rounded"></div>
+                
+                <div className="flex items-center gap-3">
+                  <div className="h-4 w-16 bg-gray-200 shimmer rounded"></div>
+                  <div className="h-10 w-32 bg-gray-200 shimmer rounded-lg"></div>
+                </div>
+                
+                {/* Color options skeleton */}
+                <div>
+                  <div className="h-4 w-12 bg-gray-200 shimmer rounded mb-2"></div>
+                  <div className="flex gap-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-10 w-20 bg-gray-200 shimmer rounded-lg"></div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* RAM options skeleton */}
+                <div>
+                  <div className="h-4 w-8 bg-gray-200 shimmer rounded mb-2"></div>
+                  <div className="flex gap-2">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-16 w-20 bg-gray-200 shimmer rounded-lg"></div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Storage options skeleton */}
+                <div>
+                  <div className="h-4 w-14 bg-gray-200 shimmer rounded mb-2"></div>
+                  <div className="flex gap-2">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <div key={i} className="h-16 w-20 bg-gray-200 shimmer rounded-lg"></div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Buttons skeleton */}
+              <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="flex-1 h-12 bg-gray-200 shimmer rounded-lg"></div>
+                <div className="flex-1 h-12 bg-gray-200 shimmer rounded-lg"></div>
+              </div>
+
+              {/* Features skeleton */}
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 pt-4 border-t">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-start gap-2 sm:gap-3 p-2 sm:p-3 bg-gray-50 rounded-lg">
+                    <div className="w-4 h-4 sm:w-5 sm:h-5 bg-gray-200 shimmer rounded mt-0.5"></div>
+                    <div className="flex-1">
+                      <div className="h-3 bg-gray-200 shimmer rounded mb-1"></div>
+                      <div className="h-2 bg-gray-200 shimmer rounded w-3/4 hidden sm:block"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Extended Warranty skeleton */}
+            <div className="bg-white rounded-lg p-3 sm:p-4 lg:p-6 shadow-sm border-2 border-gray-100">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-5 h-5 bg-gray-200 shimmer rounded"></div>
+                <div className="h-5 w-32 bg-gray-200 shimmer rounded"></div>
+              </div>
+              <div className="space-y-2">
+                {Array.from({ length: 2 }).map((_, i) => (
+                  <div key={i} className="h-12 bg-gray-200 shimmer rounded-lg"></div>
+                ))}
+              </div>
+            </div>
+            
+            {/* Why Buy skeleton */}
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4 lg:p-6 shadow-sm">
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-5 h-5 bg-gray-200 shimmer rounded"></div>
+                <div className="h-5 w-24 bg-gray-200 shimmer rounded"></div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className="w-4 h-4 bg-gray-200 shimmer rounded"></div>
+                    <div className="h-3 bg-gray-200 shimmer rounded flex-1"></div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Description & Specifications skeleton */}
+        <div className="mt-4 sm:mt-6 grid lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+          {/* Description skeleton */}
+          <div className="lg:col-span-2 bg-white rounded-lg p-3 py-4 sm:p-4 lg:p-6 shadow-sm">
+            <div className="h-6 w-40 bg-gray-200 shimmer rounded mb-4"></div>
+            <div className="space-y-2 mb-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-3 bg-gray-200 shimmer rounded"></div>
+              ))}
+              <div className="h-3 bg-gray-200 shimmer rounded w-3/4"></div>
+            </div>
+            
+            <div className="h-5 w-28 bg-gray-200 shimmer rounded mb-3"></div>
+            <div className="space-y-2">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex gap-2">
+                  <div className="w-4 h-4 bg-gray-200 shimmer rounded mt-0.5"></div>
+                  <div className="h-4 bg-gray-200 shimmer rounded flex-1"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Specifications skeleton */}
+          <div className="bg-white rounded-lg p-3 sm:p-4 lg:p-6 shadow-sm h-fit">
+            <div className="h-6 w-32 bg-gray-200 shimmer rounded mb-4"></div>
+            <div className="space-y-3">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="flex justify-between gap-2 py-2 border-b border-gray-100">
+                  <div className="h-3 w-20 bg-gray-200 shimmer rounded"></div>
+                  <div className="h-3 w-24 bg-gray-200 shimmer rounded"></div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="h-5 w-32 bg-gray-200 shimmer rounded mb-3 mt-6"></div>
+            <div className="space-y-2">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-4 bg-gray-200 shimmer rounded"></div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
   
   if (!product) return (
@@ -1045,26 +1244,25 @@ export default function ProductPage() {
 
     {/* Share Dialog */}
     {showShareDialog && (
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-2 sm:p-4" onClick={() => setShowShareDialog(false)}>
-        <div className="bg-white rounded-lg max-w-md w-full p-4 sm:p-6 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg sm:text-xl font-bold">Share Product</h3>
-            <button onClick={() => setShowShareDialog(false)} className="p-1 hover:bg-gray-100 rounded-full">
-              <X className="w-5 h-5" />
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={() => setShowShareDialog(false)}>
+        <div className="bg-white rounded-lg p-6 max-w-md w-full" onClick={(e) => e.stopPropagation()}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">Share Product</h3>
+            <button onClick={() => setShowShareDialog(false)} className="p-2 hover:bg-gray-100 rounded-full hover:cursor-pointer">
+              <X className="h-5 w-5" />
             </button>
           </div>
           
-          {/* Social Share Buttons */}
-          <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
+          <div className="grid grid-cols-4 gap-3 mb-4">
             <button
               onClick={() => {
                 const url = window.location.href;
                 window.open(`https://wa.me/?text=${encodeURIComponent(product.name + ' - ' + url)}`, '_blank');
               }}
-              className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-green-500 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                 </svg>
               </div>
@@ -1076,10 +1274,10 @@ export default function ProductPage() {
                 const url = window.location.href;
                 window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
               }}
-              className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
                 </svg>
               </div>
@@ -1091,10 +1289,10 @@ export default function ProductPage() {
                 const url = window.location.href;
                 window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(product.name)}&url=${encodeURIComponent(url)}`, '_blank');
               }}
-              className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-black rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
               </div>
@@ -1106,10 +1304,10 @@ export default function ProductPage() {
                 const url = window.location.href;
                 window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`, '_blank');
               }}
-              className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-blue-700 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-blue-700 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
                 </svg>
               </div>
@@ -1121,14 +1319,31 @@ export default function ProductPage() {
                 const url = window.location.href;
                 window.open(`https://telegram.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(product.name)}`, '_blank');
               }}
-              className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
+              className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
             >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-sky-500 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-sky-500 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
                 </svg>
               </div>
               <span className="text-xs font-medium">Telegram</span>
+            </button>
+
+            <button
+              onClick={() => {
+                const url = window.location.href;
+                const subject = encodeURIComponent(product.name);
+                const body = encodeURIComponent(`Check out this product: ${product.name}\n\n${url}`);
+                window.location.href = `mailto:?subject=${subject}&body=${body}`;
+              }}
+              className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+            >
+              <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <span className="text-xs font-medium">Email</span>
             </button>
 
             {navigator.share && (
@@ -1140,51 +1355,29 @@ export default function ProductPage() {
                     url: window.location.href
                   }).catch(() => {});
                 }}
-                className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                className="flex flex-col items-center gap-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
               >
-                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-600 rounded-full flex items-center justify-center">
-                  <Share2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+                <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
+                  <Share2 className="w-6 h-6 text-white" />
                 </div>
                 <span className="text-xs font-medium">More</span>
               </button>
             )}
-
-            <button
-              onClick={() => {
-                const url = window.location.href;
-                const subject = encodeURIComponent(product.name);
-                const body = encodeURIComponent(`Check out this product: ${product.name}\n\n${url}`);
-                window.location.href = `mailto:?subject=${subject}&body=${body}`;
-              }}
-              className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-red-500 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <span className="text-xs font-medium">Email</span>
-            </button>
-
-            <button
-              onClick={copyLink}
-              className="flex flex-col items-center gap-1 sm:gap-2 p-2 sm:p-3 hover:bg-gray-50 rounded-lg transition-colors"
-            >
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-purple-500 rounded-full flex items-center justify-center">
-                <Copy className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
-              </div>
-              <span className="text-xs font-medium">Copy Link</span>
-            </button>
           </div>
 
-          {/* URL Display */}
-          <div className="flex gap-2 pt-3 border-t">
+          <div className="flex gap-1 pt-3 border-t overflow-scroll">
             <input
               type="text"
-              value={window.location.href}
               readOnly
-              className="flex-1 px-2 sm:px-3 py-2 border rounded text-xs sm:text-sm bg-gray-50 truncate"
+              value={window.location.href}
+              className="flex-1 px-3 py-2 border rounded text-sm bg-gray-50"
             />
+            <button
+              onClick={copyLink}
+              className="flex flex-col items-center gap-2 p-3 px-5 hover:bg-purple-700 hover:cursor-pointer rounded transition-colors bg-purple-600"
+            >
+              <span className="text-xs font-medium text-white">Copy</span>
+            </button>
           </div>
         </div>
       </div>

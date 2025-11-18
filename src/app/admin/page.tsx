@@ -92,46 +92,172 @@ export default function AdminDashboardPage() {
   }, [session, status, router])
 
   if (status === 'loading' || isLoading) {
+    const cards = [
+      {
+        title: 'Products',
+        icon: Package,
+        color: 'from-blue-500 to-indigo-500'
+      },
+      {
+        title: 'Orders',
+        icon: ShoppingCart,
+        color: 'from-green-500 to-emerald-500'
+      },
+      {
+        title: 'Users',
+        icon: Users,
+        color: 'from-purple-500 to-pink-500'
+      },
+      {
+        title: 'Reviews',
+        icon: BarChart3,
+        color: 'from-yellow-500 to-orange-500'
+      },
+      {
+        title: 'Settings',
+        icon: Settings,
+        color: 'from-gray-500 to-gray-700'
+      },
+    ]
+
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header Skeleton */}
-          <div className="mb-8">
-            <div className="h-10 bg-gray-200 rounded-lg w-48 mb-2 animate-pulse"></div>
-            <div className="h-6 bg-gray-200 rounded-lg w-64 animate-pulse"></div>
+        <div className="w-full mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+          {/* Header - Static */}
+          <div className="mb-6 sm:mb-8">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 sm:mb-2 sm:hidden">Admin Dashboard</h1>
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-1 sm:mb-2 hidden sm:block">Dashboard</h1>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-600">Welcome back,</p>
           </div>
 
-          {/* Stats Cards Skeleton */}
+          {/* Stats Cards - Static icons and titles, skeleton for data */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-6 sm:mb-8">
-            {[...Array(5)].map((_, i) => (
-              <div key={i} className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6">
-                <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
-                  <div className="p-2 sm:p-2.5 lg:p-3 rounded-lg sm:rounded-xl bg-gray-200 animate-pulse w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12"></div>
+            {cards.map((card, i) => {
+              const Icon = card.icon
+              return (
+                <div key={i} className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-6">
+                  <div className="flex items-center justify-between mb-2 sm:mb-3 lg:mb-4">
+                    <div className={`p-2 sm:p-2.5 lg:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r ${card.color} shadow-lg`}>
+                      <Icon className="h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 text-white" />
+                    </div>
+                  </div>
+                  <h3 className="text-xs sm:text-sm font-medium text-gray-500 mb-1">{card.title}</h3>
+                  <div className="h-6 sm:h-7 lg:h-8 bg-gray-200 shimmer rounded w-12 sm:w-14 lg:w-16 mb-1"></div>
+                  <div className="h-2 sm:h-3 bg-gray-200 shimmer rounded w-20 sm:w-24 hidden sm:block"></div>
                 </div>
-                <div className="h-3 sm:h-4 bg-gray-200 rounded w-16 sm:w-20 mb-1 animate-pulse"></div>
-                <div className="h-6 sm:h-7 lg:h-8 bg-gray-200 rounded w-12 sm:w-14 lg:w-16 mb-1 animate-pulse"></div>
-                <div className="h-2 sm:h-3 bg-gray-200 rounded w-20 sm:w-24 animate-pulse hidden sm:block"></div>
-              </div>
-            ))}
+              )
+            })}
           </div>
 
-          {/* Content Skeleton */}
+          {/* Content - Static headings, skeleton for data */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            {/* Chart Section */}
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
-                <div className="h-5 sm:h-6 bg-gray-200 rounded w-32 sm:w-40 mb-3 sm:mb-4 animate-pulse"></div>
-                <div className="h-48 sm:h-56 lg:h-64 bg-gray-100 rounded-lg sm:rounded-xl animate-pulse"></div>
+                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4">Analytics Overview</h2>
+                <div className="h-48 sm:h-56 lg:h-64 bg-gray-100 shimmer rounded-lg sm:rounded-xl"></div>
               </div>
             </div>
+            
+            {/* Quick Stats Section */}
             <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 p-4 sm:p-6">
-              <div className="h-5 sm:h-6 bg-gray-200 rounded w-24 sm:w-32 mb-3 sm:mb-4 animate-pulse"></div>
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">Quick Stats</h3>
               <div className="space-y-3 sm:space-y-4">
-                {[...Array(3)].map((_, i) => (
+                {['Today\'s Orders', 'Active Products', 'Users'].map((label, i) => (
                   <div key={i} className="flex justify-between items-center">
-                    <div className="h-3 sm:h-4 bg-gray-200 rounded w-20 sm:w-24 animate-pulse"></div>
-                    <div className="h-3 sm:h-4 bg-gray-200 rounded w-6 sm:w-8 animate-pulse"></div>
+                    <span className="text-sm sm:text-base text-gray-600">{label}</span>
+                    <div className="h-4 bg-gray-200 shimmer rounded w-8"></div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Tables Section - Static headings, skeleton for data */}
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-2 mt-6 sm:mt-8">
+            {/* Recent Products */}
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Products</h2>
+                <span className="text-blue-600 text-xs sm:text-sm font-medium">View All</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Stock</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {[...Array(4)].map((_, i) => (
+                      <tr key={i}>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3"><div className="h-3 bg-gray-200 shimmer rounded w-20"></div></td>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3"><div className="h-3 bg-gray-200 shimmer rounded w-12"></div></td>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3 hidden sm:table-cell"><div className="h-3 bg-gray-200 shimmer rounded w-8"></div></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            {/* Recent Orders */}
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Orders</h2>
+                <span className="text-blue-600 text-xs sm:text-sm font-medium">View All</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Order ID</th>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Customer</th>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {[...Array(4)].map((_, i) => (
+                      <tr key={i}>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3"><div className="h-3 bg-gray-200 shimmer rounded w-12"></div></td>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3 hidden sm:table-cell"><div className="h-3 bg-gray-200 shimmer rounded w-16"></div></td>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3"><div className="h-3 bg-gray-200 shimmer rounded w-12"></div></td>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3"><div className="h-5 bg-gray-200 shimmer rounded-full w-16"></div></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            
+            {/* Recent Users */}
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
+                <h2 className="text-base sm:text-lg font-semibold text-gray-900">Recent Users</h2>
+                <span className="text-blue-600 text-xs sm:text-sm font-medium">View All</span>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Email</th>
+                      <th className="px-3 sm:px-4 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase">Role</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {[...Array(4)].map((_, i) => (
+                      <tr key={i}>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3"><div className="h-3 bg-gray-200 shimmer rounded w-20"></div></td>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3 hidden sm:table-cell"><div className="h-3 bg-gray-200 shimmer rounded w-24"></div></td>
+                        <td className="px-3 sm:px-4 py-2 sm:py-3"><div className="h-5 bg-gray-200 shimmer rounded-full w-12"></div></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>

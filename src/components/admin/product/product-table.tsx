@@ -684,6 +684,86 @@ export default function ProductTable() {
   if (error)
     return <p className="text-sm text-destructive">Failed to load items.</p>;
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-4">
+        {/* Search + Add buttons */}
+        <div className="flex flex-col md:flex-row px-4 items-start md:items-center justify-between gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 w-full md:w-auto">
+            <div className="w-full sm:w-80 md:w-96 h-10 bg-gray-200 shimmer rounded"></div>
+            <div className="w-full sm:w-auto h-10 bg-gray-200 shimmer rounded"></div>
+          </div>
+          <div className="space-x-2 flex flex-col sm:flex-row justify-between md:justify-end sm:w-fit w-full">
+            <div className="w-full md:w-auto h-10 bg-gray-200 shimmer rounded mt-2 md:mt-0"></div>
+            <div className="w-full md:w-auto h-10 bg-gray-200 shimmer rounded mt-2 md:mt-0"></div>
+          </div>
+        </div>
+
+        {/* Filters row */}
+        <div className="flex text-sm overflow-x-auto gap-3 sm:gap-8 px-4 sm:px-6 lg:px-8 pt-4 border-t border-gray-200">
+          <button className="pb-0 font-medium border-b-2 border-blue-600 text-blue-700 whitespace-nowrap">
+            All Products
+          </button>
+          <button className="pb-0 font-medium border-b-2 border-transparent text-gray-400 whitespace-nowrap">
+            Out of Stock (0)
+          </button>
+        </div>
+
+        {/* Table */}
+        <Table>
+          <TableCaption>Inventory overview. Low-stock items (≤5) are highlighted.</TableCaption>
+          <TableHeader className="bg-gray-50">
+            <TableRow className="border-t hover:bg-transparent">
+              <TableHead className="px-2 md:px-3 lg:px-6 py-4 text-left text-sm font-semibold text-gray-600">Item</TableHead>
+              <TableHead className="hidden md:table-cell">Category</TableHead>
+              <TableHead className="hidden lg:table-cell">Description</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead className="hidden md:table-cell">Quantity</TableHead>
+              <TableHead className="hidden lg:table-cell">Updated</TableHead>
+              <TableHead className="px-2 md:px-3 lg:px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(8)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell>
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="h-10 w-10 md:h-12 md:w-12 bg-gray-200 rounded-md animate-pulse"></div>
+                    <div>
+                      <div className="h-4 bg-gray-200 rounded w-20 md:w-24 mb-1 animate-pulse"></div>
+                      <div className="h-3 bg-gray-200 rounded w-12 md:w-16 animate-pulse"></div>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  <div className="h-4 bg-gray-200 rounded w-32 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="h-4 bg-gray-200 rounded w-16 animate-pulse"></div>
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  <div className="h-4 bg-gray-200 rounded w-8 animate-pulse"></div>
+                </TableCell>
+                <TableCell className="hidden lg:table-cell">
+                  <div className="h-4 bg-gray-200 rounded w-20 animate-pulse"></div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1 md:gap-2">
+                    <div className="h-8 bg-gray-200 rounded w-10 md:w-12 animate-pulse"></div>
+                    <div className="h-8 bg-gray-200 rounded w-12 md:w-16 animate-pulse"></div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4">
       {/* Search + Add buttons */}

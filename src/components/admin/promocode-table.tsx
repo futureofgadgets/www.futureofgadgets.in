@@ -169,6 +169,67 @@ export default function PromoCodeTable() {
     )
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-full">
+        <div className="sm:flex items-center justify-between max-w-6xl px-4 py-4 border-b border-gray-200">
+          <div className="pb-4">
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Promo Codes</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">Manage discount codes for products and orders</p>
+            <p className="text-sm sm:text-base text-gray-900">Loading...</p>
+          </div>
+          <Button disabled className="gap-2">
+            <Plus className="w-4 h-4" />
+            Add Promo Code
+          </Button>
+        </div>
+
+        <div className="flex-1 p-0 overflow-auto">
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="bg-gray-50">
+                  <TableRow className="hover:bg-transparent">
+                    <TableHead className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Code</TableHead>
+                    <TableHead className="hidden sm:block px-6 py-4 text-left text-sm font-semibold text-gray-600">Description</TableHead>
+                    <TableHead className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Discount</TableHead>
+                    <TableHead className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Type</TableHead>
+                    <TableHead className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Status</TableHead>
+                    <TableHead className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Expires</TableHead>
+                    <TableHead className="px-6 py-4 text-left text-sm font-semibold text-gray-600">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <Tag className="w-4 h-4 text-gray-400 hidden sm:block" />
+                          <div className="h-4 bg-gray-200 rounded animate-pulse w-24" />
+                        </div>
+                      </TableCell>
+                      <TableCell className="hidden sm:block px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-32" /></TableCell>
+                      <TableCell className="px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-12" /></TableCell>
+                      <TableCell className="px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-20" /></TableCell>
+                      <TableCell className="px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-16" /></TableCell>
+                      <TableCell className="px-6 py-4"><div className="h-4 bg-gray-200 rounded animate-pulse w-20" /></TableCell>
+                      <TableCell className="px-6 py-4">
+                        <div className="flex gap-2">
+                          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                          <div className="h-8 w-8 bg-gray-200 rounded animate-pulse" />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col h-full">
       <div className="sm:flex items-center justify-between max-w-6xl px-4 py-4 border-b border-gray-200">

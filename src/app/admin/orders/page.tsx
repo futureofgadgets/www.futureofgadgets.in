@@ -198,9 +198,106 @@ export default function AdminOrdersPage() {
     };
     fetchOrders();
   }, [session, status]);
+  if (status === "loading" || loading) {
+    return (
+      <div className="flex flex-col h-full">
 
-  if (status === "loading") {
-    return <Loading />;
+        {/* Header - show static heading and disabled controls (no skeleton for static items) */}
+        <header className="bg-white px-4 sm:px-6 lg:px-8 py-4 sm:py-6 border-b border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders</h1>
+              <p className="text-sm text-gray-600">Admin dashboard</p>
+            </div>
+            <div className="flex items-stretch sm:items-center gap-3 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-none">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <input
+                  disabled
+                  placeholder="Search orders..."
+                  className="pl-10 w-full sm:w-48 bg-gray-50 border border-gray-200 rounded px-3 py-2 text-sm text-gray-500"
+                />
+              </div>
+              <div className="hidden sm:block">
+                <Button variant="outline" disabled>
+                  <ArrowUpDown className="h-4 w-4 mr-2" />
+                  Sort
+                </Button>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Tabs - render static tab labels (no skeleton for static items) */}
+        <div className="flex text-sm overflow-x-auto gap-3 sm:gap-8 px-4 sm:px-6 lg:px-8 py-4 border-b border-gray-200">
+          {[
+            "all",
+            "pending",
+            "shipped",
+            "out",
+            "delivered",
+            "cancelled",
+          ].map((tab) => (
+            <div
+              key={tab}
+              className="pb-0 font-medium border-b-2 border-transparent text-gray-400"
+            >
+              {tab === "all" && "All orders"}
+              {tab === "pending" && "Pending"}
+              {tab === "shipped" && "Shipped"}
+              {tab === "out" && "Out of Delivery"}
+              {tab === "delivered" && "Completed"}
+              {tab === "cancelled" && "Cancelled"}
+            </div>
+          ))}
+        </div>
+
+        {/* Table Skeleton - show real table header but keep row placeholders for dynamic content */}
+        <div className="flex-1 p-0 overflow-auto">
+          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <div className="min-w-full">
+                {/* Table Header (static) */}
+                <div className="bg-gray-50 px-3 sm:px-6 py-4">
+                  <div className="grid grid-cols-7 gap-4 text-sm font-semibold text-gray-600">
+                    <div>Id</div>
+                    <div>Customer</div>
+                    <div className="hidden md:block">Address</div>
+                    <div className="hidden sm:block">Date</div>
+                    <div>Total</div>
+                    <div>Status</div>
+                    <div>Actions</div>
+                  </div>
+                </div>
+
+                {/* Table Rows (dynamic placeholders) */}
+                <div className="divide-y divide-gray-200">
+                  {[...Array(8)].map((_, i) => (
+                    <div key={i} className="px-3 sm:px-6 py-4">
+                      <div className="grid grid-cols-7 gap-4 items-center">
+                        <div className="h-4 bg-gray-200 shimmer rounded w-12"></div>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 bg-gray-200 shimmer rounded-full"></div>
+                          <div className="space-y-1">
+                            <div className="h-3 bg-gray-200 shimmer rounded w-20"></div>
+                            <div className="h-2 bg-gray-200 shimmer rounded w-16 sm:hidden"></div>
+                          </div>
+                        </div>
+                        <div className="h-4 bg-gray-200 shimmer rounded w-16 hidden md:block"></div>
+                        <div className="h-4 bg-gray-200 shimmer rounded w-12 hidden sm:block"></div>
+                        <div className="h-4 bg-gray-200 shimmer rounded w-16"></div>
+                        <div className="h-6 bg-gray-200 shimmer rounded-full w-16"></div>
+                        <div className="h-8 w-8 bg-gray-200 shimmer rounded"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (

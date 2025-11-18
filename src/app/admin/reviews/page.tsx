@@ -211,10 +211,49 @@ export default function AdminReviewsPage() {
 
  if (loading || !reviews)
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
-        <p className="text-gray-600 text-sm sm:text-base">Loading reviews...</p>
+    <div className="p-6 max-w-6xl">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Reviews</h1>
+      </div>
+      
+      <div className="flex gap-4 mb-6 border-b">
+        <button className="pb-2 px-4 font-medium border-b-2 border-blue-600 text-blue-600">
+          Product Reviews
+        </button>
+        <button className="pb-2 px-4 font-medium text-gray-500">
+          Customer Reviews
+        </button>
+      </div>
+      
+      <div className="space-y-4">
+        <div className="mb-4">
+          <Button className="flex items-center gap-2 px-4 py-2 text-white rounded-lg">
+            <Plus className="w-4 h-4" />
+            Add Product Review
+          </Button>
+        </div>
+        
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="bg-white p-4 rounded-lg border">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <div className="h-4 bg-gray-200 rounded w-32 animate-pulse mb-2"></div>
+                <div className="flex items-center gap-1">
+                  {[...Array(5)].map((_, j) => (
+                    <Star key={j} className="w-4 h-4 text-gray-300" />
+                  ))}
+                  <div className="h-3 bg-gray-200 rounded w-16 animate-pulse ml-1"></div>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <MessageSquare className="w-4 h-4 text-gray-300" />
+                <Trash2 className="w-4 h-4 text-gray-300" />
+              </div>
+            </div>
+            <div className="h-3 bg-gray-200 rounded w-full animate-pulse mb-2"></div>
+            <div className="h-3 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -346,7 +385,7 @@ export default function AdminReviewsPage() {
                       </div>
                       <p className="text-xs text-gray-600 line-clamp-2">{review.message}</p>
                     </div>
-                    <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                    <div className="absolute top-2 right-2 flex gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition">
                       <button
                         onClick={() => {
                           setEditingCustomerReview(review)

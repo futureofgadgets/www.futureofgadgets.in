@@ -182,34 +182,41 @@ function SearchContent() {
   }, [query, initialQuery]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="mx-auto max-w-7xl pt-10 pb-3">
+    <div className="min-h-screen bg-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         {query && !loading && (
-          <div className="mb-8">
-            <div className="flex items-center justify-between px-4 xl:px-0">
-              <div className="">
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900 md:mb-2">Search Results</h1>
-                <p className="text-gray-600 text-sm sm:text-base lg:text-lg">{results.length} products found for <span className="font-semibold">&quot;{query}&quot;</span></p>
+          <div className="pb-4 pt-8 sm:pb-4 border-b border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900 tracking-tight">
+                  Search Results
+                </h1>
+                <p className="text-xs sm:text-sm lg:text-base text-gray-600 mt-1">
+                  {results.length} {results.length === 1 ? 'product' : 'products'} found for <span className="font-medium">&quot;{query}&quot;</span>
+                </p>
               </div>
               {results.length > 0 && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="w-fit sm:w-auto">
-                      <ArrowUpDown className="h-4 w-4 mr-2" />
+                    <Button variant="outline" size="sm" className="h-9 text-sm">
+                      <ArrowUpDown className="h-3 w-3 mr-2" />
                       Sort
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
-                    <DropdownMenuItem onClick={() => setSortBy("price-asc")}>
+                  <DropdownMenuContent align="end" className="w-44">
+                    <DropdownMenuItem onClick={() => setSortBy("relevance")} className="text-sm">
+                      Relevance
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setSortBy("price-asc")} className="text-sm">
                       Price: Low to High
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy("price-desc")}>
+                    <DropdownMenuItem onClick={() => setSortBy("price-desc")} className="text-sm">
                       Price: High to Low
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy("name-asc")}>
+                    <DropdownMenuItem onClick={() => setSortBy("name-asc")} className="text-sm">
                       Name: A to Z
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setSortBy("name-desc")}>
+                    <DropdownMenuItem onClick={() => setSortBy("name-desc")} className="text-sm">
                       Name: Z to A
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -220,51 +227,63 @@ function SearchContent() {
         )}
 
         {loading && (
-          <div className="flex items-center justify-center min-h-[70vh]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-14 w-14 border-4 border-gray-200 border-t-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600 font-medium">Searching products...</p>
+          <div className="py-6 sm:py-8">
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div key={i} className="bg-gray-50 border sm:rounded-sm transition-shadow duration-200 flex flex-col sm:mt-1 relative overflow-hidden">
+                  {/* Image skeleton - matches aspect-[4/3] */}
+                  <div className="relative aspect-[4/3] bg-white p-8 overflow-hidden">
+                    <div className="absolute inset-0 flex items-center justify-center p-2">
+                      <div className="w-full h-full bg-gray-200 shimmer rounded"></div>
+                    </div>
+                  </div>
+                  
+                  {/* Content skeleton - matches p-4 structure */}
+                  <div className="p-4 flex-1 flex flex-col">
+                    {/* Title skeleton - matches h3 with line-clamp-2 */}
+                    <div className="flex justify-between items-start sm:mb-2">
+                      <div className="flex-1">
+                        <div className="h-4 bg-gray-200 shimmer rounded mb-1"></div>
+                        <div className="h-4 bg-gray-200 shimmer rounded w-3/4"></div>
+                      </div>
+                      <div className="ml-2 w-6 h-6 bg-gray-200 shimmer rounded-full"></div>
+                    </div>
+                    
+                    {/* Description skeleton - matches p with line-clamp-2 */}
+                    <div className="mb-2">
+                      <div className="h-3 bg-gray-200 shimmer rounded mb-1"></div>
+                      <div className="h-3 bg-gray-200 shimmer rounded w-5/6"></div>
+                    </div>
+                    
+                    {/* Price section skeleton */}
+                    <div className="mb-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 items-baseline sm:gap-2 sm:mb-1">
+                        <div className="h-6 bg-gray-200 shimmer rounded w-20"></div>
+                        <div className="flex space-x-2">
+                          <div className="h-3 bg-gray-200 shimmer rounded w-12"></div>
+                          <div className="h-3 bg-gray-200 shimmer rounded w-10"></div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1">
+                        <div className="h-3 bg-gray-200 shimmer rounded w-16"></div>
+                        <div className="h-3 bg-gray-200 shimmer rounded w-8"></div>
+                      </div>
+                    </div>
+                    
+                    {/* Buy now link skeleton */}
+                    <div className="h-4 bg-gray-200 shimmer rounded w-16"></div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
         {!loading && results.length > 0 && (
-           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0 sm:gap-2">
-            {sortProducts(results, sortBy).map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onAddToCart={handleAddToCart}
-                onBuyNow={handleBuyNow}
-              />
-            ))}
-          </div>
-        )}
-
-          {query && !loading && results.length === 0 && (
-          <>
-            <div className="flex items-center justify-center py-16">
-              <div className="text-center">
-                <h2 className="text-2xl font-semibold text-gray-900 mb-3">
-                  No results found for &quot;{query}&quot;
-                </h2>
-                <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                  We couldn&apos;t find any products matching your search. Try different keywords or browse our categories.
-                </p>
-                <Link href="/products" className="inline-block px-8 py-3 bg-blue-600 text-white rounded font-semibold hover:bg-blue-700 transition-colors">
-                  Browse All Products
-                </Link>
-              </div>
-            </div>
-
-          </>
-        )}
-
-        {query && !loading && suggestions.length > 0 && (
-          <div className="mt-12">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 px-4 xl:px-0">{results.length === 0 ? 'You might also like' : 'Related Products'}</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-0 sm:gap-2">
-              {suggestions.map((product) => (
+          <div className="py-6 sm:py-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {sortProducts(results, sortBy).map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
@@ -276,7 +295,45 @@ function SearchContent() {
           </div>
         )}
 
+        {query && !loading && results.length === 0 && (
+          <div className="py-12 sm:py-16 text-center">
+            <div className="max-w-md mx-auto">
+              <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6 bg-gray-100 rounded-full flex items-center justify-center">
+                <ArrowUpDown className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
+              </div>
+              <h2 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-2 sm:mb-3">
+                No results found
+              </h2>
+              <p className="text-sm sm:text-base text-gray-600 mb-6 sm:mb-8 px-4">
+                We couldn't find any products matching &quot;{query}&quot;. Try different keywords.
+              </p>
+              <Link 
+                href="/" 
+                className="inline-flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-blue-600 text-white text-sm sm:text-base font-medium rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Browse Products
+              </Link>
+            </div>
+          </div>
+        )}
 
+        {query && !loading && suggestions.length > 0 && (
+          <div className="border-t border-gray-200 pt-6 sm:pt-8">
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 mb-4 sm:mb-6">
+              {results.length === 0 ? 'You might also like' : 'Related Products'}
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+              {suggestions.slice(0, 8).map((product) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  onAddToCart={handleAddToCart}
+                  onBuyNow={handleBuyNow}
+                />
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
