@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import LoadingButton from "@/components/ui/loading-button"
 import { toast } from "sonner"
-import { getCart, updateQty, removeFromCart, clearCart, updateWarranty } from "@/lib/cart"
+import { getCart, updateQty, removeFromCart, clearCart, updateWarranty, clearPromoCode } from "@/lib/cart"
 import { useSession } from "next-auth/react"
 import { AuthDialog } from "@/components/auth-dialog"
 import Link from "next/link"
@@ -46,13 +46,7 @@ export default function CartView() {
   const [loading, setLoading] = useState(true)
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [promoCode, setPromoCode] = useState("")
-  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number; description: string } | null>(() => {
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem('appliedPromo')
-      return saved ? JSON.parse(saved) : null
-    }
-    return null
-  })
+  const [appliedPromo, setAppliedPromo] = useState<{ code: string; discount: number; description: string } | null>(null)
   const [promoLoading, setPromoLoading] = useState(false)
   const [availablePromos, setAvailablePromos] = useState<any[]>([])
   const [warrantyDialogOpen, setWarrantyDialogOpen] = useState(false)
@@ -71,8 +65,55 @@ export default function CartView() {
       .then(data => setAvailablePromos(data.filter((p: any) => p.isActive)))
       .catch(() => {})
     
+    // Load and validate saved promo
+    const savedPromo = localStorage.getItem('appliedPromo')
+    if (savedPromo) {
+      const promo = JSON.parse(savedPromo)
+      fetch('/api/promocodes/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code: promo.code, cartItems: getCart() })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.valid) {
+            setAppliedPromo({ code: promo.code, discount: data.discount, description: data.description })
+          } else {
+            localStorage.removeItem('appliedPromo')
+          }
+        })
+        .catch(() => localStorage.removeItem('appliedPromo'))
+    }
+    
     const onStorage = () => setItems(getCart())
-    const onCartUpdated = () => setItems(getCart())
+    const onCartUpdated = () => {
+      setItems(getCart())
+      // Revalidate promo when cart changes
+      const savedPromo = localStorage.getItem('appliedPromo')
+      if (savedPromo) {
+        const promo = JSON.parse(savedPromo)
+        fetch('/api/promocodes/validate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: promo.code, cartItems: getCart() })
+        })
+          .then(res => res.json())
+          .then(data => {
+            if (data.valid) {
+              setAppliedPromo({ code: promo.code, discount: data.discount, description: data.description })
+              localStorage.setItem('appliedPromo', JSON.stringify({ code: promo.code, discount: data.discount, description: data.description }))
+            } else {
+              setAppliedPromo(null)
+              localStorage.removeItem('appliedPromo')
+              toast.error('Promo code is no longer valid')
+            }
+          })
+          .catch(() => {
+            setAppliedPromo(null)
+            localStorage.removeItem('appliedPromo')
+          })
+      }
+    }
     window.addEventListener("storage", onStorage)
     window.addEventListener("v0-cart-updated", onCartUpdated as EventListener)
     return () => {

@@ -88,7 +88,14 @@ export function removeFromCart(id: string, color?: string, selectedRam?: string,
 export function clearCart() {
   write([])
   if (typeof window !== "undefined") {
+    localStorage.removeItem('appliedPromo')
     window.dispatchEvent(new CustomEvent("v0-cart-updated", { detail: { items: [] } }))
+  }
+}
+
+export function clearPromoCode() {
+  if (typeof window !== "undefined") {
+    localStorage.removeItem('appliedPromo')
   }
 }
 

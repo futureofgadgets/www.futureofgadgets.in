@@ -276,6 +276,7 @@ export default function CheckoutPage() {
       }
       
       clearCart()
+      localStorage.removeItem('appliedPromo')
       sessionStorage.setItem('checkout_success', 'true')
       router.push("/checkout/success")
     } catch (err: any) {
