@@ -1,7 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Star, Trash2, MessageSquare, Plus } from 'lucide-react'
+import { Star, Trash2, MessageSquare, Plus, ExternalLink } from 'lucide-react'
+import Link from 'next/link'
 import { toast } from 'sonner'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -306,6 +307,10 @@ export default function AdminReviewsPage() {
             <div className="flex justify-between items-start mb-2">
               <div>
                 <div className="font-semibold">{review.userName}</div>
+                <Link href={`/products/${products.find(p => p.id === review.productId)?.slug || ''}`} className="text-xs text-blue-600 hover:underline flex items-center gap-1 mb-1">
+                  {products.find(p => p.id === review.productId)?.name || 'Product'}
+                  <ExternalLink className="w-3 h-3" />
+                </Link>
                 <div className="flex items-center gap-1 text-sm text-yellow-500">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} className={`w-4 h-4 ${i < review.rating ? 'fill-current' : ''}`} />
