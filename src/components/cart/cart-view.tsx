@@ -132,12 +132,21 @@ export default function CartView() {
       const product = products.find(p => p.id === item.id)
       if (!product) return true
       
-      // For products with RAM options, check total RAM usage across all storage combinations
-      if (product.ramOptions && product.ramOptions.length > 0 && item.selectedRam) {
+      if (item.selectedStorage && product.storageOptions && product.storageOptions.length > 0) {
+        const storageOption = (product as any).storageOptions?.find((s: any) => s.size === item.selectedStorage)
+        if (!storageOption) return true
+        
+        const totalStorageUsage = items
+          .filter(cartItem => cartItem.id === item.id && cartItem.selectedStorage === item.selectedStorage)
+          .reduce((sum, cartItem) => sum + (cartItem.qty || 1), 0)
+        
+        return storageOption.quantity < totalStorageUsage
+      }
+      
+      if (item.selectedRam && product.ramOptions && product.ramOptions.length > 0) {
         const ramOption = (product as any).ramOptions?.find((r: any) => r.size === item.selectedRam)
         if (!ramOption) return true
         
-        // Count total quantity of this RAM size across all cart items
         const totalRamUsage = items
           .filter(cartItem => cartItem.id === item.id && cartItem.selectedRam === item.selectedRam)
           .reduce((sum, cartItem) => sum + (cartItem.qty || 1), 0)
@@ -145,7 +154,6 @@ export default function CartView() {
         return ramOption.quantity < totalRamUsage
       }
       
-      // For regular products
       return product.quantity < (item.qty || 1)
     })
     
@@ -290,16 +298,24 @@ export default function CartView() {
                   const product = products.find(p => p.id === i.id)
                   
                   let availableStock = 0
+                  let totalUsage = 0
                   if (product) {
-                    if (product.ramOptions && product.ramOptions.length > 0 && i.selectedRam) {
+                    if (i.selectedStorage && product.storageOptions && product.storageOptions.length > 0) {
+                      const storageOption = product.storageOptions?.find((s: any) => s.size === i.selectedStorage)
+                      availableStock = storageOption ? storageOption.quantity : 0
+                      totalUsage = items.filter(c => c.id === i.id && c.selectedStorage === i.selectedStorage).reduce((s, c) => s + (c.qty || 1), 0)
+                    } else if (i.selectedRam && product.ramOptions && product.ramOptions.length > 0) {
                       const ramOption = product.ramOptions?.find((r: any) => r.size === i.selectedRam)
                       availableStock = ramOption ? ramOption.quantity : 0
+                      totalUsage = items.filter(c => c.id === i.id && c.selectedRam === i.selectedRam).reduce((s, c) => s + (c.qty || 1), 0)
                     } else {
                       availableStock = product.quantity
+                      totalUsage = i.qty || 1
                     }
                   }
                   
                   const isOutOfStock = availableStock < (i.qty || 1)
+                  const canAddMore = totalUsage < availableStock
                   const uniqueKey = `${i.id}-${i.color || ''}-${i.selectedRam || ''}-${i.selectedStorage || ''}-${i.warranty?.duration || ''}-${idx}`
                   
                   return (
@@ -386,11 +402,22 @@ export default function CartView() {
                                 const currentQty = i.qty || 1
                                 let originalStock = 0
                                 if (product) {
-                                  if (product.ramOptions && product.ramOptions.length > 0 && i.selectedRam) {
+                                  if (i.selectedStorage && product.storageOptions && product.storageOptions.length > 0) {
+                                    const storageOption = product.storageOptions?.find((s: any) => s.size === i.selectedStorage)
+                                    originalStock = storageOption ? storageOption.quantity : 0
+                                    
+                                    const totalStorageUsage = items
+                                      .filter(cartItem => cartItem.id === i.id && cartItem.selectedStorage === i.selectedStorage)
+                                      .reduce((sum, cartItem) => sum + (cartItem.qty || 1), 0)
+                                    
+                                    if (totalStorageUsage >= originalStock) {
+                                      toast.error('Cannot add more', { description: `Only ${originalStock} items available for ${i.selectedStorage} storage.` })
+                                      return
+                                    }
+                                  } else if (i.selectedRam && product.ramOptions && product.ramOptions.length > 0) {
                                     const ramOption = product.ramOptions?.find((r: any) => r.size === i.selectedRam)
                                     originalStock = ramOption ? ramOption.quantity : 0
                                     
-                                    // Count total RAM usage across all cart items with same RAM
                                     const totalRamUsage = items
                                       .filter(cartItem => cartItem.id === i.id && cartItem.selectedRam === i.selectedRam)
                                       .reduce((sum, cartItem) => sum + (cartItem.qty || 1), 0)
@@ -410,7 +437,8 @@ export default function CartView() {
                                 updateQty(i.id, currentQty + 1, i.color ?? undefined, i.selectedRam ?? undefined, i.selectedStorage ?? undefined, i.warranty ?? undefined)
                                 setItems(getCart())
                               }}
-                              className="p-1.5 sm:p-2 hover:bg-gray-100 transition-colors rounded-full border hover:cursor-pointer"
+                              disabled={!canAddMore}
+                              className="p-1.5 sm:p-2 hover:bg-gray-100 transition-colors rounded-full border hover:cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
                             </button>
