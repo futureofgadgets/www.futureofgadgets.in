@@ -42,14 +42,17 @@ export default function CategoryPage() {
         </h1>
 
         {loading ? (
-          <div className="space-y-8">
+          <div className="space-y-10">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="animate-pulse">
-                <div className="h-8 bg-gray-200 rounded w-48 mb-4"></div>
-                <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                  {[...Array(6)].map((_, j) => (
+              <div key={i} className="pb-2">
+                <div className="flex items-center justify-between text-center mb-6">
+                  <div className="h-8 bg-gray-200 rounded w-48 shimmer"></div>
+                  <div className="h-6 bg-gray-200 rounded w-24 shimmer"></div>
+                </div>
+                <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                  {[...Array(12)].map((_, j) => (
                     <div key={j} className="flex justify-center">
-                      <div className="w-20 h-20 sm:w-28 sm:h-28 md:w-32 md:h-32 lg:w-36 lg:h-36 bg-gray-200 rounded-full"></div>
+                      <div className="relative w-20 h-20 sm:w-28 sm:h-28 lg:w-32 lg:h-32 -ml-8 md:-ml-12 lg:-ml-8 xl:-ml-12 rounded-full bg-gray-200 shimmer"></div>
                     </div>
                   ))}
                 </div>
