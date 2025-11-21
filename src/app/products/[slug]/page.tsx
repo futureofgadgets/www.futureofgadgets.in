@@ -70,11 +70,8 @@ export default function ProductPage() {
 const [relatedLoading, setRelatedLoading] = useState(false);
 
 useEffect(() => {
-  if (!product) {
-    setRelated([]);
-    return;
-  }
-
+  if (loading) return;
+  
   let cancelled = false;
   const fetchRelated = async () => {
     setRelatedLoading(true);
@@ -82,8 +79,8 @@ useEffect(() => {
       const res = await fetch(`/api/products`);
       const data = await res.json();
 
-      // Show all products except current one
-      const candidates = (data || []).filter((p: any) => p.id !== product.id);
+      // Show all products except current one (if product exists)
+      const candidates = product ? (data || []).filter((p: any) => p.id !== product.id) : (data || []);
 
       // Respect cart quantities (reduce stock by cart qty)
       const cart = JSON.parse(localStorage.getItem("v0_cart") || "[]");
@@ -106,7 +103,7 @@ useEffect(() => {
 
   fetchRelated();
   return () => { cancelled = true; };
-}, [product]);
+}, [loading, product]);
 
 
   useEffect(() => {
@@ -732,38 +729,83 @@ const handleBuyNowFromList = (e: React.MouseEvent, p: Product) => {
   );
   
   if (!product) return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="text-center max-w-lg mx-auto px-6">
-        <div className="mb-8">
-          <div className="w-32 h-32 mx-auto mb-6 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-200">
-            <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M9 1L5 5l4 4" />
-            </svg>
+    <div className="min-h-screen bg-white">
+      <div className="w-full max-w-7xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        <div className="bg-white flex min-h-[70vh] items-center justify-center rounded-lg p-6">
+          <div className="text-center max-w-lg mx-auto px-6">
+            <div className="mb-8">
+              <div className="w-32 h-32 mx-auto mb-6 bg-gray-50 rounded-2xl flex items-center justify-center border border-gray-200">
+                <svg className="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M9 1L5 5l4 4" />
+                </svg>
+              </div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
+              <h2 className="text-xl font-semibold text-gray-800 mb-3">Product Not Found</h2>
+              <p className="text-gray-600 leading-relaxed">
+                The product you&apos;re looking for doesn&apos;t exist or has been moved.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button 
+                onClick={() => router.push('/products/')}
+                className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm"
+              >
+                Browse Products
+              </button>
+              <button 
+                onClick={() => router.back()}
+                className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium"
+              >
+                Go Back
+              </button>
+            </div>
           </div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">404</h1>
-          <h2 className="text-xl font-semibold text-gray-800 mb-3">Product Not Found</h2>
-          <p className="text-gray-600 leading-relaxed">
-            The product you&apos;re looking for doesn&apos;t exist or has been moved.
-          </p>
         </div>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button 
-            onClick={() => router.push('/products/')}
-            className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all duration-200 font-medium shadow-sm"
-          >
-            Browse Products
-          </button>
-          <button 
-            onClick={() => router.back()}
-            className="border border-gray-300 text-gray-700 px-8 py-3 rounded-lg hover:bg-gray-50 transition-all duration-200 font-medium"
-          >
-            Go Back
-          </button>
-        </div>
+
+        {/* Related / Suggested products */}
+        {relatedLoading ? (
+          <div className="mt-6 bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+            <div className="h-6 w-40 bg-gray-200 shimmer rounded mb-4"></div>
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="flex-shrink-0 w-64">
+                  <div className="bg-white border rounded-lg overflow-hidden">
+                    <div className="aspect-square bg-gray-200 shimmer"></div>
+                    <div className="p-3 space-y-2">
+                      <div className="h-4 bg-gray-200 shimmer rounded"></div>
+                      <div className="h-4 bg-gray-200 shimmer rounded w-3/4"></div>
+                      <div className="h-6 bg-gray-200 shimmer rounded w-1/2"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : related && related.length > 0 && (
+          <div className="mt-6 bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+            <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
+              You may also like
+            </h3>
+
+            <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hidden">
+              {related.map((p) => (
+                <div key={p.id} className="flex-shrink-0 w-70 md:w-86">
+                  <ProductCard
+                    product={p}
+                    onAddToCart={handleAddToCartFromList}
+                    onBuyNow={handleBuyNowFromList}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 
+
+  
   const allImages = [];
   if (product.frontImage) allImages.push(product.frontImage);
   if (product.images && product.images.length > 0) allImages.push(...product.images);
@@ -1305,7 +1347,25 @@ const handleBuyNowFromList = (e: React.MouseEvent, p: Product) => {
         </div>
 
         {/* Related / Suggested products */}
-{related && related.length > 0 && (
+{relatedLoading ? (
+  <div className="mt-6 bg-white rounded-lg p-4 sm:p-6 shadow-sm">
+    <div className="h-6 w-40 bg-gray-200 shimmer rounded mb-4"></div>
+    <div className="flex gap-4 overflow-x-auto pb-2">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="flex-shrink-0 w-64">
+          <div className="bg-white border rounded-lg overflow-hidden">
+            <div className="aspect-square bg-gray-200 shimmer"></div>
+            <div className="p-3 space-y-2">
+              <div className="h-4 bg-gray-200 shimmer rounded"></div>
+              <div className="h-4 bg-gray-200 shimmer rounded w-3/4"></div>
+              <div className="h-6 bg-gray-200 shimmer rounded w-1/2"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+) : related && related.length > 0 && (
   <div className="mt-6 bg-white rounded-lg p-4 sm:p-6 shadow-sm">
     <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-4">
       You may also like
