@@ -151,7 +151,7 @@ export default function TermsOfServicePage() {
           </div>
           
           <div className="mt-8 pt-6 border-t">
-            <Link href="/" className="text-blue-600 hover:underline text-sm">← Back to Home</Link>
+            <Link href="/" className="text-blue-600 hover:underline text-sm">Back to Home</Link>
           </div>
         </div>
       </div>
