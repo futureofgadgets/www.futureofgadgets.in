@@ -14,7 +14,14 @@ import {
   MoreHorizontal,
   Trash2,
   Loader,
+  FileSpreadsheet,
+  Calendar,
+  CalendarDays,
+  CalendarRange,
+  CalendarClock,
+  ChevronDown,
 } from "lucide-react";
+import * as XLSX from "xlsx";
 import {
   Table,
   TableBody,
@@ -166,6 +173,9 @@ export default function AdminOrdersPage() {
   const [showRefundDialog, setShowRefundDialog] = useState(false);
   const [refundTransactionId, setRefundTransactionId] = useState("");
   const [processingRefund, setProcessingRefund] = useState(false);
+  const [allOrders, setAllOrders] = useState<Order[]>([]);
+  const [deletedYearSpan, setDeletedYearSpan] = useState<string>("");
+  const [deletedCount, setDeletedCount] = useState<number>(0);
 
   useEffect(() => {
     if (
@@ -190,7 +200,30 @@ export default function AdminOrdersPage() {
           throw new Error(errorMessage);
         }
         const data = await response.json();
-        setOrders(data.orders || []);
+        const allOrdersData = data.orders || [];
+        setAllOrders(allOrdersData);
+        
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+        const cutoffDate = new Date(currentYear - 1, currentMonth, 1);
+        
+        const oldOrders = allOrdersData.filter((order: Order) => new Date(order.createdAt) < cutoffDate);
+        
+        if (oldOrders.length > 0) {
+          const oldestDate = new Date(Math.min(...oldOrders.map((o: Order) => new Date(o.createdAt).getTime())));
+          const newestOldDate = new Date(Math.max(...oldOrders.map((o: Order) => new Date(o.createdAt).getTime())));
+          const yearSpan = `${oldestDate.getFullYear()}-${newestOldDate.getFullYear()}`;
+          
+          exportAutoDeletedOrders(oldOrders, yearSpan);
+          setDeletedYearSpan(yearSpan);
+          setDeletedCount(oldOrders.length);
+        }
+        
+        await fetch("/api/admin/orders/cleanup", { method: "DELETE" });
+        
+        const currentOrders = allOrdersData.filter((order: Order) => new Date(order.createdAt) >= cutoffDate);
+        setOrders(currentOrders);
       } catch (err: any) {
         console.error("Orders fetch error:", err);
         toast.error(`Failed to load orders: ${err.message}`);
@@ -200,6 +233,84 @@ export default function AdminOrdersPage() {
     };
     fetchOrders();
   }, [session, status]);
+
+  const exportAutoDeletedOrders = (oldOrders: Order[], yearSpan: string) => {
+    const excelData = oldOrders.map((order) => ({
+      "Order ID": order.id,
+      "Order Date": new Date(order.createdAt).toLocaleDateString("en-IN"),
+      "Customer Name": order.user.name || order.user.email,
+      "Customer Email": order.user.email,
+      "Customer Phone": order.user.phone || "N/A",
+      "Address": `${order.address.line1}, ${order.address.city}, ${order.address.state} - ${order.address.zip}`,
+      "Status": order.status,
+      "Delivered Date": order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString("en-IN") : "N/A",
+      "Items": order.items.map(item => item.name).join(", "),
+      "Quantity": order.items.map(item => item.qty).join(", "),
+      "Payment Mode": order.paymentMethod,
+      "Total Amount": order.total,
+      "Refund ID": order.refundTransactionId || "N/A",
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    const colWidths = [
+      { wch: 25 }, { wch: 12 }, { wch: 20 }, { wch: 30 }, { wch: 15 },
+      { wch: 40 }, { wch: 15 }, { wch: 12 }, { wch: 50 }, { wch: 10 },
+      { wch: 15 }, { wch: 12 }, { wch: 35 }
+    ];
+    ws['!cols'] = colWidths;
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Orders");
+    XLSX.writeFile(wb, `auto_deleted_orders_${yearSpan}_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const exportToExcel = (period: string) => {
+    const now = new Date();
+    let filteredOrders = orders;
+    
+    if (period === "current") {
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      filteredOrders = orders.filter(order => new Date(order.createdAt) >= startOfMonth);
+    } else if (period === "3months") {
+      const threeMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 3, now.getDate());
+      filteredOrders = orders.filter(order => new Date(order.createdAt) >= threeMonthsAgo);
+    } else if (period === "6months") {
+      const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 6, now.getDate());
+      filteredOrders = orders.filter(order => new Date(order.createdAt) >= sixMonthsAgo);
+    } else if (period === "12months") {
+      const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 12, now.getDate());
+      filteredOrders = orders.filter(order => new Date(order.createdAt) >= twelveMonthsAgo);
+    }
+
+    const excelData = filteredOrders.map((order) => ({
+      "Order ID": order.id,
+      "Order Date": new Date(order.createdAt).toLocaleDateString("en-IN"),
+      "Customer Name": order.user.name || order.user.email,
+      "Customer Email": order.user.email,
+      "Customer Phone": order.user.phone || "N/A",
+      "Address": `${order.address.line1}, ${order.address.city}, ${order.address.state} - ${order.address.zip}`,
+      "Status": order.status,
+      "Delivered Date": order.deliveryDate ? new Date(order.deliveryDate).toLocaleDateString("en-IN") : "N/A",
+      "Items": order.items.map(item => item.name).join(", "),
+      "Quantity": order.items.map(item => item.qty).join(", "),
+      "Payment Mode": order.paymentMethod,
+      "Total Amount": order.total,
+      "Refund ID": order.refundTransactionId || "N/A",
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(excelData);
+    const colWidths = [
+      { wch: 25 }, { wch: 12 }, { wch: 20 }, { wch: 30 }, { wch: 15 },
+      { wch: 40 }, { wch: 15 }, { wch: 12 }, { wch: 50 }, { wch: 10 },
+      { wch: 15 }, { wch: 12 }, { wch: 35 }
+    ];
+    ws['!cols'] = colWidths;
+    
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Orders");
+    XLSX.writeFile(wb, `orders_${period}_${new Date().toISOString().split('T')[0]}.xlsx`);
+    toast.success(`Exported ${filteredOrders.length} orders successfully`);
+  };
   if (status === "loading" || loading) {
     return (
       <div className="flex flex-col h-full">
@@ -611,6 +722,49 @@ export default function AdminOrdersPage() {
             </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-fit sm:w-auto bg-green-50 border-green-600 text-green-700 hover:bg-green-100"
+                >
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Export</span>
+                  <ChevronDown className="h-4 w-4 ml-2" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuItem onClick={() => exportToExcel("current")} className="cursor-pointer">
+                  <Calendar className="h-4 w-4 mr-2 text-blue-600" />
+                  <span>Current Month</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportToExcel("3months")} className="cursor-pointer">
+                  <CalendarDays className="h-4 w-4 mr-2 text-green-600" />
+                  <span>Last 3 Months</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportToExcel("6months")} className="cursor-pointer">
+                  <CalendarRange className="h-4 w-4 mr-2 text-orange-600" />
+                  <span>Last 6 Months</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => exportToExcel("12months")} className="cursor-pointer">
+                  <CalendarClock className="h-4 w-4 mr-2 text-purple-600" />
+                  <span>Last 12 Months</span>
+                </DropdownMenuItem>
+                {deletedYearSpan && (
+                  <>
+                    <div className="my-1 border-t"></div>
+                    <div className="px-2 py-1.5 text-xs font-semibold text-gray-500">Auto-Deleted Archive</div>
+                    <DropdownMenuItem className="cursor-default hover:bg-transparent">
+                      <FileSpreadsheet className="h-4 w-4 mr-2 text-red-600" />
+                      <div className="flex flex-col">
+                        <span className="text-sm font-medium">Years {deletedYearSpan}</span>
+                        <span className="text-xs text-gray-500">{deletedCount} orders archived</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="w-fit sm:w-auto">
                   <ArrowUpDown className="h-4 w-4 mr-2" />
                   Sort
@@ -875,6 +1029,12 @@ export default function AdminOrdersPage() {
               </TableBody>
             </Table>
           </div>
+
+          <div className="mt-4 p-3 mx-auto text-center">
+              <p className="text-sm">
+                <span className="font-semibold">Auto-Deleted:</span> Orders from last years were automatically deleted and added up to Excel.
+              </p>
+            </div>
         </div>
       </div>
 
