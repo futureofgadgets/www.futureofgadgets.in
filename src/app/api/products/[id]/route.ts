@@ -1,6 +1,29 @@
 // app/api/products/[id]/route.ts
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { v2 as cloudinary } from 'cloudinary';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+function extractPublicId(url: string): string | null {
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.*?)(?:\.[^.]+)?$/);
+  return match ? match[1] : null;
+}
+
+async function deleteFromCloudinary(url: string) {
+  try {
+    const publicId = extractPublicId(url);
+    if (publicId) {
+      await cloudinary.uploader.destroy(publicId);
+    }
+  } catch (error) {
+    console.error('Failed to delete from Cloudinary:', error);
+  }
+}
 
 export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,6 +38,21 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     const existing = await prisma.product.findUnique({ where: { id } as any });
     if (!existing) {
       return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+
+    // Delete old images from Cloudinary if new ones are provided
+    if (body.frontImage && body.frontImage !== existing.frontImage && existing.frontImage) {
+      await deleteFromCloudinary(existing.frontImage);
+    }
+    
+    if (body.images && Array.isArray(body.images)) {
+      const oldImages = Array.isArray(existing.images) ? existing.images : [];
+      const newImages = body.images;
+      const imagesToDelete = oldImages.filter((img: string) => !newImages.includes(img));
+      
+      for (const img of imagesToDelete) {
+        await deleteFromCloudinary(img);
+      }
     }
 
     // calculate stock/quantity if ramOptions provided
