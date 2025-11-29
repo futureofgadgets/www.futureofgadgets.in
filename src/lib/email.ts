@@ -158,13 +158,10 @@ export function getOrderNotificationTemplate(orderData: {
       </tr>
     `).join('')
 
-  const orderTime = `${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' })} at ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
-  
   return `
     <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff;">
       <h1 style="color: #2563eb; margin: 0 0 8px 0; font-size: 28px; font-weight: 600;">New Order</h1>
-      <p style="color: #64748b; margin: 0 0 12px 0; font-size: 15px;">Future of Gadgets</p>
-      <p style="color: #94a3b8; margin: 0 0 40px 0; font-size: 13px;">${orderTime}</p>
+      <p style="color: #64748b; margin: 0 0 40px 0; font-size: 15px;">Future of Gadgets</p>
       
       <div style="margin-bottom: 32px;">
         <p style="color: #64748b; margin: 0 0 4px 0; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">Order ID</p>
@@ -229,13 +226,10 @@ export function getOrderConfirmationTemplate(orderData: {
       </tr>
     `).join('')
 
-  const orderTime = `${new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'long', day: 'numeric', year: 'numeric' })} at ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}`
-  
   return `
     <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #ffffff;">
       <h1 style="color: #2563eb; margin: 0 0 8px 0; font-size: 28px; font-weight: 600;">Order Confirmed</h1>
-      <p style="color: #64748b; margin: 0 0 12px 0; font-size: 15px;">Future of Gadgets</p>
-      <p style="color: #94a3b8; margin: 0 0 40px 0; font-size: 13px;">${orderTime}</p>
+      <p style="color: #64748b; margin: 0 0 32px 0; font-size: 15px;">Future of Gadgets</p>
       
       <p style="color: #475569; margin: 0 0 32px 0; font-size: 15px; line-height: 1.6;">Hi ${orderData.customerName}, thank you for your order! We'll send you a shipping confirmation email as soon as your order ships.</p>
       
